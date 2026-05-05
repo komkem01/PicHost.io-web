@@ -4,14 +4,12 @@
     <!-- Navbar -->
     <header class="border-b border-white/[0.06] bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
-        <div class="flex items-center gap-1.5">
-          <div class="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
-            </svg>
-          </div>
-          <span class="text-white font-bold text-[17px] tracking-tight">PicHost<span class="text-white/40 font-normal">.io</span></span>
-        </div>
+        <NuxtLink to="/" class="flex items-center gap-1.5">
+          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
+          </svg>
+          <span class="text-blue-500 text-[17px] font-bold tracking-tight">PicHost</span><span class="text-white text-[17px] font-light tracking-tight">.io</span>
+        </NuxtLink>
 
         <nav class="hidden md:flex items-center gap-0.5">
           <a href="#features" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">Features</a>
@@ -234,13 +232,11 @@
     <!-- Footer -->
     <footer class="border-t border-white/[0.06] py-10">
       <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] text-white/25">
-        <div class="flex items-center gap-2">
-          <div class="w-5 h-5 bg-blue-600 rounded-md flex items-center justify-center">
-            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
-            </svg>
-          </div>
-          <span class="text-white/40 font-medium">PicHost.io</span>
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-blue-500/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
+          </svg>
+          <span class="text-blue-500/60 font-bold">PicHost</span><span class="text-white/25 font-light">.io</span>
           <span class="mx-2">·</span>
           <span>© 2026 All rights reserved.</span>
         </div>
