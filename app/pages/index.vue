@@ -13,12 +13,40 @@
           <a href="#docs" class="hover:text-white transition-colors">Docs</a>
         </nav>
         <div class="flex items-center gap-3">
-          <button class="text-sm text-white/70 hover:text-white px-4 py-2 transition-colors">
-            Sign In
-          </button>
-          <button class="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md transition-colors font-medium">
-            Get Started
-          </button>
+          <template v-if="user">
+            <NuxtLink
+              to="/dashboard"
+              class="text-sm text-white/70 hover:text-white px-4 py-2 transition-colors"
+            >
+              Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/upload"
+              class="text-sm text-white/70 hover:text-white px-4 py-2 transition-colors"
+            >
+              Upload
+            </NuxtLink>
+            <NuxtLink
+              to="/settings/account"
+              class="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md transition-colors font-medium"
+            >
+              Settings
+            </NuxtLink>
+          </template>
+          <template v-else>
+            <NuxtLink
+              to="/auth/login"
+              class="text-sm text-white/70 hover:text-white px-4 py-2 transition-colors"
+            >
+              Sign In
+            </NuxtLink>
+            <NuxtLink
+              to="/auth/register"
+              class="text-sm bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md transition-colors font-medium"
+            >
+              Get Started
+            </NuxtLink>
+          </template>
         </div>
       </div>
     </header>
@@ -38,12 +66,18 @@
         Upload once, serve globally.
       </p>
       <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-md font-medium transition-colors text-sm">
+        <NuxtLink
+          to="/auth/register"
+          class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-md font-medium transition-colors text-sm text-center"
+        >
           Start for Free
-        </button>
-        <button class="border border-white/20 hover:border-white/40 text-white/70 hover:text-white px-8 py-3 rounded-md font-medium transition-colors text-sm">
+        </NuxtLink>
+        <a
+          href="#features"
+          class="border border-white/20 hover:border-white/40 text-white/70 hover:text-white px-8 py-3 rounded-md font-medium transition-colors text-sm text-center"
+        >
           View Documentation
-        </button>
+        </a>
       </div>
     </section>
 
@@ -79,6 +113,9 @@
 </template>
 
 <script setup lang="ts">
+const { user, fetchMe } = useAuth()
+onMounted(() => { fetchMe() })
+
 const features = [
   {
     icon: '⚡',
