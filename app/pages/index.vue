@@ -210,6 +210,30 @@
       </div>
     </section>
 
+    <!-- FAQ — helps Google AI Overviews / Gemini surface answers -->
+    <section id="faq" class="max-w-6xl mx-auto px-6 py-24">
+      <div class="text-center mb-14">
+        <p class="text-blue-500 text-[12px] font-semibold uppercase tracking-widest mb-3">FAQ</p>
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Frequently asked questions</h2>
+        <p class="text-white/40 max-w-lg mx-auto text-[15px]">Everything you need to know about PicHost.io.</p>
+      </div>
+      <div class="max-w-2xl mx-auto space-y-3">
+        <details
+          v-for="faq in faqs"
+          :key="faq.q"
+          class="group rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden"
+        >
+          <summary class="flex items-center justify-between px-6 py-4 text-[14px] font-medium text-white cursor-pointer select-none list-none hover:bg-white/[0.02] transition-colors">
+            {{ faq.q }}
+            <svg class="w-4 h-4 text-white/30 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <p class="px-6 pb-5 text-[13.5px] text-white/45 leading-relaxed border-t border-white/[0.05] pt-4">{{ faq.a }}</p>
+        </details>
+      </div>
+    </section>
+
     <!-- CTA Banner -->
     <section class="max-w-6xl mx-auto px-6 pb-24">
       <div class="rounded-2xl border border-blue-500/20 bg-blue-600/[0.06] px-8 py-12 text-center">
@@ -251,9 +275,94 @@
 </template>
 
 <script setup lang="ts">
+const SITE_URL = 'https://pichost.io'
+const OG_IMAGE = `${SITE_URL}/og-image.png`
+
 useSeoMeta({
-  title: 'PicHost.io',
-  description: 'Upload images instantly and share permanent links. Free image hosting for developers and teams. No watermark, no login required.',
+  title: 'PicHost.io — Free Image Hosting, No Login Required',
+  ogTitle: 'PicHost.io — Free Image Hosting, No Login Required',
+  description: 'Upload any image and get a permanent shareable link in seconds. No account needed, no watermark, S3-backed storage. Free image hosting for developers and teams.',
+  ogDescription: 'Upload any image and get a permanent shareable link in seconds. No account needed, no watermark, S3-backed storage. Free image hosting for developers and teams.',
+  ogImage: OG_IMAGE,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogUrl: SITE_URL,
+  ogType: 'website',
+  ogSiteName: 'PicHost.io',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'PicHost.io — Free Image Hosting, No Login Required',
+  twitterDescription: 'Upload any image and get a permanent link instantly. No account, no watermark. Free forever.',
+  twitterImage: OG_IMAGE,
+  robots: 'index, follow',
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: SITE_URL }],
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'WebSite',
+            '@id': `${SITE_URL}/#website`,
+            url: SITE_URL,
+            name: 'PicHost.io',
+            description: 'Free image hosting — upload images and share permanent links instantly.',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: `${SITE_URL}/upload`,
+              'query-input': 'required name=search_term_string',
+            },
+          },
+          {
+            '@type': 'WebApplication',
+            '@id': `${SITE_URL}/#webapp`,
+            name: 'PicHost.io',
+            url: SITE_URL,
+            description: 'Free, fast image hosting. Upload JPEG, PNG, WebP, GIF, AVIF images and share permanent CDN-backed URLs. No login required for guest uploads.',
+            applicationCategory: 'UtilitiesApplication',
+            operatingSystem: 'Web',
+            offers: [
+              { '@type': 'Offer', name: 'Guest', price: '0', priceCurrency: 'USD', description: 'Upload up to 10 images with 50 MB total, no account required. Images expire after 24 hours.' },
+              { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD', description: '500 MB storage, 200 images, permanent links.' },
+              { '@type': 'Offer', name: 'Basic', price: '5', priceCurrency: 'USD', description: '10 GB storage, unlimited images, private images, API access.' },
+              { '@type': 'Offer', name: 'Pro', price: '19', priceCurrency: 'USD', description: '100 GB storage, all formats including HEIC, priority support.' },
+            ],
+            featureList: [
+              'No account required for guest uploads',
+              'Permanent shareable links',
+              'S3-backed reliable storage',
+              'Private image support',
+              'REST API access',
+              'No watermark',
+            ],
+          },
+          {
+            '@type': 'Organization',
+            '@id': `${SITE_URL}/#organization`,
+            name: 'PicHost.io',
+            url: SITE_URL,
+            logo: `${SITE_URL}/favicon.svg`,
+          },
+          {
+            '@type': 'FAQPage',
+            mainEntity: [
+              { '@type': 'Question', name: 'What is PicHost.io?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io is a free image hosting service that lets you upload images and get permanent, shareable CDN-backed URLs instantly. No account is required for guest uploads.' } },
+              { '@type': 'Question', name: 'Is PicHost.io free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB) without creating an account. Free accounts get 500 MB and 200 images. Paid plans start at $5/month.' } },
+              { '@type': 'Question', name: 'Do I need an account to upload images?', acceptedAnswer: { '@type': 'Answer', text: 'No. You can upload images as a guest without creating any account. Guest images are stored for 24 hours. Create a free account to make your images permanent.' } },
+              { '@type': 'Question', name: 'How long do guest images last?', acceptedAnswer: { '@type': 'Answer', text: 'Guest images (uploaded without an account) expire after 24 hours. Images uploaded by registered users are permanent and never expire unless you delete them.' } },
+              { '@type': 'Question', name: 'What image formats does PicHost.io support?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io supports JPEG and PNG for guest uploads. Free accounts support JPEG, PNG, and WebP. Basic plan adds GIF and AVIF. Pro plan supports all formats including HEIC.' } },
+              { '@type': 'Question', name: 'Does PicHost.io add a watermark to images?', acceptedAnswer: { '@type': 'Answer', text: 'No. PicHost.io never adds a watermark to your images on any plan.' } },
+              { '@type': 'Question', name: 'Does PicHost.io have an API?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io provides a REST API. You can upload images, retrieve links, and manage your files programmatically using Bearer token authentication.' } },
+              { '@type': 'Question', name: 'Can I make images private?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed.' } },
+            ],
+          },
+        ],
+      }),
+    },
+  ],
 })
 
 const { user, fetchMe } = useAuth()
@@ -361,6 +470,17 @@ const endpoints = [
   { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/images',               desc: 'List images' },
   { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/auth/me',               desc: 'Current user' },
   { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/public/auth/refresh',  desc: 'Refresh token' },
+]
+
+const faqs = [
+  { q: 'What is PicHost.io?', a: 'PicHost.io is a free image hosting service that lets you upload any image and get a permanent, shareable CDN-backed URL instantly. No account is required for guest uploads.' },
+  { q: 'Is PicHost.io free to use?', a: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB total) without creating an account. Free registered accounts get 500 MB and 200 images. Paid plans start at $5/month for more storage and features.' },
+  { q: 'Do I need an account to upload images?', a: 'No account is required. You can upload images as a guest instantly. Guest images are stored for 24 hours. Create a free account to make your images permanent and keep them forever.' },
+  { q: 'How long do guest images last?', a: 'Guest images (uploaded without an account) expire after 24 hours. Images uploaded by registered users are permanent and never expire unless you delete them manually.' },
+  { q: 'What image formats does PicHost.io support?', a: 'Guest uploads support JPEG and PNG. Free accounts add WebP. The Basic plan ($5/mo) adds GIF and AVIF. The Pro plan ($19/mo) supports all formats including HEIC.' },
+  { q: 'Does PicHost.io add a watermark?', a: 'Never. PicHost.io does not add any watermark to your images on any plan.' },
+  { q: 'Does PicHost.io have a REST API?', a: 'Yes. PicHost.io provides a full REST API. Upload images, retrieve links, and manage your files programmatically using Bearer token authentication. Works with any language or framework.' },
+  { q: 'Can I make images private?', a: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed or indexed.' },
 ]
 </script>
 
