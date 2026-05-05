@@ -35,6 +35,12 @@
           </template>
           <template v-else>
             <NuxtLink
+              to="/upload"
+              class="text-sm text-white font-medium border border-white/25 hover:border-white/50 hover:bg-white/[0.06] px-4 py-2 rounded-md transition-colors"
+            >
+              Try Upload
+            </NuxtLink>
+            <NuxtLink
               to="/auth/login"
               class="text-sm text-white/70 hover:text-white px-4 py-2 transition-colors"
             >

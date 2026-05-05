@@ -8,30 +8,46 @@
           <span class="text-white text-xl font-light">.io</span>
         </NuxtLink>
         <nav class="flex items-center gap-1">
-          <NuxtLink
-            to="/dashboard"
-            class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
-          >
-            Dashboard
-          </NuxtLink>
-          <NuxtLink
-            to="/upload"
-            class="text-[13px] text-white px-3 py-1.5 rounded-lg bg-white/[0.06] font-medium"
-          >
-            Upload
-          </NuxtLink>
-          <NuxtLink
-            to="/settings/account"
-            class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
-          >
-            Settings
-          </NuxtLink>
-          <button
-            @click="openLogoutModal()"
-            class="text-[13px] text-red-400 hover:text-white border border-red-500/30 hover:border-red-500/60 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-colors font-medium"
-          >
-            Sign out
-          </button>
+          <template v-if="user">
+            <NuxtLink
+              to="/dashboard"
+              class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
+            >
+              Dashboard
+            </NuxtLink>
+            <NuxtLink
+              to="/upload"
+              class="text-[13px] text-white px-3 py-1.5 rounded-lg bg-white/[0.06] font-medium"
+            >
+              Upload
+            </NuxtLink>
+            <NuxtLink
+              to="/settings/account"
+              class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
+            >
+              Settings
+            </NuxtLink>
+            <button
+              @click="openLogoutModal()"
+              class="text-[13px] text-red-400 hover:text-white border border-red-500/30 hover:border-red-500/60 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-colors font-medium"
+            >
+              Sign out
+            </button>
+          </template>
+          <template v-else>
+            <NuxtLink
+              to="/auth/login"
+              class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
+            >
+              Sign in
+            </NuxtLink>
+            <NuxtLink
+              to="/auth/register"
+              class="text-[13px] text-white font-medium bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Sign up free
+            </NuxtLink>
+          </template>
         </nav>
       </div>
     </header>
@@ -43,6 +59,24 @@
         <div class="mb-8">
           <h1 class="text-[22px] font-bold text-white">Upload Image</h1>
           <p class="text-white/35 text-sm mt-1">Drag & drop or browse to upload. Get a shareable link instantly.</p>
+        </div>
+
+        <!-- Guest notice -->
+        <div
+          v-if="!user"
+          class="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] px-4 py-3.5"
+        >
+          <svg class="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+          <div class="flex-1 min-w-0">
+            <p class="text-[13px] font-medium text-amber-300">Guest upload — images expire in 24 hours</p>
+            <p class="text-[11.5px] text-amber-400/70 mt-0.5">
+              Max 5 MB &middot; JPEG &amp; PNG only &middot;
+              <NuxtLink to="/auth/register" class="underline underline-offset-2 hover:text-amber-300 transition-colors">Sign up free</NuxtLink>
+              for permanent storage
+            </p>
+          </div>
         </div>
 
         <!-- Success card -->
@@ -116,6 +150,7 @@
                   Upload another
                 </button>
                 <NuxtLink
+                  v-if="user"
                   to="/dashboard"
                   class="flex items-center justify-center px-3.5 py-2 rounded-xl border border-white/[0.09] bg-white/[0.03] hover:bg-white/[0.07] text-white/40 hover:text-white/70 transition-all"
                   title="Go to Dashboard"
@@ -123,6 +158,26 @@
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
+                </NuxtLink>
+              </div>
+
+              <!-- Guest sign-up CTA -->
+              <div
+                v-if="!user"
+                class="mt-4 flex items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-4 py-3"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="text-[12.5px] font-medium text-white/70">
+                    This image expires
+                    <span class="text-amber-400">{{ result.expires_at ? formatExpiry(result.expires_at) : 'in 24 hours' }}</span>
+                  </p>
+                  <p class="text-[11px] text-white/35 mt-0.5">Sign up free to keep your images forever</p>
+                </div>
+                <NuxtLink
+                  to="/auth/register"
+                  class="shrink-0 text-[12px] font-semibold text-white bg-blue-600 hover:bg-blue-500 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  Sign up
                 </NuxtLink>
               </div>
             </div>
@@ -212,8 +267,8 @@
             </p>
           </Transition>
 
-          <!-- Private toggle -->
-          <div class="flex items-center justify-between p-4 rounded-xl border border-white/[0.07] bg-white/[0.02]">
+          <!-- Private toggle (logged-in only) -->
+          <div v-if="user" class="flex items-center justify-between p-4 rounded-xl border border-white/[0.07] bg-white/[0.02]">
             <div>
               <p class="text-[13px] font-medium" :class="canPrivate ? 'text-white/75' : 'text-white/35'">Private image</p>
               <p class="text-[11.5px] mt-0.5" :class="canPrivate ? 'text-white/30' : 'text-white/20'">
@@ -281,6 +336,7 @@ interface UploadResult {
   id: string
   storage_id: string
   is_private: boolean
+  expires_at: string | null
   created_at: string
   short_code: string
   provider: string
@@ -323,8 +379,7 @@ const resultPreview = ref<string | null>(null)
 const copied = ref(false)
 
 onMounted(async () => {
-  const me = await fetchMe()
-  if (!me) router.push('/auth/login')
+  await fetchMe() // silent — guests stay on the page
 })
 
 onUnmounted(() => {
@@ -383,16 +438,23 @@ async function handleSubmit() {
   }, 200)
 
   try {
-    const token = getToken()
     const fd = new FormData()
     fd.append('file', selectedFile.value)
-    fd.append('is_private', isPrivate.value ? 'true' : 'false')
 
-    const res = await $fetch<ApiResponse<UploadResult>>(`${config.public.apiBase}/storage/upload-file`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: fd,
-    })
+    let res: ApiResponse<UploadResult>
+    if (user.value) {
+      fd.append('is_private', isPrivate.value ? 'true' : 'false')
+      res = await $fetch<ApiResponse<UploadResult>>(`${config.public.apiBase}/storage/upload-file`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: fd,
+      })
+    } else {
+      res = await $fetch<ApiResponse<UploadResult>>(`${config.public.apiBase}/storage/upload-file-guest`, {
+        method: 'POST',
+        body: fd,
+      })
+    }
 
     uploadProgress.value = 100
     resultPreview.value = previewUrl.value
@@ -443,5 +505,14 @@ function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function formatExpiry(iso: string): string {
+  const diff = new Date(iso).getTime() - Date.now()
+  if (diff <= 0) return 'soon'
+  const h = Math.floor(diff / 3_600_000)
+  const m = Math.floor((diff % 3_600_000) / 60_000)
+  if (h > 0) return `in ${h}h ${m}m`
+  return `in ${m}m`
 }
 </script>
