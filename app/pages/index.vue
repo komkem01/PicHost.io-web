@@ -256,7 +256,7 @@
 
 <script setup lang="ts">
 useSeoMeta({
-  title: 'PicHost.io — Fast, Permanent Image Hosting',
+  title: 'PicHost.io',
   description: 'Upload images instantly and share permanent links. Free image hosting for developers and teams. No watermark, no login required.',
 })
 

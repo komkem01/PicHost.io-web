@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'PicHost.io — Fast, Secure Image Hosting',
+      title: 'PicHost.io',
       meta: [
         { name: 'description', content: 'Upload images instantly and share permanent links. Free image hosting for developers and teams.' },
         { name: 'theme-color', content: '#09090b' },
