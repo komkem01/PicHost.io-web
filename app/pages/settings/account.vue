@@ -343,7 +343,7 @@
 <script setup lang="ts">
 const config = useRuntimeConfig()
 const router = useRouter()
-const { user, fetchMe, getToken } = useAuth()
+const { user, fetchMe, refreshMe, getToken } = useAuth()
 const { success, error: toastError } = useToast()
 const { open: openLogoutModal } = useLogoutModal()
 
@@ -402,7 +402,7 @@ async function saveProfile() {
       headers: { Authorization: `Bearer ${token}` },
       body: { username: profileForm.username || undefined, email: profileForm.email || undefined },
     })
-    await fetchMe()
+    await refreshMe()
     profileSaved.value = true
     success('Profile updated')
     setTimeout(() => { profileSaved.value = false }, 3000)

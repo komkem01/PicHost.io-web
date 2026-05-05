@@ -93,6 +93,12 @@ export function useAuth() {
   }
 
   async function fetchMe(): Promise<AuthUser | null> {
+    // If already initialized with a valid user, return cached value without hitting the API.
+    // This prevents spurious logouts when navigating between pages.
+    if (initialized.value && user.value !== null) {
+      return user.value
+    }
+
     const token = getToken()
     if (!token) {
       user.value = null
@@ -132,6 +138,12 @@ export function useAuth() {
     }
   }
 
+  /** Force re-fetch from API, bypassing the cache. Use after profile updates. */
+  async function refreshMe(): Promise<AuthUser | null> {
+    initialized.value = false
+    return fetchMe()
+  }
+
   /** Expose a manual refresh for external callers (e.g. visibility-change). */
   async function refreshToken(): Promise<boolean> {
     return _doRefresh()
@@ -157,6 +169,7 @@ export function useAuth() {
     getToken,
     setToken,
     fetchMe,
+    refreshMe,
     logout,
     refreshToken,
   }
