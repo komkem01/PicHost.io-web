@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'PicHost.io — Free Image Hosting, No Login Required',
+      title: 'PicHost.io',
       titleTemplate: '%s — PicHost.io',
       htmlAttrs: { lang: 'en' },
       meta: [
