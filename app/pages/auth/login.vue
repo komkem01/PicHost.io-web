@@ -168,6 +168,7 @@ interface LoginResponse {
       plan: string
       is_active: boolean
       is_guest: boolean
+      is_admin: boolean
     }
   }
 }
@@ -211,7 +212,7 @@ async function handleSubmit() {
 
     setToken(res.data.access_token)
     await fetchMe()
-    router.push('/dashboard')
+    router.push(res.data.user.is_admin ? '/admin' : '/dashboard')
   } catch (err: unknown) {
     const body = (err as { data?: ErrorBody })?.data
     if (body?.data?.errors) {

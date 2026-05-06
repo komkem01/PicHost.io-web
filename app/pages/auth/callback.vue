@@ -42,6 +42,6 @@ onMounted(async () => {
     return
   }
 
-  router.replace('/dashboard')
+  router.replace(me.is_admin ? '/admin' : '/dashboard')
 })
 </script>

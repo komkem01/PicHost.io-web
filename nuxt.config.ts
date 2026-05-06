@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'PicHost.io',
-      titleTemplate: '%s — PicHost.io',
+      // titleTemplate: '%s — PicHost.io',
       htmlAttrs: { lang: 'en' },
       meta: [
         { name: 'description', content: 'Upload any image and get a permanent shareable link in seconds. No account needed, no watermark, S3-backed storage. Free image hosting for developers and teams.' },

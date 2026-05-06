@@ -5,6 +5,7 @@ export interface AuthUser {
   plan: string
   is_active: boolean
   is_guest: boolean
+  is_admin: boolean
 }
 
 interface MeResponse {
@@ -67,9 +68,14 @@ async function _doRefresh(): Promise<boolean> {
     user.value = res.data.user
     _scheduleRefresh(token)
     return true
-  } catch {
-    localStorage.removeItem('access_token')
-    user.value = null
+  } catch (err: any) {
+    // Only clear auth state on a definitive 401 (refresh token expired/invalid).
+    // Network errors, 5xx, CORS failures, etc. must NOT log the user out.
+    const status = err?.status ?? err?.response?.status
+    if (status === 401) {
+      localStorage.removeItem('access_token')
+      user.value = null
+    }
     return false
   }
 }
@@ -131,10 +137,15 @@ export function useAuth() {
             } catch {}
           }
         }
+        // Definitive 401 — user is not authenticated
+        user.value = null
+        initialized.value = true
+        return null
       }
-      user.value = null
+      // Non-401 error (network error, 5xx): preserve existing user state.
+      // A transient backend failure should never log the user out.
       initialized.value = true
-      return null
+      return user.value
     }
   }
 
@@ -147,6 +158,20 @@ export function useAuth() {
   /** Expose a manual refresh for external callers (e.g. visibility-change). */
   async function refreshToken(): Promise<boolean> {
     return _doRefresh()
+  }
+
+  /**
+   * Returns true if the stored access token is missing, already expired,
+   * or within `bufferSeconds` of expiry (default 60 s).
+   * Use this to gate visibility-change refreshes so we don't hit the backend
+   * unnecessarily when the token is still healthy.
+   */
+  function isTokenExpired(bufferSeconds = 60): boolean {
+    const token = getToken()
+    if (!token) return true
+    const exp = _getJwtExp(token)
+    if (!exp) return true
+    return exp * 1000 - Date.now() < bufferSeconds * 1000
   }
 
   async function logout() {
@@ -172,5 +197,6 @@ export function useAuth() {
     refreshMe,
     logout,
     refreshToken,
+    isTokenExpired,
   }
 }

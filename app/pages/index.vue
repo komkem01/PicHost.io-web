@@ -127,7 +127,7 @@
       <div class="grid md:grid-cols-4 gap-4">
         <div
           v-for="plan in plans"
-          :key="plan.name"
+          :key="plan.key"
           :class="[
             'rounded-2xl border p-6 flex flex-col transition-all',
             plan.highlighted
@@ -162,6 +162,9 @@
           >
             {{ plan.cta.label }}
           </NuxtLink>
+        </div>
+        <div v-if="plans.length === 0" class="md:col-span-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-10 text-center text-[13px] text-white/40">
+          No plans available right now.
         </div>
       </div>
     </section>
@@ -366,7 +369,50 @@ useHead({
 })
 
 const { user, fetchMe } = useAuth()
-onMounted(() => { fetchMe() })
+const config = useRuntimeConfig()
+
+interface PublicPlanSetting {
+  plan_key: string
+  display_name: string
+  monthly_price_thb: number
+  storage_limit_bytes: number
+  image_limit: number
+  max_upload_mb: number
+  is_enabled: boolean
+  allow_private: boolean
+  custom_domain: boolean
+  api_access: boolean
+  priority_support: boolean
+  no_ads: boolean
+  watermark_removal: boolean
+}
+
+interface LandingPlan {
+  key: string
+  name: string
+  price: string
+  period: string
+  highlighted: boolean
+  features: string[]
+  cta: {
+    label: string
+    href: string
+  }
+}
+
+const publicPlans = ref<PublicPlanSetting[]>([])
+
+onMounted(async () => {
+  void fetchMe()
+  try {
+    const res = await $fetch<{ code: string; message: string; data: PublicPlanSetting[] }>(
+      `${config.public.apiBase}/public/plans`,
+    )
+    publicPlans.value = (res.data ?? []).filter((plan) => plan.is_enabled)
+  } catch {
+    publicPlans.value = []
+  }
+})
 
 const features = [
   {
@@ -401,68 +447,49 @@ const features = [
   },
 ]
 
-const plans = [
-  {
-    name: 'Guest',
-    price: 'Free',
-    period: '',
-    highlighted: false,
-    features: [
-      '50 MB storage',
-      'Max 5 MB per file',
-      'Up to 10 images',
-      'JPEG & PNG only',
-      'Links expire in 24h',
-      'No login required',
-    ],
-    cta: { label: 'Try now', href: '/upload' },
-  },
-  {
-    name: 'Free',
-    price: '$0',
-    period: '/ mo',
-    highlighted: false,
-    features: [
-      '500 MB storage',
-      'Max 10 MB per file',
-      'Up to 200 images',
-      'JPEG, PNG, WebP',
-      'Permanent links',
-      'Dashboard access',
-    ],
-    cta: { label: 'Sign up free', href: '/auth/register' },
-  },
-  {
-    name: 'Basic',
-    price: '$5',
-    period: '/ mo',
-    highlighted: true,
-    features: [
-      '10 GB storage',
-      'Max 20 MB per file',
-      'Unlimited images',
-      'JPEG, PNG, WebP, GIF, AVIF',
-      'Private images',
-      'API access',
-    ],
-    cta: { label: 'Get Basic', href: '/auth/register' },
-  },
-  {
-    name: 'Pro',
-    price: '$19',
-    period: '/ mo',
-    highlighted: false,
-    features: [
-      '100 GB storage',
-      'Max 50 MB per file',
-      'Unlimited images',
-      'All formats incl. HEIC',
-      'Private images',
-      'Priority support',
-    ],
-    cta: { label: 'Get Pro', href: '/auth/register' },
-  },
-]
+function formatStorage(bytes: number) {
+  if (bytes <= 0) return 'Unlimited storage'
+  const gb = bytes / 1024 / 1024 / 1024
+  if (gb >= 1) return `${Number.isInteger(gb) ? gb : gb.toFixed(1)} GB storage`
+  const mb = bytes / 1024 / 1024
+  return `${Number.isInteger(mb) ? mb : mb.toFixed(1)} MB storage`
+}
+
+function toPlanCard(plan: PublicPlanSetting): LandingPlan {
+  const isFree = plan.monthly_price_thb <= 0
+  const features = [
+    formatStorage(plan.storage_limit_bytes),
+    `Max ${plan.max_upload_mb} MB per file`,
+    plan.image_limit > 0 ? `Up to ${plan.image_limit.toLocaleString()} images` : 'Unlimited images',
+    plan.allow_private ? 'Private images' : 'Public images only',
+  ]
+
+  if (plan.api_access) features.push('API access')
+  if (plan.priority_support) features.push('Priority support')
+  if (plan.custom_domain) features.push('Custom domain')
+  if (plan.no_ads) features.push('No ads')
+  if (plan.watermark_removal) features.push('Watermark removal')
+
+  return {
+    key: plan.plan_key,
+    name: plan.display_name,
+    price: isFree ? 'Free' : `฿${plan.monthly_price_thb.toLocaleString()}`,
+    period: isFree ? '' : '/ mo',
+    highlighted: plan.plan_key === 'basic',
+    features,
+    cta: {
+      label: isFree ? 'Sign up free' : `Get ${plan.display_name}`,
+      href: '/auth/register',
+    },
+  }
+}
+
+const plans = computed<LandingPlan[]>(() => {
+  return publicPlans.value
+    .filter((plan) => plan.is_enabled)
+    .sort((a, b) => a.monthly_price_thb - b.monthly_price_thb)
+    .map(toPlanCard)
+})
 
 const endpoints = [
   { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file-guest', desc: 'Guest upload' },

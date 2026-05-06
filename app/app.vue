@@ -11,7 +11,7 @@
 <script setup lang="ts">
 const pageLoading = ref(false)
 const router = useRouter()
-const { getToken, refreshToken } = useAuth()
+const { getToken, refreshToken, isTokenExpired } = useAuth()
 
 let delayTimer: ReturnType<typeof setTimeout>
 
@@ -28,10 +28,11 @@ router.afterEach(() => {
   })
 })
 
-// Refresh token when the user returns to the tab (e.g. after a long absence)
+// Refresh token when the user returns to the tab — but only if the token
+// is expired or near-expiry. If it's still healthy, the scheduled timer handles it.
 onMounted(() => {
   const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible' && getToken()) {
+    if (document.visibilityState === 'visible' && getToken() && isTokenExpired()) {
       refreshToken()
     }
   }
