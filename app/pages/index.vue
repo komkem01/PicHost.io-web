@@ -37,7 +37,7 @@
     <section class="max-w-6xl mx-auto px-6 pt-28 pb-24 text-center">
       <div class="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[11.5px] px-3 py-1.5 rounded-full mb-10 font-medium">
         <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
-        No account required — upload instantly
+        {{ heroBadgeText }}
       </div>
 
       <h1 class="text-5xl md:text-[68px] font-bold tracking-tight leading-[1.1] mb-6">
@@ -196,7 +196,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-green-500/60"></span>
             <span class="text-white/25 text-[12px] ml-2 font-mono">upload.sh</span>
           </div>
-          <pre class="p-5 text-[12.5px] font-mono leading-relaxed overflow-x-auto"><code><span class="text-white/30"># Upload an image (no auth needed)</span>
+          <pre v-if="!user" class="p-5 text-[12.5px] font-mono leading-relaxed overflow-x-auto"><code><span class="text-white/30"># Upload an image (no auth needed)</span>
 <span class="text-blue-400">curl</span> <span class="text-green-400">-X POST</span> \
   <span class="text-white/60">https://api.pichost.io/api/v1/storage/upload-file-guest</span> \
   <span class="text-yellow-400">-F</span> <span class="text-white/80">"file=@photo.jpg"</span>
@@ -207,6 +207,19 @@
     <span class="text-blue-300">"public_url"</span>: <span class="text-green-300">"https://cdn.pichost.io/..."</span>,
     <span class="text-blue-300">"short_code"</span>: <span class="text-green-300">"aB3xKq7"</span>,
     <span class="text-blue-300">"expires_at"</span>: <span class="text-green-300">"2026-05-06T10:00:00Z"</span>
+  }
+}</span></code></pre>
+          <pre v-else class="p-5 text-[12.5px] font-mono leading-relaxed overflow-x-auto"><code><span class="text-white/30"># Upload an image (authenticated)</span>
+<span class="text-blue-400">curl</span> <span class="text-green-400">-X POST</span> \
+  <span class="text-white/60">https://api.pichost.io/api/v1/storage/upload-file</span> \
+  <span class="text-yellow-400">-H</span> <span class="text-white/80">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span> \
+  <span class="text-yellow-400">-F</span> <span class="text-white/80">"file=@photo.jpg"</span>
+
+<span class="text-white/30"># Response</span>
+<span class="text-white/50">{
+  <span class="text-blue-300">"data"</span>: {
+    <span class="text-blue-300">"public_url"</span>: <span class="text-green-300">"https://cdn.pichost.io/..."</span>,
+    <span class="text-blue-300">"short_code"</span>: <span class="text-green-300">"aB3xKq7"</span>
   }
 }</span></code></pre>
         </div>
@@ -280,6 +293,89 @@
 <script setup lang="ts">
 const SITE_URL = 'https://pichost.io'
 const OG_IMAGE = `${SITE_URL}/og-image.png`
+const { user, fetchMe } = useAuth()
+const config = useRuntimeConfig()
+
+const ldJson = computed(() => {
+  const isLoggedIn = !!user.value
+
+  const webAppDescription = isLoggedIn
+    ? 'Fast image hosting for signed-in users. Upload JPEG, PNG, WebP, GIF, AVIF images and share permanent CDN-backed URLs.'
+    : 'Free, fast image hosting. Upload JPEG, PNG, WebP, GIF, AVIF images and share permanent CDN-backed URLs. No login required for guest uploads.'
+
+  const offers = [
+    { '@type': 'Offer', name: 'Guest', price: '0', priceCurrency: 'USD', description: 'Upload up to 10 images with 50 MB total, no account required. Images expire after 24 hours.' },
+    { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD', description: '500 MB storage, 200 images, permanent links.' },
+    { '@type': 'Offer', name: 'Basic', price: '5', priceCurrency: 'USD', description: '10 GB storage, unlimited images, private images, API access.' },
+    { '@type': 'Offer', name: 'Pro', price: '19', priceCurrency: 'USD', description: '100 GB storage, all formats including HEIC, priority support.' },
+  ]
+
+  const featureList = [
+    'No account required for guest uploads',
+    'Permanent shareable links',
+    'S3-backed reliable storage',
+    'Private image support',
+    'REST API access',
+    'No watermark',
+  ]
+
+  const faqEntities = [
+    { '@type': 'Question', name: 'What is PicHost.io?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io is a free image hosting service that lets you upload images and get permanent, shareable CDN-backed URLs instantly. No account is required for guest uploads.' } },
+    { '@type': 'Question', name: 'Is PicHost.io free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB) without creating an account. Free accounts get 500 MB and 200 images. Paid plans start at $5/month.' } },
+    { '@type': 'Question', name: 'Do I need an account to upload images?', acceptedAnswer: { '@type': 'Answer', text: 'No. You can upload images as a guest without creating any account. Guest images are stored for 24 hours. Create a free account to make your images permanent.' } },
+    { '@type': 'Question', name: 'How long do guest images last?', acceptedAnswer: { '@type': 'Answer', text: 'Guest images (uploaded without an account) expire after 24 hours. Images uploaded by registered users are permanent and never expire unless you delete them.' } },
+    { '@type': 'Question', name: 'What image formats does PicHost.io support?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io supports JPEG and PNG for guest uploads. Free accounts support JPEG, PNG, and WebP. Basic plan adds GIF and AVIF. Pro plan supports all formats including HEIC.' } },
+    { '@type': 'Question', name: 'Does PicHost.io add a watermark to images?', acceptedAnswer: { '@type': 'Answer', text: 'No. PicHost.io never adds a watermark to your images on any plan.' } },
+    { '@type': 'Question', name: 'Does PicHost.io have an API?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io provides a REST API. You can upload images, retrieve links, and manage your files programmatically using Bearer token authentication.' } },
+    { '@type': 'Question', name: 'Can I make images private?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed.' } },
+  ]
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: 'PicHost.io',
+        description: 'Free image hosting — upload images and share permanent links instantly.',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${SITE_URL}/upload`,
+          'query-input': 'required name=search_term_string',
+        },
+      },
+      {
+        '@type': 'WebApplication',
+        '@id': `${SITE_URL}/#webapp`,
+        name: 'PicHost.io',
+        url: SITE_URL,
+        description: webAppDescription,
+        applicationCategory: 'UtilitiesApplication',
+        operatingSystem: 'Web',
+        offers: isLoggedIn ? offers.filter((offer) => offer.name !== 'Guest') : offers,
+        featureList: isLoggedIn ? featureList.filter((feature) => !feature.toLowerCase().includes('guest')) : featureList,
+      },
+      {
+        '@type': 'Organization',
+        '@id': `${SITE_URL}/#organization`,
+        name: 'PicHost.io',
+        url: SITE_URL,
+        logo: `${SITE_URL}/favicon.svg`,
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: isLoggedIn
+          ? faqEntities.filter((entity) => {
+              const questionText = String((entity as any).name ?? '').toLowerCase()
+              const answerText = String(((entity as any).acceptedAnswer?.text ?? '')).toLowerCase()
+              return !questionText.includes('guest') && !answerText.includes('guest')
+            })
+          : faqEntities,
+      },
+    ],
+  }
+})
 
 useSeoMeta({
   title: 'PicHost.io — Free Image Hosting, No Login Required',
@@ -299,77 +395,19 @@ useSeoMeta({
   robots: 'index, follow',
 })
 
-useHead({
+useHead(() => ({
   link: [{ rel: 'canonical', href: SITE_URL }],
   script: [
     {
       type: 'application/ld+json',
-      innerHTML: JSON.stringify({
-        '@context': 'https://schema.org',
-        '@graph': [
-          {
-            '@type': 'WebSite',
-            '@id': `${SITE_URL}/#website`,
-            url: SITE_URL,
-            name: 'PicHost.io',
-            description: 'Free image hosting — upload images and share permanent links instantly.',
-            potentialAction: {
-              '@type': 'SearchAction',
-              target: `${SITE_URL}/upload`,
-              'query-input': 'required name=search_term_string',
-            },
-          },
-          {
-            '@type': 'WebApplication',
-            '@id': `${SITE_URL}/#webapp`,
-            name: 'PicHost.io',
-            url: SITE_URL,
-            description: 'Free, fast image hosting. Upload JPEG, PNG, WebP, GIF, AVIF images and share permanent CDN-backed URLs. No login required for guest uploads.',
-            applicationCategory: 'UtilitiesApplication',
-            operatingSystem: 'Web',
-            offers: [
-              { '@type': 'Offer', name: 'Guest', price: '0', priceCurrency: 'USD', description: 'Upload up to 10 images with 50 MB total, no account required. Images expire after 24 hours.' },
-              { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD', description: '500 MB storage, 200 images, permanent links.' },
-              { '@type': 'Offer', name: 'Basic', price: '5', priceCurrency: 'USD', description: '10 GB storage, unlimited images, private images, API access.' },
-              { '@type': 'Offer', name: 'Pro', price: '19', priceCurrency: 'USD', description: '100 GB storage, all formats including HEIC, priority support.' },
-            ],
-            featureList: [
-              'No account required for guest uploads',
-              'Permanent shareable links',
-              'S3-backed reliable storage',
-              'Private image support',
-              'REST API access',
-              'No watermark',
-            ],
-          },
-          {
-            '@type': 'Organization',
-            '@id': `${SITE_URL}/#organization`,
-            name: 'PicHost.io',
-            url: SITE_URL,
-            logo: `${SITE_URL}/favicon.svg`,
-          },
-          {
-            '@type': 'FAQPage',
-            mainEntity: [
-              { '@type': 'Question', name: 'What is PicHost.io?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io is a free image hosting service that lets you upload images and get permanent, shareable CDN-backed URLs instantly. No account is required for guest uploads.' } },
-              { '@type': 'Question', name: 'Is PicHost.io free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB) without creating an account. Free accounts get 500 MB and 200 images. Paid plans start at $5/month.' } },
-              { '@type': 'Question', name: 'Do I need an account to upload images?', acceptedAnswer: { '@type': 'Answer', text: 'No. You can upload images as a guest without creating any account. Guest images are stored for 24 hours. Create a free account to make your images permanent.' } },
-              { '@type': 'Question', name: 'How long do guest images last?', acceptedAnswer: { '@type': 'Answer', text: 'Guest images (uploaded without an account) expire after 24 hours. Images uploaded by registered users are permanent and never expire unless you delete them.' } },
-              { '@type': 'Question', name: 'What image formats does PicHost.io support?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io supports JPEG and PNG for guest uploads. Free accounts support JPEG, PNG, and WebP. Basic plan adds GIF and AVIF. Pro plan supports all formats including HEIC.' } },
-              { '@type': 'Question', name: 'Does PicHost.io add a watermark to images?', acceptedAnswer: { '@type': 'Answer', text: 'No. PicHost.io never adds a watermark to your images on any plan.' } },
-              { '@type': 'Question', name: 'Does PicHost.io have an API?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io provides a REST API. You can upload images, retrieve links, and manage your files programmatically using Bearer token authentication.' } },
-              { '@type': 'Question', name: 'Can I make images private?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed.' } },
-            ],
-          },
-        ],
-      }),
+      innerHTML: JSON.stringify(ldJson.value),
     },
   ],
-})
+}))
 
-const { user, fetchMe } = useAuth()
-const config = useRuntimeConfig()
+const heroBadgeText = computed(() => {
+  return user.value ? 'Welcome back — continue uploading instantly' : 'No account required — upload instantly'
+})
 
 interface PublicPlanSetting {
   plan_key: string
@@ -414,7 +452,7 @@ onMounted(async () => {
   }
 })
 
-const features = [
+const baseFeatures = [
   {
     icon: `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>`,
     title: 'Instant shareable links',
@@ -447,6 +485,11 @@ const features = [
   },
 ]
 
+const features = computed(() => {
+  if (!user.value) return baseFeatures
+  return baseFeatures.filter((feature) => feature.title !== 'No account needed')
+})
+
 function formatStorage(bytes: number) {
   if (bytes <= 0) return 'Unlimited storage'
   const gb = bytes / 1024 / 1024 / 1024
@@ -457,6 +500,8 @@ function formatStorage(bytes: number) {
 
 function toPlanCard(plan: PublicPlanSetting): LandingPlan {
   const isFree = plan.monthly_price_thb <= 0
+  const isLoggedIn = !!user.value
+  const isCurrentPlan = (user.value?.plan ?? '').toLowerCase() === plan.plan_key.toLowerCase()
   const features = [
     formatStorage(plan.storage_limit_bytes),
     `Max ${plan.max_upload_mb} MB per file`,
@@ -478,8 +523,10 @@ function toPlanCard(plan: PublicPlanSetting): LandingPlan {
     highlighted: plan.plan_key === 'basic',
     features,
     cta: {
-      label: isFree ? 'Sign up free' : `Get ${plan.display_name}`,
-      href: '/auth/register',
+      label: isLoggedIn
+        ? (isCurrentPlan ? 'Current plan' : `Upgrade to ${plan.display_name}`)
+        : (isFree ? 'Sign up free' : `Get ${plan.display_name}`),
+      href: isLoggedIn ? '/settings/account?tab=plan' : '/auth/register',
     },
   }
 }
@@ -491,15 +538,20 @@ const plans = computed<LandingPlan[]>(() => {
     .map(toPlanCard)
 })
 
-const endpoints = [
-  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file-guest', desc: 'Guest upload' },
-  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file', desc: 'Auth upload' },
-  { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/images',               desc: 'List images' },
-  { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/auth/me',               desc: 'Current user' },
-  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/public/auth/refresh',  desc: 'Refresh token' },
+const baseEndpoints = [
+  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file-guest', desc: 'Guest upload', guestOnly: true },
+  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file', desc: 'Auth upload', guestOnly: false },
+  { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/images',               desc: 'List images', guestOnly: false },
+  { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/auth/me',               desc: 'Current user', guestOnly: false },
+  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/public/auth/refresh',  desc: 'Refresh token', guestOnly: false },
 ]
 
-const faqs = [
+const endpoints = computed(() => {
+  if (!user.value) return baseEndpoints
+  return baseEndpoints.filter((endpoint) => !endpoint.guestOnly)
+})
+
+const baseFaqs = [
   { q: 'What is PicHost.io?', a: 'PicHost.io is a free image hosting service that lets you upload any image and get a permanent, shareable CDN-backed URL instantly. No account is required for guest uploads.' },
   { q: 'Is PicHost.io free to use?', a: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB total) without creating an account. Free registered accounts get 500 MB and 200 images. Paid plans start at $5/month for more storage and features.' },
   { q: 'Do I need an account to upload images?', a: 'No account is required. You can upload images as a guest instantly. Guest images are stored for 24 hours. Create a free account to make your images permanent and keep them forever.' },
@@ -509,5 +561,10 @@ const faqs = [
   { q: 'Does PicHost.io have a REST API?', a: 'Yes. PicHost.io provides a full REST API. Upload images, retrieve links, and manage your files programmatically using Bearer token authentication. Works with any language or framework.' },
   { q: 'Can I make images private?', a: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed or indexed.' },
 ]
+
+const faqs = computed(() => {
+  if (!user.value) return baseFaqs
+  return baseFaqs.filter((faq) => !faq.q.toLowerCase().includes('guest'))
+})
 </script>
 

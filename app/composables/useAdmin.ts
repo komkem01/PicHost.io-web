@@ -45,7 +45,7 @@ export function useAdmin() {
   const config = useRuntimeConfig()
   const { getToken } = useAuth()
 
-  function headers() {
+  function headers(): Record<string, string> {
     const token = getToken()
     return token ? { Authorization: `Bearer ${token}` } : {}
   }
@@ -152,6 +152,34 @@ export function useAdmin() {
     })
   }
 
+  interface AdminPaymentListResponse {
+    data: import('./useBilling').PaymentTransaction[]
+    paginate: { page: number; size: number; total: number }
+  }
+
+  async function adminListPayments(limit = 50, offset = 0): Promise<{ data: import('./useBilling').PaymentTransaction[]; total: number }> {
+    const res = await $fetch<AdminPaymentListResponse>(
+      `${config.public.apiBase}/admin/payments?limit=${limit}&offset=${offset}`,
+      { headers: headers() },
+    )
+    return { data: res.data ?? [], total: res.paginate?.total ?? 0 }
+  }
+
+  async function adminConfirmPayment(
+    id: string,
+    status: 'paid' | 'failed' | 'cancelled',
+    reviewReason?: string,
+  ): Promise<void> {
+    await $fetch(`${config.public.apiBase}/admin/payments/${id}/confirm`, {
+      method: 'PATCH',
+      headers: headers(),
+      body: {
+        status,
+        review_reason: reviewReason?.trim() || undefined,
+      },
+    })
+  }
+
   return {
     getStats,
     listUsers,
@@ -165,5 +193,7 @@ export function useAdmin() {
     getPlanSetting,
     updatePlanSetting,
     deletePlanSetting,
+    adminListPayments,
+    adminConfirmPayment,
   }
 }

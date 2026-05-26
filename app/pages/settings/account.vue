@@ -178,9 +178,26 @@
                   <p class="text-[12px] text-white/40 mb-1">Current plan</p>
                   <p class="text-xl font-bold">{{ user.plan }}</p>
                 </div>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium border" :class="planBadge.class">
+                <span v-if="user.plan_cancelled_at" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium border border-orange-500/20 bg-orange-500/10 text-orange-400">
+                  <span class="w-1.5 h-1.5 rounded-full bg-orange-400" />Cancelled
+                </span>
+                <span v-else class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-medium border" :class="planBadge.class">
                   <span class="w-1.5 h-1.5 rounded-full" :class="planBadge.dot" />Active
                 </span>
+              </div>
+
+              <!-- Subscription expiry / cancellation notice -->
+              <div v-if="user.plan !== 'Free' && user.plan_expires_at" class="mb-4">
+                <div v-if="user.plan_cancelled_at" class="rounded-xl border border-orange-500/20 bg-orange-500/[0.04] px-4 py-3 text-[12px] text-orange-300 leading-relaxed">
+                  Your subscription has been cancelled. You will keep <span class="font-semibold">{{ user.plan }}</span> access until
+                  <span class="font-semibold">{{ formatPlanExpiryDate(user.plan_expires_at) }}</span>, then your account will be downgraded to the Free plan.
+                </div>
+                <div v-else class="flex items-center gap-2 text-[12px] text-white/45">
+                  <svg class="w-3.5 h-3.5 text-white/30 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  Active until <span class="text-white/70 font-medium">{{ formatPlanExpiryDate(user.plan_expires_at) }}</span>
+                </div>
               </div>
 
               <!-- Usage: Storage -->
@@ -246,16 +263,25 @@
                   <div class="h-16 rounded-xl bg-white/[0.04] animate-pulse" />
                 </div>
               </div>
+
             </div>
 
             <!-- Tier cards -->
+            <div class="rounded-xl border border-blue-500/20 bg-blue-500/[0.06] p-4">
+              <p class="text-[13px] font-medium text-blue-300">Upgrade flow</p>
+              <p class="text-[12px] text-blue-300/70 mt-1">Select a plan and continue to checkout. Your account plan upgrades automatically after payment confirmation.</p>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div v-for="tier in planTiers" :key="tier.name" class="rounded-xl border p-4 transition-all"
-                :class="tier.name === user.plan ? 'border-blue-500/40 bg-blue-600/[0.05]' : 'border-white/[0.07] bg-white/[0.02] opacity-50'">
+              <div v-for="tier in planTiers" :key="tier.key" class="rounded-xl border p-4 transition-all"
+                :class="tier.name === user.plan ? 'border-blue-500/40 bg-blue-600/[0.05]' : 'border-white/[0.07] bg-white/[0.02]'">
                 <div class="flex items-center justify-between mb-2">
                   <p class="font-semibold text-[14px]">{{ tier.name }}</p>
                   <span v-if="tier.name === user.plan" class="text-[10px] font-bold uppercase tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">Current</span>
                 </div>
+                <p class="text-[18px] font-bold text-white mb-1">
+                  {{ tier.priceLabel }}
+                  <span v-if="tier.monthlyPrice > 0" class="text-[12px] font-medium text-white/45">/ month</span>
+                </p>
                 <p class="text-[12px] text-white/40 mb-3">{{ tier.desc }}</p>
                 <ul class="space-y-1.5">
                   <li v-for="feat in tier.features" :key="feat" class="flex items-center gap-2 text-[12px] text-white/55">
@@ -263,6 +289,65 @@
                     {{ feat }}
                   </li>
                 </ul>
+                <button
+                  type="button"
+                  class="w-full mt-4 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  :class="tier.name === user.plan
+                    ? 'bg-white/[0.06] text-white/45 border border-white/[0.09]'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-600/20'"
+                  :disabled="tier.name === user.plan || checkoutLoadingPlan === tier.key || (tier.name === 'Free' && user.plan !== 'Free')"
+                  @click="startCheckout(tier.key)"
+                >
+                  <svg v-if="checkoutLoadingPlan === tier.key" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  {{ tier.name === user.plan
+                    ? 'Current plan'
+                    : (tier.name === 'Free' && user.plan !== 'Free')
+                      ? 'Use cancellation to downgrade'
+                      : (checkoutLoadingPlan === tier.key ? 'Creating checkout…' : `Upgrade to ${tier.name}`) }}
+                </button>
+
+                <div v-if="tier.name === user.plan && user.plan !== 'Free' && !user.plan_cancelled_at" class="mt-3 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3 space-y-2.5">
+                  <p class="text-[11px] text-red-300/80">Choose month/year then cancel this subscription.</p>
+                  <div class="grid grid-cols-2 gap-2">
+                    <select
+                      v-model="cancelMonth"
+                      class="px-2.5 py-2 rounded-lg bg-black/30 border border-white/[0.12] focus:border-red-500/50 focus:outline-none text-[12px] text-white"
+                    >
+                      <option v-for="m in cancelMonthOptions" :key="m.value" :value="m.value">{{ m.label }}</option>
+                    </select>
+                    <select
+                      v-model="cancelYear"
+                      class="px-2.5 py-2 rounded-lg bg-black/30 border border-white/[0.12] focus:border-red-500/50 focus:outline-none text-[12px] text-white"
+                    >
+                      <option v-for="y in cancelYearOptions" :key="y" :value="String(y)">{{ y }}</option>
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    class="w-full px-3 py-2 rounded-lg text-[12px] font-semibold bg-red-600/80 hover:bg-red-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    :disabled="cancelLoading"
+                    @click="handleCancelSubscription"
+                  >
+                    <svg v-if="cancelLoading" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                    </svg>
+                    {{ cancelLoading ? 'Cancelling…' : `Cancel at ${cancelMonthLabel} ${cancelYear}` }}
+                  </button>
+                </div>
+
+                <div v-if="tier.name === user.plan && user.plan_cancelled_at" class="mt-3 rounded-xl border border-orange-500/20 bg-orange-500/[0.04] p-3 text-[11px] text-orange-300/80">
+                  Cancelled. Active until {{ formatPlanExpiryDate(user.plan_expires_at) }}.
+                </div>
+              </div>
+              <div v-if="!plansLoaded && !plansLoading" class="sm:col-span-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 text-[12px] text-white/40">
+                Plan options are loading.
+              </div>
+              <div v-if="plansLoaded && !plansLoading && planTiers.length === 0" class="sm:col-span-2 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-4 text-[12px] text-red-300/80">
+                No purchasable plans are available right now.
               </div>
             </div>
           </div>
@@ -338,6 +423,7 @@
       </div>
     </main>
   </div>
+
 </template>
 
 <script setup lang="ts">
@@ -346,6 +432,7 @@ const router = useRouter()
 const { user, fetchMe, refreshMe, getToken } = useAuth()
 const { success, error: toastError } = useToast()
 const { open: openLogoutModal } = useLogoutModal()
+const { listPublicPlans, createCheckout, cancelSubscription } = useBilling()
 
 const pageLoading = ref(true)
 const activeTab = ref<'profile' | 'security' | 'plan' | 'danger'>('profile')
@@ -360,6 +447,10 @@ const tabs = [
 onMounted(async () => {
   const me = await fetchMe()
   if (!me) { router.replace('/auth/login'); return }
+  const queryTab = String(router.currentRoute.value.query.tab ?? '').trim().toLowerCase()
+  if (queryTab === 'profile' || queryTab === 'security' || queryTab === 'plan' || queryTab === 'danger') {
+    activeTab.value = queryTab as typeof activeTab.value
+  }
   profileForm.username = me.username ?? ''
   profileForm.email = me.email ?? ''
   pageLoading.value = false
@@ -500,6 +591,27 @@ interface QuotaData {
 }
 
 const quota = ref<QuotaData | null>(null)
+const plansLoading = ref(false)
+const plansLoaded = ref(false)
+const checkoutLoadingPlan = ref<string | null>(null)
+
+interface PublicPlanSetting {
+  plan_key: string
+  display_name: string
+  monthly_price_thb: number
+  storage_limit_bytes: number
+  image_limit: number
+  max_upload_mb: number
+  is_enabled: boolean
+  allow_private: boolean
+  custom_domain: boolean
+  api_access: boolean
+  priority_support: boolean
+  no_ads: boolean
+  watermark_removal: boolean
+}
+
+const publicPlans = ref<PublicPlanSetting[]>([])
 
 async function fetchQuota() {
   try {
@@ -513,8 +625,25 @@ async function fetchQuota() {
   }
 }
 
+async function fetchPublicPlans() {
+  if (plansLoading.value) return
+  plansLoading.value = true
+  try {
+    publicPlans.value = (await listPublicPlans())
+      .filter((plan) => plan.is_enabled)
+      .sort((a, b) => a.monthly_price_thb - b.monthly_price_thb)
+    plansLoaded.value = true
+  } catch {
+    toastError('Failed to load plan options.')
+  } finally {
+    plansLoading.value = false
+  }
+}
+
 watch(activeTab, (tab) => {
-  if (tab === 'plan' && !quota.value) fetchQuota()
+  if (tab !== 'plan') return
+  if (!quota.value) fetchQuota()
+  if (!plansLoaded.value) fetchPublicPlans()
 })
 
 const storagePercent = computed(() => {
@@ -534,10 +663,141 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
 }
 
-const planTiers = [
-  { name: 'Free', desc: 'Great for personal projects', features: ['500 MB storage', '200 images', '10 MB per file', 'JPEG, PNG, WebP'] },
-  { name: 'Basic', desc: 'For hobbyists and small teams', features: ['10 GB storage', 'Unlimited images', '20 MB per file', 'Private images'] },
-  { name: 'Pro', desc: 'For professionals', features: ['100 GB storage', 'Unlimited images', '50 MB per file', 'All formats'] },
-  { name: 'Enterprise', desc: 'Custom usage at scale', features: ['Unlimited storage', 'Unlimited images', 'No file size limit', 'Priority support'] },
-]
-</script>
+function formatStorage(bytes: number) {
+  if (bytes <= 0) return 'Unlimited storage'
+  const gb = bytes / 1024 / 1024 / 1024
+  if (gb >= 1) return `${Number.isInteger(gb) ? gb : gb.toFixed(1)} GB storage`
+  const mb = bytes / 1024 / 1024
+  return `${Number.isInteger(mb) ? mb : mb.toFixed(1)} MB storage`
+}
+
+const planTiers = computed(() => {
+  return publicPlans.value.map((plan) => {
+    const features = [
+      formatStorage(plan.storage_limit_bytes),
+      `Max ${plan.max_upload_mb} MB per file`,
+      plan.image_limit > 0 ? `Up to ${plan.image_limit.toLocaleString()} images` : 'Unlimited images',
+      plan.allow_private ? 'Private images' : 'Public images only',
+    ]
+    if (plan.api_access) features.push('API access')
+    if (plan.priority_support) features.push('Priority support')
+    if (plan.custom_domain) features.push('Custom domain')
+    if (plan.no_ads) features.push('No ads')
+    if (plan.watermark_removal) features.push('Watermark removal')
+
+    return {
+      key: plan.plan_key,
+      name: plan.display_name,
+      desc: plan.monthly_price_thb > 0 ? 'Subscription plan with auto-upgrade after payment confirmation.' : 'Starter plan for getting started.',
+      monthlyPrice: plan.monthly_price_thb,
+      priceLabel: plan.monthly_price_thb > 0 ? `฿${plan.monthly_price_thb.toLocaleString()}` : 'Free',
+      features,
+    }
+  })
+})
+
+async function startCheckout(planKey: string) {
+  checkoutLoadingPlan.value = planKey
+  try {
+    const checkout = await createCheckout(planKey)
+    success('Checkout created. Redirecting...')
+    router.push(`/billing/checkout/${checkout.id}`)
+  } catch (err: any) {
+    const msg = err?.data?.data?.error || err?.data?.message || 'Failed to create checkout.'
+    toastError(msg)
+  } finally {
+    checkoutLoadingPlan.value = null
+  }
+}
+
+// ── Subscription cancellation ─────────────────────────────────────────────
+const cancelLoading = ref(false)
+const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const cancelMonth = ref('')
+const cancelYear = ref('')
+
+const nowForCancel = new Date()
+const currentCancelYear = nowForCancel.getFullYear()
+const currentCancelMonth = nowForCancel.getMonth() + 1
+
+const cancelMonthOptions = computed(() => {
+  const selectedYear = Number(cancelYear.value)
+  const startMonth = selectedYear === currentCancelYear ? currentCancelMonth : 1
+  return monthNames
+    .map((label, idx) => ({
+      label,
+      month: idx + 1,
+      value: String(idx + 1).padStart(2, '0'),
+    }))
+    .filter((m) => m.month >= startMonth)
+    .map(({ label, value }) => ({ label, value }))
+})
+
+const cancelYearOptions = computed(() => {
+  const start = currentCancelYear
+  const years: number[] = []
+  for (let y = start; y <= start + 5; y += 1) years.push(y)
+  return years
+})
+
+const cancelMonthLabel = computed(() => {
+  const idx = Number(cancelMonth.value) - 1
+  return monthNames[idx] ?? ''
+})
+
+watch(
+  () => user.value?.plan_expires_at,
+  (expiresAt) => {
+    const fallback = nowForCancel
+    const d = expiresAt ? new Date(expiresAt) : fallback
+    const targetYear = Math.max(d.getFullYear(), currentCancelYear)
+    const targetMonth = targetYear === currentCancelYear ? Math.max(d.getMonth() + 1, currentCancelMonth) : d.getMonth() + 1
+    cancelYear.value = String(targetYear)
+    cancelMonth.value = String(targetMonth).padStart(2, '0')
+  },
+  { immediate: true },
+)
+
+watch(
+  [cancelYear, cancelMonthOptions],
+  () => {
+    const hasSelected = cancelMonthOptions.value.some((m) => m.value === cancelMonth.value)
+    if (!hasSelected) {
+      cancelMonth.value = cancelMonthOptions.value[0]?.value ?? ''
+    }
+  },
+  { immediate: true },
+)
+
+function formatPlanExpiryDate(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+async function handleCancelSubscription() {
+  const now = new Date()
+  const selectedYear = Number(cancelYear.value)
+  const selectedMonth = Number(cancelMonth.value)
+  if (!Number.isFinite(selectedYear) || !Number.isFinite(selectedMonth) || selectedMonth < 1 || selectedMonth > 12) {
+    toastError('Please select both month and year.')
+    return
+  }
+  const selectedMonthStart = new Date(selectedYear, selectedMonth - 1, 1, 0, 0, 0)
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0)
+  if (selectedMonthStart < currentMonthStart) {
+    toastError('Selected month cannot be in the past.')
+    return
+  }
+
+  cancelLoading.value = true
+  try {
+    await cancelSubscription(`${cancelYear.value}-${cancelMonth.value}`)
+    await refreshMe()
+    success('Your subscription has been cancelled.')
+  } catch (err: any) {
+    const msg = err?.data?.message || 'Failed to cancel subscription. Please try again.'
+    toastError(msg)
+  } finally {
+    cancelLoading.value = false
+  }
+}</script>

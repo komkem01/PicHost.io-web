@@ -127,12 +127,19 @@ const navItems: NavItem[] = [
     activeClass: 'bg-cyan-500/15 text-cyan-400',
     icon: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6h16.5M8.25 4.5h7.5a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5h-7.5a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z"/></svg>`,
   },
+  {
+    to: '/admin/payments',
+    label: 'Payments',
+    activeClass: 'bg-yellow-500/15 text-yellow-400',
+    icon: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"/></svg>`,
+  },
 ]
 
 const pageTitles: Record<string, string> = {
   '/admin': 'Dashboard',
   '/admin/users': 'Users',
   '/admin/plans': 'Plans',
+  '/admin/payments': 'Payments',
 }
 const pageTitle = computed(() => {
   const exact = pageTitles[route.path]

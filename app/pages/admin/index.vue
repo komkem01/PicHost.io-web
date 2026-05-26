@@ -325,6 +325,6 @@ const guestRate = computed(() => {
 const topPlan = computed(() => {
   if (!planRows.value.length) return { plan: '—', count: 0 }
   const first = planRows.value[0]
-  return { plan: first.plan, count: first.count }
+  return { plan: first?.plan ?? '—', count: first?.count ?? 0 }
 })
 </script>

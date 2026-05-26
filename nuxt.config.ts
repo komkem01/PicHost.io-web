@@ -37,6 +37,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBase: '/api/v1',
+      storagesServiceUrl: 'https://storages-production.up.railway.app/api/v1',
     },
   },
 })

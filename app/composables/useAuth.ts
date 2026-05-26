@@ -3,6 +3,8 @@ export interface AuthUser {
   email: string | null
   username: string | null
   plan: string
+  plan_expires_at: string | null
+  plan_cancelled_at: string | null
   is_active: boolean
   is_guest: boolean
   is_admin: boolean
