@@ -54,7 +54,15 @@ function _scheduleRefresh(token: string) {
   const exp = _getJwtExp(token)
   if (!exp) return
   const delay = exp * 1000 - Date.now() - 60_000 // 1 min before expiry
-  _refreshTimer = setTimeout(_doRefresh, Math.max(0, delay))
+
+  // setTimeout's limit is 2147483647 ms (approx 24.8 days).
+  // Capping the timeout at 24 hours prevents integer overflow when tokens have a long TTL.
+  const MAX_DELAY = 86400000 // 24 hours
+  if (delay > MAX_DELAY) {
+    _refreshTimer = setTimeout(_doRefresh, MAX_DELAY)
+  } else {
+    _refreshTimer = setTimeout(_doRefresh, Math.max(0, delay))
+  }
 }
 
 /** Call POST /public/auth/refresh (uses HttpOnly refresh-token cookie). */
