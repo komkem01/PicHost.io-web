@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8 w-full max-w-[1120px] mx-auto">
+  <div class="p-8 w-full">
 
     <div class="flex items-center justify-between gap-4 mb-6">
       <NuxtLink

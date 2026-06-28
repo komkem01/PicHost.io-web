@@ -123,7 +123,7 @@
                 <td class="px-4 py-3.5">
                   <div class="flex items-center justify-end gap-2">
                     <button
-                      @click.stop="deletePlan(row.key)"
+                      @click.stop="openDeleteConfirm(row)"
                       :disabled="!!savingPlanKeys[row.key]"
                       class="h-7 w-7 rounded-lg border border-red-500/20 text-red-300/70 hover:text-red-200 hover:bg-red-500/10 disabled:opacity-40 disabled:cursor-not-allowed transition-colors inline-flex items-center justify-center"
                       title="Delete plan"
@@ -167,6 +167,97 @@
           </div>
         </div>
       </Teleport>
+
+      <Teleport to="body">
+        <Transition
+          enter-from-class="opacity-0"
+          enter-active-class="transition duration-150"
+          leave-to-class="opacity-0"
+          leave-active-class="transition duration-100"
+        >
+          <div
+            v-if="showDeleteModal && planToDelete"
+            class="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            @click.self="showDeleteModal = false"
+          >
+            <Transition
+              enter-from-class="opacity-0 scale-95 -translate-y-1"
+              enter-active-class="transition duration-150"
+              leave-to-class="opacity-0 scale-95"
+              leave-active-class="transition duration-100"
+              appear
+            >
+              <div
+                v-if="showDeleteModal && planToDelete"
+                class="relative w-full max-w-[380px] rounded-2xl border border-white/[0.08] bg-[#111113] shadow-2xl shadow-black/80 p-6"
+              >
+                <!-- Top shimmer -->
+                <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-t-2xl"></div>
+
+                <!-- If has users -->
+                <template v-if="planToDelete.users > 0">
+                  <!-- Warning/Block Icon -->
+                  <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                  </div>
+
+                  <h3 class="text-white font-semibold text-[15px] mb-2">Cannot Delete Plan</h3>
+                  <p class="text-white/60 text-[13px] leading-relaxed mb-6">
+                    The plan <span class="text-white font-semibold">"{{ planToDelete.name }}"</span> cannot be deleted because it is currently active with <span class="text-amber-300 font-semibold tabular-nums">{{ planToDelete.users }}</span> user(s).
+                    <br /><span class="text-white/40 text-[12px] mt-1 block">Please reassign all users to another plan first.</span>
+                  </p>
+
+                  <div class="flex">
+                    <button
+                      @click="showDeleteModal = false"
+                      class="flex-1 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/70 hover:text-white text-[13px] font-medium transition-colors"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </template>
+
+                <!-- If has no users (can delete) -->
+                <template v-else>
+                  <!-- Danger/Trash Icon -->
+                  <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                    </svg>
+                  </div>
+
+                  <h3 class="text-white font-semibold text-[15px] mb-2">Delete Plan?</h3>
+                  <p class="text-white/60 text-[13px] leading-relaxed mb-6">
+                    Are you sure you want to delete the plan <span class="text-white font-semibold">"{{ planToDelete.name }}"</span>? This action is permanent and cannot be undone.
+                  </p>
+
+                  <div class="flex gap-3">
+                    <button
+                      @click="showDeleteModal = false"
+                      class="flex-1 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/70 hover:text-white text-[13px] font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      @click="deletePlan(planToDelete.key)"
+                      :disabled="savingPlanKeys[planToDelete.key]"
+                      class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-[13px] font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      <svg v-if="savingPlanKeys[planToDelete.key]" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </Transition>
+          </div>
+        </Transition>
+      </Teleport>
     </template>
   </div>
 </template>
@@ -189,6 +280,9 @@ const createForm = reactive({
   key: '',
   name: '',
 })
+
+const showDeleteModal = ref(false)
+const planToDelete = ref<{ key: string; name: string; users: number } | null>(null)
 
 onMounted(async () => {
   try {
@@ -350,10 +444,17 @@ async function createPlan() {
   }
 }
 
+function openDeleteConfirm(row: any) {
+  planToDelete.value = {
+    key: row.key,
+    name: row.name,
+    users: row.users,
+  }
+  showDeleteModal.value = true
+}
+
 async function deletePlan(planKey: string) {
   if (savingPlanKeys.value[planKey]) return
-  const confirmed = window.confirm(`Delete plan "${planKey}"? This action cannot be undone.`)
-  if (!confirmed) return
 
   savingPlanKeys.value = {
     ...savingPlanKeys.value,
@@ -362,6 +463,8 @@ async function deletePlan(planKey: string) {
   try {
     await remove(planKey)
     toast.success('Plan deleted')
+    showDeleteModal.value = false
+    planToDelete.value = null
   } catch (e: any) {
     toast.error(e?.data?.message ?? 'Failed to delete plan')
   } finally {

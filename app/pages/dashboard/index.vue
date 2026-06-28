@@ -64,62 +64,81 @@
           </NuxtLink>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          <!-- Total Images -->
-          <div class="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-            <div class="flex items-center justify-between mb-4">
-              <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Total Images</p>
-              <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                </svg>
+        <!-- Stats Groups -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          <!-- Group 1: Current Usage -->
+          <div class="rounded-2xl border border-white/[0.08] bg-white/[0.015] p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <p class="text-[12px] font-semibold text-white/45 uppercase tracking-wider">Current Usage</p>
+              <span class="text-[11px] text-white/25 font-medium">Real-time stats</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Total Images -->
+              <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Total Images</p>
+                  <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="loading" class="h-9 w-16 bg-white/[0.06] rounded-lg animate-pulse" />
+                <p v-else class="text-[28px] font-bold leading-none text-white">{{ files.length }}</p>
+              </div>
+
+              <!-- Storage Used -->
+              <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Storage Used</p>
+                  <div class="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.25c0 2.278-3.504 4.125-8.06 4.125s-8.06-1.847-8.06-4.125" />
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="loading" class="h-9 w-24 bg-white/[0.06] rounded-lg animate-pulse" />
+                <p v-else class="text-[28px] font-bold leading-none text-white">{{ totalStorageUsed }}</p>
               </div>
             </div>
-            <div v-if="loading" class="h-9 w-16 bg-white/[0.06] rounded-lg animate-pulse" />
-            <p v-else class="text-[32px] font-bold leading-none">{{ files.length }}</p>
           </div>
 
-          <!-- Storage Used -->
-          <div class="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-            <div class="flex items-center justify-between mb-4">
-              <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Storage Used</p>
-              <div class="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
-                </svg>
-              </div>
+          <!-- Group 2: Remaining Quota -->
+          <div class="rounded-2xl border border-blue-500/15 bg-blue-500/[0.01] p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-blue-500/10 pb-3">
+              <p class="text-[12px] font-semibold text-blue-400/80 uppercase tracking-wider">Remaining Quota</p>
+              <span class="text-[11px] text-blue-400/50 font-medium">Plan limits</span>
             </div>
-            <div v-if="loading" class="h-9 w-24 bg-white/[0.06] rounded-lg animate-pulse" />
-            <p v-else class="text-[32px] font-bold leading-none">{{ totalStorageUsed }}</p>
-          </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Remaining Images -->
+              <div class="rounded-xl border border-blue-500/10 bg-blue-500/[0.02] p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Images Left</p>
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m3.75 14.25 4.883-4.884a2.25 2.25 0 0 1 3.182 0l4.884 4.884m-1.5-1.5 2.25-2.25a2.25 2.25 0 0 1 3.182 0l2.91 2.91M9 9.75h.008v.008H9V9.75Z" />
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="loading" class="h-9 w-24 bg-white/[0.06] rounded-lg animate-pulse" />
+                <p v-else class="text-[28px] font-bold leading-none text-white">{{ remainingImages }}</p>
+              </div>
 
-          <!-- Public -->
-          <div class="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-            <div class="flex items-center justify-between mb-4">
-              <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Public</p>
-              <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
-                </svg>
+              <!-- Remaining Storage -->
+              <div class="rounded-xl border border-blue-500/10 bg-blue-500/[0.02] p-4">
+                <div class="flex items-center justify-between mb-4">
+                  <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Storage Left</p>
+                  <div class="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+                    </svg>
+                  </div>
+                </div>
+                <div v-if="loading" class="h-9 w-24 bg-white/[0.06] rounded-lg animate-pulse" />
+                <p v-else class="text-[28px] font-bold leading-none text-white">{{ remainingStorage }}</p>
               </div>
             </div>
-            <div v-if="loading" class="h-9 w-12 bg-white/[0.06] rounded-lg animate-pulse" />
-            <p v-else class="text-[32px] font-bold leading-none">{{ publicCount }}</p>
-          </div>
-
-          <!-- Private -->
-          <div class="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
-            <div class="flex items-center justify-between mb-4">
-              <p class="text-[11px] font-semibold text-white/35 uppercase tracking-widest">Private</p>
-              <div class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z" />
-                </svg>
-              </div>
-            </div>
-            <div v-if="loading" class="h-9 w-12 bg-white/[0.06] rounded-lg animate-pulse" />
-            <p v-else class="text-[32px] font-bold leading-none">{{ privateCount }}</p>
           </div>
         </div>
 
@@ -282,17 +301,6 @@
                   </svg>
                 </div>
 
-                <!-- Private badge -->
-                <div
-                  v-if="file.is_private"
-                  class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm border border-amber-500/30 flex items-center gap-1"
-                >
-                  <svg class="w-2.5 h-2.5 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clip-rule="evenodd" />
-                  </svg>
-                  <span class="text-[9px] text-amber-400 font-medium">Private</span>
-                </div>
-
                 <!-- Hover actions -->
                 <div class="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
@@ -370,12 +378,34 @@ const loading = ref(true)
 const fetchError = ref(false)
 const currentPage = ref(1)
 
+const quota = ref<{
+  plan: string
+  used_storage_bytes: number
+  storage_limit_bytes: number
+  image_count: number
+  max_images: number
+  file_size_limit_bytes: number
+} | null>(null)
+
 // Computed stats
 const totalStorageUsed = computed(() =>
   formatSize(files.value.reduce((sum, f) => sum + f.file_size, 0))
 )
-const publicCount = computed(() => files.value.filter((f) => !f.is_private).length)
-const privateCount = computed(() => files.value.filter((f) => f.is_private).length)
+const remainingStorage = computed(() => {
+  if (!quota.value) return '0 B'
+  const limit = quota.value.storage_limit_bytes
+  if (limit === -1) return 'Unlimited'
+  const remaining = Math.max(0, limit - quota.value.used_storage_bytes)
+  return formatSize(remaining)
+})
+const remainingImages = computed(() => {
+  if (!quota.value) return '0'
+  const limit = quota.value.max_images
+  if (limit === 0) return 'Unlimited'
+  const remaining = Math.max(0, limit - quota.value.image_count)
+  return remaining.toLocaleString()
+})
+
 const totalPages = computed(() => Math.max(1, Math.ceil(files.value.length / PAGE_SIZE)))
 const paginatedFiles = computed(() => {
   const start = (currentPage.value - 1) * PAGE_SIZE
@@ -416,8 +446,19 @@ onMounted(async () => {
     router.push('/auth/login')
     return
   }
-  await loadFiles()
+  await Promise.all([loadFiles(), loadQuota()])
 })
+
+async function loadQuota() {
+  try {
+    const res = await $fetch<{ data: any }>(`${config.public.apiBase}/auth/quota`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    })
+    quota.value = res.data
+  } catch {
+    // ignore
+  }
+}
 
 async function loadFiles() {
   loading.value = true
@@ -466,7 +507,8 @@ function fileExt(mime: string | null): string {
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
 }
 
 function formatDate(iso: string): string {

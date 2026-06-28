@@ -222,9 +222,10 @@
 <script setup lang="ts">
 import type { AdminUser } from '~/composables/useAdmin'
 
-const { listUsers } = useAdmin()
+const { listUsers, getStats } = useAdmin()
 
 const users = ref<AdminUser[]>([])
+const guestCountValue = ref(0)
 const loading = ref(true)
 const error = ref('')
 const search = ref('')
@@ -235,7 +236,9 @@ const plans = ['Free', 'Basic', 'Pro']
 
 onMounted(async () => {
   try {
-    users.value = await listUsers()
+    const [usersRes, statsRes] = await Promise.all([listUsers(), getStats()])
+    users.value = usersRes
+    guestCountValue.value = statsRes.guest_users
   } catch (e: any) {
     error.value = e?.data?.message ?? 'Failed to load users'
   } finally {
@@ -271,7 +274,7 @@ const paginated = computed(() => {
 })
 
 const activeCount = computed(() => users.value.filter((u) => u.is_active && !u.is_guest).length)
-const guestCount = computed(() => users.value.filter((u) => u.is_guest).length)
+const guestCount = computed(() => guestCountValue.value)
 const inactiveCount = computed(() => users.value.filter((u) => !u.is_active && !u.is_guest).length)
 
 const pageRange = computed(() => {

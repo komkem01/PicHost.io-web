@@ -16,6 +16,8 @@ export interface DashboardStats {
   active_users: number
   guest_users: number
   plan_breakdown: Record<string, number>
+  guest_images: number
+  guest_storage_bytes: number
 }
 
 export interface AdminPlanSetting {

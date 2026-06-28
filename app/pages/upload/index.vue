@@ -53,13 +53,17 @@
     </header>
 
     <main class="pt-[64px]">
-      <div class="max-w-xl mx-auto px-6 py-14">
+      <div class="max-w-7xl mx-auto px-6 py-10">
 
         <!-- Title -->
         <div class="mb-8">
-          <h1 class="text-[22px] font-bold text-white">Upload Image</h1>
-          <p class="text-white/35 text-sm mt-1">Drag & drop or browse to upload. Get a shareable link instantly.</p>
+          <h1 class="text-[26px] font-bold tracking-tight leading-tight text-white">Upload Image</h1>
+          <p class="text-white/35 text-sm mt-1.5">Drag & drop or browse to upload. Get a shareable link instantly.</p>
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <!-- Left Column: Upload Form & Result -->
+          <div class="lg:col-span-7 space-y-4">
 
         <!-- Guest notice -->
         <div
@@ -267,34 +271,6 @@
             </p>
           </Transition>
 
-          <!-- Private toggle (logged-in only) -->
-          <div v-if="user" class="flex items-center justify-between p-4 rounded-xl border border-white/[0.07] bg-white/[0.02]">
-            <div>
-              <p class="text-[13px] font-medium" :class="canPrivate ? 'text-white/75' : 'text-white/35'">Private image</p>
-              <p class="text-[11.5px] mt-0.5" :class="canPrivate ? 'text-white/30' : 'text-white/20'">
-                {{ canPrivate ? 'Only you can access this image' : 'Upgrade to Basic or higher to enable' }}
-              </p>
-            </div>
-            <button
-              type="button"
-              @click="canPrivate && (isPrivate = !isPrivate)"
-              :disabled="!canPrivate"
-              :class="[
-                'relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0',
-                !canPrivate ? 'opacity-30 cursor-not-allowed' : '',
-                isPrivate && canPrivate ? 'bg-blue-600' : 'bg-white/[0.12]',
-              ]"
-              :aria-checked="isPrivate && canPrivate"
-              role="switch"
-            >
-              <span
-                :class="[
-                  'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform',
-                  isPrivate && canPrivate ? 'translate-x-[18px]' : 'translate-x-[3px]',
-                ]"
-              />
-            </button>
-          </div>
 
           <!-- Upload progress -->
           <div v-if="loading" class="rounded-xl border border-blue-500/20 bg-blue-500/[0.05] p-4">
@@ -325,7 +301,129 @@
           </button>
 
         </form>
+          </div>
 
+          <!-- Right Column: Sidebar -->
+          <div class="lg:col-span-5 space-y-6">
+            <!-- If logged in: Quota and Plan Details -->
+            <div v-if="user" class="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 space-y-5">
+              <div class="flex items-center justify-between border-b border-white/[0.06] pb-4">
+                <div>
+                  <p class="text-[12px] text-white/40 mb-0.5">Current Plan</p>
+                  <p class="text-[16px] font-bold text-white">{{ user.plan }}</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-medium border" :class="planBadge.class">
+                  <span class="w-1.5 h-1.5 rounded-full" :class="planBadge.dot" />
+                  Active
+                </span>
+              </div>
+
+              <!-- Storage Quota -->
+              <div v-if="quota" class="space-y-4">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[12px] text-white/50">Storage Used</span>
+                    <span class="text-[12px] font-medium text-white/80">
+                      {{ formatBytes(quota.used_storage_bytes) }}
+                      <span class="text-white/30"> / {{ quota.storage_limit_bytes === -1 ? 'Unlimited' : formatBytes(quota.storage_limit_bytes) }}</span>
+                    </span>
+                  </div>
+                  <div class="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                      :class="storagePercent >= 90 ? 'bg-red-500' : storagePercent >= 70 ? 'bg-yellow-500' : 'bg-blue-500'"
+                      :style="{ width: quota.storage_limit_bytes === -1 ? '0%' : `${storagePercent}%` }"
+                    />
+                  </div>
+                </div>
+
+                <!-- Usage: Images -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[12px] text-white/50">Images Stored</span>
+                    <span class="text-[12px] font-medium text-white/80">
+                      {{ quota.image_count.toLocaleString() }}
+                      <span class="text-white/30"> / {{ quota.max_images === 0 ? 'Unlimited' : quota.max_images.toLocaleString() }}</span>
+                    </span>
+                  </div>
+                  <div v-if="quota.max_images > 0" class="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500"
+                      :class="imagePercent >= 90 ? 'bg-red-500' : imagePercent >= 70 ? 'bg-yellow-500' : 'bg-blue-500'"
+                      :style="{ width: `${imagePercent}%` }"
+                    />
+                  </div>
+                  <div v-else class="h-1.5 rounded-full bg-white/[0.06]" />
+                </div>
+
+                <!-- Additional details -->
+                <div class="pt-2 grid grid-cols-2 gap-3 border-t border-white/[0.06]">
+                  <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
+                    <p class="text-[10px] text-white/30 uppercase tracking-wider mb-1">Max File Size</p>
+                    <p class="text-[13px] font-semibold text-white/80">
+                      {{ quota.file_size_limit_bytes === -1 ? 'Unlimited' : formatBytes(quota.file_size_limit_bytes) }}
+                    </p>
+                  </div>
+                  <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3">
+                    <p class="text-[10px] text-white/30 uppercase tracking-wider mb-1">Allowed Formats</p>
+                    <p class="text-[13px] font-semibold text-white/80">
+                      All Images
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Skeleton while loading -->
+              <div v-else class="space-y-4">
+                <div class="h-8 rounded-lg bg-white/[0.04] animate-pulse" />
+                <div class="h-8 rounded-lg bg-white/[0.04] animate-pulse" />
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="h-12 rounded-xl bg-white/[0.04] animate-pulse" />
+                  <div class="h-12 rounded-xl bg-white/[0.04] animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            <!-- If guest: Benefits of upgrading / creating account -->
+            <div v-else class="rounded-2xl border border-blue-500/20 bg-blue-500/[0.03] p-6 space-y-5">
+              <div>
+                <h3 class="text-[16px] font-semibold text-white">ต้องการพื้นที่จัดเก็บถาวร?</h3>
+                <p class="text-[12.5px] text-white/50 mt-1 leading-relaxed">
+                  สร้างบัญชีใช้งานฟรีเพื่อปลดล็อกฟีเจอร์ระดับพรีเมียมและเก็บรูปภาพได้ถาวร
+                </p>
+              </div>
+
+              <ul class="space-y-3">
+                <li class="flex items-start gap-2.5 text-[12.5px] text-white/70">
+                  <svg class="w-4 h-4 text-blue-400 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <span>จัดเก็บรูปภาพถาวร (ไม่มีการลบหลัง 24 ชั่วโมง)</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-[12.5px] text-white/70">
+                  <svg class="w-4 h-4 text-blue-400 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <span>แผงควบคุม (Dashboard) สำหรับจัดการและแชร์รูปภาพ</span>
+                </li>
+                <li class="flex items-start gap-2.5 text-[12.5px] text-white/70">
+                  <svg class="w-4 h-4 text-blue-400 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <span>ขนาดอัปโหลดสูงสุดสูงสุดเพิ่มขึ้นเป็น 5 MB</span>
+                </li>
+
+              </ul>
+
+              <div class="pt-2">
+                <NuxtLink
+                  to="/auth/register"
+                  class="w-full flex items-center justify-center py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-[13px] font-semibold transition-all shadow-lg shadow-blue-600/20"
+                >
+                  สมัครสมาชิกฟรี
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -378,8 +476,55 @@ const result = ref<UploadResult | null>(null)
 const resultPreview = ref<string | null>(null)
 const copied = ref(false)
 
+const quota = ref<{
+  plan: string
+  used_storage_bytes: number
+  storage_limit_bytes: number
+  image_count: number
+  max_images: number
+  file_size_limit_bytes: number
+  allow_private: boolean
+} | null>(null)
+
+const planBadge = computed((): { class: string; dot: string } => {
+  const map: Record<string, { class: string; dot: string }> = {
+    Free:       { class: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', dot: 'bg-emerald-400' },
+    Basic:      { class: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',    dot: 'bg-yellow-400' },
+    Pro:        { class: 'bg-orange-500/10 text-orange-400 border-orange-500/20',    dot: 'bg-orange-400' },
+    Enterprise: { class: 'bg-red-500/10 text-red-400 border-red-500/20',             dot: 'bg-red-400' },
+  }
+  return map[user.value?.plan ?? 'Free'] ?? map['Free']!
+})
+
+const storagePercent = computed(() => {
+  if (!quota.value || quota.value.storage_limit_bytes <= 0) return 0
+  return Math.min(Math.round((quota.value.used_storage_bytes / quota.value.storage_limit_bytes) * 100), 100)
+})
+
+const imagePercent = computed(() => {
+  if (!quota.value || quota.value.max_images <= 0) return 0
+  return Math.min(Math.round((quota.value.image_count / quota.value.max_images) * 100), 100)
+})
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
+}
+
 onMounted(async () => {
-  await fetchMe() // silent — guests stay on the page
+  const me = await fetchMe() // silent — guests stay on the page
+  if (me) {
+    try {
+      const res = await $fetch<{ data: any }>(`${config.public.apiBase}/auth/quota`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      })
+      quota.value = res.data
+    } catch {
+      // ignore
+    }
+  }
 })
 
 onUnmounted(() => {

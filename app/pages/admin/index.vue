@@ -143,6 +143,20 @@
             </div>
           </div>
 
+          <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 mb-4">
+            <p class="text-[10.5px] text-white/25 uppercase tracking-widest mb-2.5">Guest Upload Activity (24h Cache)</p>
+            <div class="grid grid-cols-2 gap-4 text-[12px]">
+              <div>
+                <p class="text-white/30 uppercase text-[9px] tracking-wider mb-1">Active Guest Images</p>
+                <p class="text-[18px] font-bold text-amber-300 tabular-nums">{{ stats.guest_images.toLocaleString() }}</p>
+              </div>
+              <div>
+                <p class="text-white/30 uppercase text-[9px] tracking-wider mb-1">Guest Storage Used</p>
+                <p class="text-[18px] font-bold text-amber-300 tabular-nums">{{ formatSize(stats.guest_storage_bytes) }}</p>
+              </div>
+            </div>
+          </div>
+
           <div class="grid grid-cols-2 gap-2.5 mt-auto">
             <div v-for="card in statCards" :key="card.label" class="rounded-xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3.5">
               <p class="text-[10.5px] text-white/30 uppercase tracking-widest mb-1.5">{{ card.label }}</p>
@@ -327,4 +341,12 @@ const topPlan = computed(() => {
   const first = planRows.value[0]
   return { plan: first?.plan ?? '—', count: first?.count ?? 0 }
 })
+
+function formatSize(bytes: number) {
+  if (bytes <= 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
 </script>

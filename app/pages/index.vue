@@ -3,7 +3,7 @@
 
     <!-- Navbar -->
     <header class="border-b border-white/[0.06] bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50">
-      <div class="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between relative">
         <NuxtLink to="/" class="flex items-center gap-1.5">
           <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
@@ -11,10 +11,9 @@
           <span class="text-blue-500 text-[17px] font-bold tracking-tight">PicHost</span><span class="text-white text-[17px] font-light tracking-tight">.io</span>
         </NuxtLink>
 
-        <nav class="hidden md:flex items-center gap-0.5">
+        <nav class="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
           <a href="#features" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">Features</a>
           <a href="#pricing" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">Pricing</a>
-          <a href="#api" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">API</a>
         </nav>
 
         <div class="flex items-center gap-2">
@@ -34,7 +33,7 @@
     </header>
 
     <!-- Hero -->
-    <section class="max-w-6xl mx-auto px-6 pt-28 pb-24 text-center">
+    <section class="max-w-7xl mx-auto px-6 pt-28 pb-24 text-center">
       <div class="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[11.5px] px-3 py-1.5 rounded-full mb-10 font-medium">
         <span class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></span>
         {{ heroBadgeText }}
@@ -46,7 +45,7 @@
       </h1>
       <p class="text-white/40 text-lg max-w-xl mx-auto mb-12 leading-relaxed">
         Drag in any image and share the permanent URL in seconds.
-        No login, no watermark — free forever.
+        No login required — free forever.
       </p>
 
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-20">
@@ -78,7 +77,7 @@
         </span>
         <span class="flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          No watermark
+          Watermark removal on Basic
         </span>
         <span class="flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
@@ -86,17 +85,13 @@
         </span>
         <span class="flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          Private image support
-        </span>
-        <span class="flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-          REST API access
+          No registration required
         </span>
       </div>
     </section>
 
     <!-- Features -->
-    <section id="features" class="max-w-6xl mx-auto px-6 py-24">
+    <section id="features" class="max-w-7xl mx-auto px-6 py-24">
       <div class="text-center mb-16">
         <p class="text-blue-500 text-[12px] font-semibold uppercase tracking-widest mb-3">Features</p>
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Everything you need to host images</h2>
@@ -117,21 +112,21 @@
     </section>
 
     <!-- Pricing -->
-    <section id="pricing" class="max-w-6xl mx-auto px-6 py-24">
+    <section id="pricing" class="max-w-7xl mx-auto px-6 py-24">
       <div class="text-center mb-16">
         <p class="text-blue-500 text-[12px] font-semibold uppercase tracking-widest mb-3">Pricing</p>
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Simple, transparent pricing</h2>
-        <p class="text-white/40 max-w-lg mx-auto text-[15px]">Start free — upgrade only when you need more storage or private image features.</p>
+        <p class="text-white/40 max-w-lg mx-auto text-[15px]">Start free — upgrade only when you need more storage or higher file upload limits.</p>
       </div>
 
-      <div class="grid md:grid-cols-4 gap-4">
+      <div class="flex flex-col md:flex-row flex-wrap justify-center gap-6">
         <div
           v-for="plan in plans"
           :key="plan.key"
           :class="[
-            'rounded-2xl border p-6 flex flex-col transition-all',
+            'w-full md:w-[320px] rounded-2xl border p-6 flex flex-col transition-all',
             plan.highlighted
-              ? 'border-blue-500/50 bg-blue-600/[0.08] relative'
+              ? 'border-blue-500/50 bg-blue-600/[0.08] relative shadow-lg shadow-blue-500/5'
               : 'border-white/[0.07] bg-white/[0.02]'
           ]"
         >
@@ -163,95 +158,16 @@
             {{ plan.cta.label }}
           </NuxtLink>
         </div>
-        <div v-if="plans.length === 0" class="md:col-span-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] p-10 text-center text-[13px] text-white/40">
+        <div v-if="plans.length === 0" class="w-full rounded-2xl border border-white/[0.07] bg-white/[0.02] p-10 text-center text-[13px] text-white/40">
           No plans available right now.
         </div>
       </div>
     </section>
 
-    <!-- API / Docs -->
-    <section id="api" class="max-w-6xl mx-auto px-6 py-24">
-      <div class="grid md:grid-cols-2 gap-12 items-center">
-        <div>
-          <p class="text-blue-500 text-[12px] font-semibold uppercase tracking-widest mb-3">REST API</p>
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-5">Integrate in minutes</h2>
-          <p class="text-white/40 text-[15px] leading-relaxed mb-8">
-            Upload, retrieve, and manage images programmatically with our simple REST API.
-            Bearer token auth — works with any language or framework.
-          </p>
-          <div class="space-y-3">
-            <div v-for="ep in endpoints" :key="ep.path" class="flex items-center gap-3">
-              <span :class="['text-[11px] font-bold px-2 py-0.5 rounded font-mono min-w-[46px] text-center', ep.methodClass]">{{ ep.method }}</span>
-              <span class="text-[13px] font-mono text-white/60">{{ ep.path }}</span>
-              <span class="text-[12px] text-white/30 ml-auto">{{ ep.desc }}</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Code sample -->
-        <div class="rounded-2xl border border-white/[0.07] bg-[#0d0d10] overflow-hidden">
-          <div class="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06]">
-            <span class="w-2.5 h-2.5 rounded-full bg-red-500/60"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></span>
-            <span class="w-2.5 h-2.5 rounded-full bg-green-500/60"></span>
-            <span class="text-white/25 text-[12px] ml-2 font-mono">upload.sh</span>
-          </div>
-          <pre v-if="!user" class="p-5 text-[12.5px] font-mono leading-relaxed overflow-x-auto"><code><span class="text-white/30"># Upload an image (no auth needed)</span>
-<span class="text-blue-400">curl</span> <span class="text-green-400">-X POST</span> \
-  <span class="text-white/60">https://api.pichost.io/api/v1/storage/upload-file-guest</span> \
-  <span class="text-yellow-400">-F</span> <span class="text-white/80">"file=@photo.jpg"</span>
-
-<span class="text-white/30"># Response</span>
-<span class="text-white/50">{
-  <span class="text-blue-300">"data"</span>: {
-    <span class="text-blue-300">"public_url"</span>: <span class="text-green-300">"https://cdn.pichost.io/..."</span>,
-    <span class="text-blue-300">"short_code"</span>: <span class="text-green-300">"aB3xKq7"</span>,
-    <span class="text-blue-300">"expires_at"</span>: <span class="text-green-300">"2026-05-06T10:00:00Z"</span>
-  }
-}</span></code></pre>
-          <pre v-else class="p-5 text-[12.5px] font-mono leading-relaxed overflow-x-auto"><code><span class="text-white/30"># Upload an image (authenticated)</span>
-<span class="text-blue-400">curl</span> <span class="text-green-400">-X POST</span> \
-  <span class="text-white/60">https://api.pichost.io/api/v1/storage/upload-file</span> \
-  <span class="text-yellow-400">-H</span> <span class="text-white/80">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span> \
-  <span class="text-yellow-400">-F</span> <span class="text-white/80">"file=@photo.jpg"</span>
-
-<span class="text-white/30"># Response</span>
-<span class="text-white/50">{
-  <span class="text-blue-300">"data"</span>: {
-    <span class="text-blue-300">"public_url"</span>: <span class="text-green-300">"https://cdn.pichost.io/..."</span>,
-    <span class="text-blue-300">"short_code"</span>: <span class="text-green-300">"aB3xKq7"</span>
-  }
-}</span></code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ — helps Google AI Overviews / Gemini surface answers -->
-    <section id="faq" class="max-w-6xl mx-auto px-6 py-24">
-      <div class="text-center mb-14">
-        <p class="text-blue-500 text-[12px] font-semibold uppercase tracking-widest mb-3">FAQ</p>
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Frequently asked questions</h2>
-        <p class="text-white/40 max-w-lg mx-auto text-[15px]">Everything you need to know about PicHost.io.</p>
-      </div>
-      <div class="max-w-2xl mx-auto space-y-3">
-        <details
-          v-for="faq in faqs"
-          :key="faq.q"
-          class="group rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden"
-        >
-          <summary class="flex items-center justify-between px-6 py-4 text-[14px] font-medium text-white cursor-pointer select-none list-none hover:bg-white/[0.02] transition-colors">
-            {{ faq.q }}
-            <svg class="w-4 h-4 text-white/30 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </summary>
-          <p class="px-6 pb-5 text-[13.5px] text-white/45 leading-relaxed border-t border-white/[0.05] pt-4">{{ faq.a }}</p>
-        </details>
-      </div>
-    </section>
 
     <!-- CTA Banner -->
-    <section class="max-w-6xl mx-auto px-6 pb-24">
+    <section class="max-w-7xl mx-auto px-6 pb-24">
       <div class="rounded-2xl border border-blue-500/20 bg-blue-600/[0.06] px-8 py-12 text-center">
         <h2 class="text-3xl font-bold text-white mb-3">Ready to start hosting?</h2>
         <p class="text-white/40 mb-8 max-w-md mx-auto text-[15px]">Upload your first image right now — no account required. Sign up later to keep it forever.</p>
@@ -269,9 +185,8 @@
       </div>
     </section>
 
-    <!-- Footer -->
     <footer class="border-t border-white/[0.06] py-10">
-      <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-[13px] text-white/25">
+      <div class="max-w-7xl mx-auto px-6 flex items-center justify-center text-[13px] text-white/25">
         <div class="flex items-center gap-1.5">
           <svg class="w-4 h-4 text-blue-500/50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
@@ -279,11 +194,6 @@
           <span class="text-blue-500/60 font-bold">PicHost</span><span class="text-white/25 font-light">.io</span>
           <span class="mx-2">·</span>
           <span>© 2026 All rights reserved.</span>
-        </div>
-        <div class="flex gap-6">
-          <a href="#" class="hover:text-white/50 transition-colors">Privacy</a>
-          <a href="#" class="hover:text-white/50 transition-colors">Terms</a>
-          <a href="#" class="hover:text-white/50 transition-colors">Status</a>
         </div>
       </div>
     </footer>
@@ -304,30 +214,27 @@ const ldJson = computed(() => {
     : 'Free, fast image hosting. Upload JPEG, PNG, WebP, GIF, AVIF images and share permanent CDN-backed URLs. No login required for guest uploads.'
 
   const offers = [
-    { '@type': 'Offer', name: 'Guest', price: '0', priceCurrency: 'USD', description: 'Upload up to 10 images with 50 MB total, no account required. Images expire after 24 hours.' },
-    { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD', description: '500 MB storage, 200 images, permanent links.' },
-    { '@type': 'Offer', name: 'Basic', price: '5', priceCurrency: 'USD', description: '10 GB storage, unlimited images, private images, API access.' },
-    { '@type': 'Offer', name: 'Pro', price: '19', priceCurrency: 'USD', description: '100 GB storage, all formats including HEIC, priority support.' },
+    { '@type': 'Offer', name: 'Guest', price: '0', priceCurrency: 'THB', description: 'Upload up to 10 images with 50 MB total, no account required. Images expire after 24 hours.' },
+    { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'THB', description: '1 GB storage, 200 images, permanent links.' },
+    { '@type': 'Offer', name: 'Basic', price: '19', priceCurrency: 'THB', description: '10 GB storage, unlimited images, API access.' },
+    { '@type': 'Offer', name: 'Pro', price: '190', priceCurrency: 'THB', description: '100 GB storage, all formats including HEIC.' },
   ]
 
   const featureList = [
     'No account required for guest uploads',
     'Permanent shareable links',
     'S3-backed reliable storage',
-    'Private image support',
     'REST API access',
-    'No watermark',
+    'Watermark removal on Basic',
   ]
 
   const faqEntities = [
     { '@type': 'Question', name: 'What is PicHost.io?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io is a free image hosting service that lets you upload images and get permanent, shareable CDN-backed URLs instantly. No account is required for guest uploads.' } },
-    { '@type': 'Question', name: 'Is PicHost.io free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB) without creating an account. Free accounts get 500 MB and 200 images. Paid plans start at $5/month.' } },
+    { '@type': 'Question', name: 'Is PicHost.io free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB) without creating an account. Free accounts get 1 GB and 200 images. Paid plans start at low monthly rates.' } },
     { '@type': 'Question', name: 'Do I need an account to upload images?', acceptedAnswer: { '@type': 'Answer', text: 'No. You can upload images as a guest without creating any account. Guest images are stored for 24 hours. Create a free account to make your images permanent.' } },
     { '@type': 'Question', name: 'How long do guest images last?', acceptedAnswer: { '@type': 'Answer', text: 'Guest images (uploaded without an account) expire after 24 hours. Images uploaded by registered users are permanent and never expire unless you delete them.' } },
     { '@type': 'Question', name: 'What image formats does PicHost.io support?', acceptedAnswer: { '@type': 'Answer', text: 'PicHost.io supports JPEG and PNG for guest uploads. Free accounts support JPEG, PNG, and WebP. Basic plan adds GIF and AVIF. Pro plan supports all formats including HEIC.' } },
-    { '@type': 'Question', name: 'Does PicHost.io add a watermark to images?', acceptedAnswer: { '@type': 'Answer', text: 'No. PicHost.io never adds a watermark to your images on any plan.' } },
-    { '@type': 'Question', name: 'Does PicHost.io have an API?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. PicHost.io provides a REST API. You can upload images, retrieve links, and manage your files programmatically using Bearer token authentication.' } },
-    { '@type': 'Question', name: 'Can I make images private?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed.' } },
+    { '@type': 'Question', name: 'Does PicHost.io add a watermark to images?', acceptedAnswer: { '@type': 'Answer', text: 'Free plan and Guest uploads include a watermark to help promote our service. Upgrade to Basic to remove the watermark.' } },
   ]
 
   return {
@@ -380,8 +287,8 @@ const ldJson = computed(() => {
 useSeoMeta({
   title: 'PicHost.io — Free Image Hosting, No Login Required',
   ogTitle: 'PicHost.io — Free Image Hosting, No Login Required',
-  description: 'Upload any image and get a permanent shareable link in seconds. No account needed, no watermark, S3-backed storage. Free image hosting for developers and teams.',
-  ogDescription: 'Upload any image and get a permanent shareable link in seconds. No account needed, no watermark, S3-backed storage. Free image hosting for developers and teams.',
+  description: 'Upload any image and get a permanent shareable link in seconds. No account needed, S3-backed storage, remove watermark on Basic. Free image hosting for developers and teams.',
+  ogDescription: 'Upload any image and get a permanent shareable link in seconds. No account needed, S3-backed storage, remove watermark on Basic. Free image hosting for developers and teams.',
   ogImage: OG_IMAGE,
   ogImageWidth: 1200,
   ogImageHeight: 630,
@@ -390,7 +297,7 @@ useSeoMeta({
   ogSiteName: 'PicHost.io',
   twitterCard: 'summary_large_image',
   twitterTitle: 'PicHost.io — Free Image Hosting, No Login Required',
-  twitterDescription: 'Upload any image and get a permanent link instantly. No account, no watermark. Free forever.',
+  twitterDescription: 'Upload any image and get a permanent link instantly. No account, remove watermark on Basic. Free forever.',
   twitterImage: OG_IMAGE,
   robots: 'index, follow',
 })
@@ -459,11 +366,6 @@ const baseFeatures = [
     desc: 'Every upload gets a permanent short URL and a direct CDN link. Ready to paste anywhere in seconds.',
   },
   {
-    icon: `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z"/></svg>`,
-    title: 'Private images',
-    desc: 'Mark any image as private on Basic+ plans. Only accessible via signed URL — never exposed publicly.',
-  },
-  {
     icon: `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125M3.75 15c0 2.278 3.694 4.125 8.25 4.125s8.25-1.847 8.25-4.125"/></svg>`,
     title: 'S3-backed storage',
     desc: 'Files stored in S3-compatible object storage. Durable, redundant, and scalable — your images never disappear.',
@@ -471,12 +373,7 @@ const baseFeatures = [
   {
     icon: `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>`,
     title: 'No account needed',
-    desc: 'Upload as a guest without registering. Sign up only when you need permanent storage, private images, or higher limits.',
-  },
-  {
-    icon: `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5"/></svg>`,
-    title: 'Simple REST API',
-    desc: 'Upload, manage, and serve images via clean REST endpoints. Bearer token auth with full OpenAPI docs.',
+    desc: 'Upload as a guest without registering. Sign up only when you need permanent storage or higher limits.',
   },
   {
     icon: `<svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>`,
@@ -506,14 +403,15 @@ function toPlanCard(plan: PublicPlanSetting): LandingPlan {
     formatStorage(plan.storage_limit_bytes),
     `Max ${plan.max_upload_mb} MB per file`,
     plan.image_limit > 0 ? `Up to ${plan.image_limit.toLocaleString()} images` : 'Unlimited images',
-    plan.allow_private ? 'Private images' : 'Public images only',
   ]
 
+  if (plan.watermark_removal) {
+    features.push('No watermark')
+  } else {
+    features.push('Watermarked images')
+  }
+
   if (plan.api_access) features.push('API access')
-  if (plan.priority_support) features.push('Priority support')
-  if (plan.custom_domain) features.push('Custom domain')
-  if (plan.no_ads) features.push('No ads')
-  if (plan.watermark_removal) features.push('Watermark removal')
 
   return {
     key: plan.plan_key,
@@ -538,33 +436,6 @@ const plans = computed<LandingPlan[]>(() => {
     .map(toPlanCard)
 })
 
-const baseEndpoints = [
-  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file-guest', desc: 'Guest upload', guestOnly: true },
-  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/storage/upload-file', desc: 'Auth upload', guestOnly: false },
-  { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/images',               desc: 'List images', guestOnly: false },
-  { method: 'GET',  methodClass: 'bg-blue-500/15 text-blue-400',  path: '/auth/me',               desc: 'Current user', guestOnly: false },
-  { method: 'POST', methodClass: 'bg-green-500/15 text-green-400', path: '/public/auth/refresh',  desc: 'Refresh token', guestOnly: false },
-]
 
-const endpoints = computed(() => {
-  if (!user.value) return baseEndpoints
-  return baseEndpoints.filter((endpoint) => !endpoint.guestOnly)
-})
-
-const baseFaqs = [
-  { q: 'What is PicHost.io?', a: 'PicHost.io is a free image hosting service that lets you upload any image and get a permanent, shareable CDN-backed URL instantly. No account is required for guest uploads.' },
-  { q: 'Is PicHost.io free to use?', a: 'Yes. PicHost.io is free forever. Guests can upload up to 10 images (50 MB total) without creating an account. Free registered accounts get 500 MB and 200 images. Paid plans start at $5/month for more storage and features.' },
-  { q: 'Do I need an account to upload images?', a: 'No account is required. You can upload images as a guest instantly. Guest images are stored for 24 hours. Create a free account to make your images permanent and keep them forever.' },
-  { q: 'How long do guest images last?', a: 'Guest images (uploaded without an account) expire after 24 hours. Images uploaded by registered users are permanent and never expire unless you delete them manually.' },
-  { q: 'What image formats does PicHost.io support?', a: 'Guest uploads support JPEG and PNG. Free accounts add WebP. The Basic plan ($5/mo) adds GIF and AVIF. The Pro plan ($19/mo) supports all formats including HEIC.' },
-  { q: 'Does PicHost.io add a watermark?', a: 'Never. PicHost.io does not add any watermark to your images on any plan.' },
-  { q: 'Does PicHost.io have a REST API?', a: 'Yes. PicHost.io provides a full REST API. Upload images, retrieve links, and manage your files programmatically using Bearer token authentication. Works with any language or framework.' },
-  { q: 'Can I make images private?', a: 'Yes. Private images are available on the Basic plan ($5/month) and above. Private images are only accessible via signed URLs and are never publicly listed or indexed.' },
-]
-
-const faqs = computed(() => {
-  if (!user.value) return baseFaqs
-  return baseFaqs.filter((faq) => !faq.q.toLowerCase().includes('guest'))
-})
 </script>
 

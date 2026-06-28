@@ -23,11 +23,11 @@
     </header>
 
     <main class="pt-[64px]">
-      <div class="max-w-3xl mx-auto px-6 py-12">
+      <div class="max-w-7xl mx-auto px-6 py-10">
 
         <div class="mb-8">
-          <h1 class="text-[22px] font-bold text-white">Settings</h1>
-          <p class="text-white/35 text-sm mt-1">Manage your account preferences.</p>
+          <h1 class="text-[26px] font-bold tracking-tight leading-tight text-white">Settings</h1>
+          <p class="text-white/35 text-sm mt-1.5">Manage your account preferences.</p>
         </div>
 
         <div v-if="pageLoading" class="space-y-4">
@@ -36,23 +36,40 @@
         </div>
 
         <template v-else-if="user">
+          <div class="flex flex-col lg:flex-row gap-8 items-start">
+            <!-- Left Sidebar Menu (lg:w-[220px] shrink-0) -->
+            <div class="hidden lg:flex flex-col gap-1 w-[220px] shrink-0">
+              <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="activeTab = tab.id"
+                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-[13.5px] font-medium transition-all text-left border"
+                :class="activeTab === tab.id ? 'bg-blue-600/10 border-blue-500/25 text-blue-200 font-semibold' : 'text-white/45 hover:text-white/70 hover:bg-white/[0.02] border-transparent'"
+              >
+                <span v-html="tab.icon" class="w-4 h-4 shrink-0" />
+                {{ tab.label }}
+              </button>
+            </div>
 
-          <!-- Tab bar -->
-          <div class="flex items-center gap-1 mb-6 border-b border-white/[0.07]">
-            <button
-              v-for="tab in tabs"
-              :key="tab.id"
-              @click="activeTab = tab.id"
-              :class="[
-                'flex items-center gap-1.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors relative',
-                activeTab === tab.id ? 'text-white' : 'text-white/40 hover:text-white/70',
-              ]"
-            >
-              <span v-html="tab.icon" class="w-4 h-4 shrink-0" />
-              {{ tab.label }}
-              <span v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-500 rounded-full" />
-            </button>
-          </div>
+            <!-- Mobile Horizontal Tab Switcher (lg:hidden) -->
+            <div class="lg:hidden w-full flex items-center gap-1 mb-2 border-b border-white/[0.07] overflow-x-auto scrollbar-none">
+              <button
+                v-for="tab in tabs"
+                :key="tab.id"
+                @click="activeTab = tab.id"
+                :class="[
+                  'flex items-center gap-1.5 px-3.5 py-2.5 text-[13px] font-medium transition-colors relative shrink-0',
+                  activeTab === tab.id ? 'text-white' : 'text-white/40 hover:text-white/70',
+                ]"
+              >
+                <span v-html="tab.icon" class="w-4 h-4 shrink-0" />
+                {{ tab.label }}
+                <span v-if="activeTab === tab.id" class="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-500 rounded-full" />
+              </button>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="flex-1 min-w-0 w-full space-y-6">
 
           <!-- PROFILE TAB -->
           <div v-if="activeTab === 'profile'" class="space-y-5">
@@ -243,8 +260,8 @@
                     <p class="text-[14px] font-semibold">{{ quota.file_size_limit_bytes === -1 ? 'Unlimited' : formatBytes(quota.file_size_limit_bytes) }}</p>
                   </div>
                   <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3.5">
-                    <p class="text-[11px] text-white/30 mb-1">Private images</p>
-                    <p class="text-[14px] font-semibold">{{ quota.allow_private ? 'Yes' : 'No' }}</p>
+                    <p class="text-[11px] text-white/30 mb-1">API access</p>
+                    <p class="text-[14px] font-semibold">{{ quota.plan !== 'Free' ? 'Enabled' : 'Disabled' }}</p>
                   </div>
                   <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-3.5">
                     <p class="text-[11px] text-white/30 mb-1">Plan tier</p>
@@ -295,18 +312,14 @@
                   :class="tier.name === user.plan
                     ? 'bg-white/[0.06] text-white/45 border border-white/[0.09]'
                     : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-600/20'"
-                  :disabled="tier.name === user.plan || checkoutLoadingPlan === tier.key || (tier.name === 'Free' && user.plan !== 'Free')"
+                  :disabled="tier.name === user.plan || (tier.name === 'Free' && user.plan !== 'Free')"
                   @click="startCheckout(tier.key)"
                 >
-                  <svg v-if="checkoutLoadingPlan === tier.key" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                  </svg>
                   {{ tier.name === user.plan
                     ? 'Current plan'
                     : (tier.name === 'Free' && user.plan !== 'Free')
                       ? 'Use cancellation to downgrade'
-                      : (checkoutLoadingPlan === tier.key ? 'Creating checkout…' : `Upgrade to ${tier.name}`) }}
+                      : `Upgrade to ${tier.name}` }}
                 </button>
 
                 <div v-if="tier.name === user.plan && user.plan !== 'Free' && !user.plan_cancelled_at" class="mt-3 rounded-xl border border-red-500/20 bg-red-500/[0.04] p-3 space-y-2.5">
@@ -350,6 +363,68 @@
                 No purchasable plans are available right now.
               </div>
             </div>
+
+            <!-- PAYMENT HISTORY CARD -->
+            <div v-if="myPayments.length > 0" class="rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
+              <div class="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
+                <p class="text-[13.5px] font-semibold text-white/80">Payment History</p>
+                <span class="text-[11px] text-white/35 font-medium">{{ myPayments.length }} orders</span>
+              </div>
+              <div class="divide-y divide-white/[0.04]">
+                <div v-for="pmt in paginatedPayments" :key="pmt.id"
+                  @click="router.push(`/billing/payments/${pmt.id}`)"
+                  class="flex items-center justify-between gap-4 p-4 hover:bg-white/[0.02] transition-colors cursor-pointer group">
+                  <div class="min-w-0">
+                    <p class="text-[13px] font-semibold text-white/90 flex items-center gap-2">
+                      {{ toPlanDisplayName(pmt.plan_key) }} Plan
+                      <span class="text-[11px] font-mono text-white/30" :title="pmt.id">
+                        #{{ pmt.id.slice(0, 8).toUpperCase() }}
+                      </span>
+                    </p>
+                    <p class="text-[11px] text-white/40 mt-0.5">
+                      Ordered on {{ formatPlanExpiryDate(pmt.created_at) }}
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="text-right">
+                      <p class="text-[13px] font-bold text-white">฿{{ pmt.amount_thb.toLocaleString() }}</p>
+                      <!-- Badge -->
+                      <span class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border mt-1"
+                        :class="getHistoryBadgeClass(pmt.status)">
+                        {{ pmt.status.toUpperCase() }}
+                      </span>
+                    </div>
+                    <!-- Chevron -->
+                    <svg class="w-4 h-4 text-white/20 group-hover:text-white/60 group-hover:translate-x-0.5 transition-all" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pagination controls -->
+              <div v-if="totalPages > 1" class="px-5 py-3.5 border-t border-white/[0.06] bg-white/[0.01] flex items-center justify-between">
+                <span class="text-[11.5px] text-white/35 font-medium">
+                  Page <span class="text-white/60 font-semibold">{{ currentPage }}</span> of <span class="text-white/60 font-semibold">{{ totalPages }}</span>
+                </span>
+                <div class="flex items-center gap-2">
+                  <button
+                    @click="currentPage--"
+                    :disabled="currentPage === 1"
+                    class="px-2.5 py-1.5 rounded-lg border border-white/[0.08] text-[11.5px] font-medium text-white/60 hover:text-white hover:border-white/15 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-white/60 disabled:hover:border-white/[0.08] transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    @click="currentPage++"
+                    :disabled="currentPage === totalPages"
+                    class="px-2.5 py-1.5 rounded-lg border border-white/[0.08] text-[11.5px] font-medium text-white/60 hover:text-white hover:border-white/15 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-white/60 disabled:hover:border-white/[0.08] transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- DANGER TAB -->
@@ -378,45 +453,92 @@
                       <p class="text-[13.5px] font-medium text-red-400">Delete account</p>
                       <p class="text-[12px] text-white/30 mt-0.5">Permanently delete your account and all data. This cannot be undone.</p>
                     </div>
-                    <button @click="deleteConfirm = !deleteConfirm"
+                    <button @click="openDeleteModal"
                       class="shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg border border-red-500/30 bg-red-500/[0.06] hover:bg-red-500/[0.12] text-red-400 hover:text-red-300 text-[13px] font-medium transition-all">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                       Delete account
                     </button>
                   </div>
 
-                  <Transition
-                    enter-active-class="transition duration-200"
-                    enter-from-class="opacity-0 -translate-y-1"
-                    leave-active-class="transition duration-150"
-                    leave-to-class="opacity-0 -translate-y-1"
-                  >
-                    <div v-if="deleteConfirm" class="mt-4 p-4 rounded-xl border border-red-500/25 bg-red-500/[0.05] space-y-3">
-                      <p class="text-[12.5px] text-red-300/80">Type your email <span class="font-semibold text-red-300">{{ user.email }}</span> to confirm deletion.</p>
-                      <input
-                        v-model="deleteConfirmEmail"
-                        type="email"
-                        placeholder="Enter your email"
-                        class="w-full px-3.5 py-2.5 rounded-xl bg-black/30 border border-red-500/20 focus:border-red-500/50 focus:outline-none text-[13px] text-white placeholder-white/20 transition-colors"
-                      />
-                      <div class="flex justify-end gap-2">
-                        <button @click="deleteConfirm = false; deleteConfirmEmail = ''"
-                          class="px-3.5 py-2 rounded-lg text-[13px] font-medium text-white/40 hover:text-white/70 transition-colors">
-                          Cancel
-                        </button>
-                        <button
-                          @click="deleteAccount"
-                          :disabled="deleteConfirmEmail !== user.email || deleteDeleting"
-                          class="flex items-center gap-2 px-3.5 py-2 rounded-lg text-[13px] font-medium bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-all">
-                          <svg v-if="deleteDeleting" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
-                          {{ deleteDeleting ? 'Deleting…' : 'Permanently delete' }}
-                        </button>
+                  <!-- Delete Account Confirmation Modal -->
+                  <Teleport to="body">
+                    <Transition
+                      enter-active-class="transition duration-200 ease-out"
+                      enter-from-class="opacity-0"
+                      leave-active-class="transition duration-150 ease-in"
+                      leave-to-class="opacity-0"
+                    >
+                      <div v-if="deleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                        <div class="fixed inset-0" @click="closeDeleteModal"></div>
+
+                        <Transition
+                          enter-active-class="transition duration-200 ease-out"
+                          enter-from-class="opacity-0 scale-95"
+                          leave-active-class="transition duration-150 ease-in"
+                          leave-to-class="opacity-0 scale-95"
+                        >
+                          <div v-if="deleteModalOpen" class="relative w-full max-w-md rounded-2xl border border-red-500/20 bg-[#0c0c0e] p-6 shadow-2xl">
+                            <div class="flex items-center gap-3.5 mb-4">
+                              <span class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                              </span>
+                              <div>
+                                <h3 class="text-[16px] font-bold text-white">Delete Account?</h3>
+                                <p class="text-[11.5px] text-white/35 mt-0.5">This action is permanent and cannot be undone.</p>
+                              </div>
+                            </div>
+
+                            <div class="space-y-4">
+                              <p class="text-[12.5px] text-white/60 leading-relaxed">
+                                All your uploaded images, subscription settings, and billing history will be permanently deleted from our servers.
+                              </p>
+
+                              <div class="rounded-xl bg-red-500/[0.03] border border-red-500/10 p-3.5">
+                                <p class="text-[12px] text-red-300/80">
+                                  Please type your email <span class="font-bold text-red-200">{{ user?.email }}</span> below to confirm.
+                                </p>
+                              </div>
+
+                              <input
+                                v-model="deleteConfirmEmail"
+                                type="email"
+                                placeholder="Enter your email"
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/[0.08] focus:border-red-500/40 focus:outline-none text-[13px] text-white placeholder-white/20 transition-all"
+                              />
+
+                              <div class="flex items-center justify-end gap-2.5 pt-2">
+                                <button
+                                  @click="closeDeleteModal"
+                                  :disabled="deleteDeleting"
+                                  class="px-4 py-2.5 rounded-xl border border-white/[0.08] text-[13px] font-semibold text-white/60 hover:text-white hover:border-white/[0.15] disabled:opacity-40 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  @click="deleteAccount"
+                                  :disabled="deleteConfirmEmail !== user?.email || deleteDeleting"
+                                  class="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-lg shadow-red-600/15"
+                                >
+                                  <svg v-if="deleteDeleting" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                  </svg>
+                                  {{ deleteDeleting ? 'Deleting Account…' : 'Delete Account' }}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </Transition>
                       </div>
-                    </div>
-                  </Transition>
+                    </Transition>
+                  </Teleport>
                 </div>
               </div>
             </div>
+          </div>
+          </div>
           </div>
 
         </template>
@@ -427,12 +549,44 @@
 </template>
 
 <script setup lang="ts">
+import type { PaymentTransaction } from '~/composables/useBilling'
+
 const config = useRuntimeConfig()
 const router = useRouter()
 const { user, fetchMe, refreshMe, getToken } = useAuth()
 const { success, error: toastError } = useToast()
 const { open: openLogoutModal } = useLogoutModal()
-const { listPublicPlans, createCheckout, cancelSubscription } = useBilling()
+const { listPublicPlans, createCheckout, cancelSubscription, listMyPayments, toPlanDisplayName } = useBilling()
+
+const myPayments = ref<PaymentTransaction[]>([])
+const paymentsLoading = ref(false)
+const currentPage = ref(1)
+const itemsPerPage = 5
+const totalPages = computed(() => Math.ceil(myPayments.value.length / itemsPerPage))
+
+const paginatedPayments = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return myPayments.value.slice(start, end)
+})
+
+async function fetchMyPayments() {
+  paymentsLoading.value = true
+  try {
+    myPayments.value = await listMyPayments()
+    currentPage.value = 1
+  } catch {
+    // ignore
+  } finally {
+    paymentsLoading.value = false
+  }
+}
+
+function getHistoryBadgeClass(status: string) {
+  if (status === 'paid') return 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+  if (status === 'pending') return 'border-blue-500/20 bg-blue-500/10 text-blue-400'
+  return 'border-red-500/20 bg-red-500/10 text-red-400'
+}
 
 const pageLoading = ref(true)
 const activeTab = ref<'profile' | 'security' | 'plan' | 'danger'>('profile')
@@ -454,6 +608,12 @@ onMounted(async () => {
   profileForm.username = me.username ?? ''
   profileForm.email = me.email ?? ''
   pageLoading.value = false
+
+  if (activeTab.value === 'plan') {
+    void fetchQuota()
+    void fetchPublicPlans()
+    void fetchMyPayments()
+  }
 })
 
 const avatarInitial = computed(() => {
@@ -558,9 +718,20 @@ async function changePassword() {
   }
 }
 
-const deleteConfirm = ref(false)
+const deleteModalOpen = ref(false)
 const deleteConfirmEmail = ref('')
 const deleteDeleting = ref(false)
+
+function openDeleteModal() {
+  deleteModalOpen.value = true
+  deleteConfirmEmail.value = ''
+}
+
+function closeDeleteModal() {
+  if (deleteDeleting.value) return
+  deleteModalOpen.value = false
+  deleteConfirmEmail.value = ''
+}
 
 async function deleteAccount() {
   if (!user.value || deleteConfirmEmail.value !== user.value.email) return
@@ -571,6 +742,7 @@ async function deleteAccount() {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })
+    closeDeleteModal()
     router.replace('/auth/login')
   } catch (err: unknown) {
     const msg = (err as { data?: { message?: string } })?.data?.message ?? 'Failed to delete account.'
@@ -593,7 +765,6 @@ interface QuotaData {
 const quota = ref<QuotaData | null>(null)
 const plansLoading = ref(false)
 const plansLoaded = ref(false)
-const checkoutLoadingPlan = ref<string | null>(null)
 
 interface PublicPlanSetting {
   plan_key: string
@@ -644,6 +815,7 @@ watch(activeTab, (tab) => {
   if (tab !== 'plan') return
   if (!quota.value) fetchQuota()
   if (!plansLoaded.value) fetchPublicPlans()
+  fetchMyPayments()
 })
 
 const storagePercent = computed(() => {
@@ -677,13 +849,8 @@ const planTiers = computed(() => {
       formatStorage(plan.storage_limit_bytes),
       `Max ${plan.max_upload_mb} MB per file`,
       plan.image_limit > 0 ? `Up to ${plan.image_limit.toLocaleString()} images` : 'Unlimited images',
-      plan.allow_private ? 'Private images' : 'Public images only',
     ]
     if (plan.api_access) features.push('API access')
-    if (plan.priority_support) features.push('Priority support')
-    if (plan.custom_domain) features.push('Custom domain')
-    if (plan.no_ads) features.push('No ads')
-    if (plan.watermark_removal) features.push('Watermark removal')
 
     return {
       key: plan.plan_key,
@@ -696,18 +863,8 @@ const planTiers = computed(() => {
   })
 })
 
-async function startCheckout(planKey: string) {
-  checkoutLoadingPlan.value = planKey
-  try {
-    const checkout = await createCheckout(planKey)
-    success('Checkout created. Redirecting...')
-    router.push(`/billing/checkout/${checkout.id}`)
-  } catch (err: any) {
-    const msg = err?.data?.data?.error || err?.data?.message || 'Failed to create checkout.'
-    toastError(msg)
-  } finally {
-    checkoutLoadingPlan.value = null
-  }
+function startCheckout(planKey: string) {
+  router.push(`/billing/checkout/${planKey}`)
 }
 
 // ── Subscription cancellation ─────────────────────────────────────────────

@@ -14,8 +14,8 @@ export default defineNuxtConfig({
       // titleTemplate: '%s — PicHost.io',
       htmlAttrs: { lang: 'en' },
       meta: [
-        { name: 'description', content: 'Upload any image and get a permanent shareable link in seconds. No account needed, no watermark, S3-backed storage. Free image hosting for developers and teams.' },
-        { name: 'keywords', content: 'free image hosting, image upload, permanent image links, image sharing, image hosting without watermark, image CDN, image hosting API, free photo hosting' },
+        { name: 'description', content: 'Upload any image and get a permanent shareable link in seconds. No account needed, S3-backed storage, remove watermark on Basic. Free image hosting for developers and teams.' },
+        { name: 'keywords', content: 'free image hosting, image upload, permanent image links, image sharing, image CDN, free photo hosting' },
         { name: 'theme-color', content: '#09090b' },
         { name: 'robots', content: 'index, follow' },
         // Open Graph defaults (overridden per-page by useSeoMeta)
