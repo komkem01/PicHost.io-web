@@ -1,7 +1,11 @@
 User-Agent: *
 Allow: /
+Disallow: /admin
 Disallow: /dashboard
 Disallow: /settings
+Disallow: /billing
+Disallow: /pay
+Disallow: /auth
 Disallow: /api/
 
 Sitemap: https://pichost.io/sitemap.xml

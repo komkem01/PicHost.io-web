@@ -91,15 +91,15 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'admin' })
+
 const route = useRoute()
-const { user, fetchMe } = useAuth()
 const router = useRouter()
+const { user, fetchMe } = useAuth()
+const { open: openLogoutModal } = useLogoutModal()
 
 onMounted(async () => {
-  const me = await fetchMe()
-  if (!me || !(me as any).is_admin) {
-    router.replace('/dashboard')
-  }
+  await fetchMe()
 })
 
 function isActive(to: string) {

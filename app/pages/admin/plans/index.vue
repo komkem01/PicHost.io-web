@@ -371,14 +371,6 @@ const planRows = computed(() => {
     })
 })
 
-function formatBytes(bytes: number) {
-  if (!bytes) return '0 B'
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-  return `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`
-}
-
 function formatPrice(price: number) {
   if (!price) return 'Free'
   return `${price.toLocaleString()} THB`

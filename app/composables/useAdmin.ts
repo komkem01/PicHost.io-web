@@ -15,33 +15,18 @@ export interface DashboardStats {
   total_users: number
   active_users: number
   guest_users: number
+  new_users_today?: number
   plan_breakdown: Record<string, number>
   guest_images: number
   guest_storage_bytes: number
+  total_storage_bytes?: number
+  total_images?: number
+  total_revenue_thb?: number
 }
 
-export interface AdminPlanSetting {
-  plan_key: string
-  display_name: string
-  monthly_price_thb: number
-  storage_limit_bytes: number
-  image_limit: number
-  max_upload_mb: number
-  is_enabled: boolean
-  allow_private: boolean
-  custom_domain: boolean
-  api_access: boolean
-  priority_support: boolean
-  no_ads: boolean
-  watermark_removal: boolean
-  updated_at: string
-}
 
-interface ApiResponse<T> {
-  code: string
-  message: string
-  data: T
-}
+import type { AdminPlanSetting, ApiResponse } from '~/types/api'
+export type { AdminPlanSetting } from '~/types/api'
 
 export function useAdmin() {
   const config = useRuntimeConfig()
@@ -127,14 +112,6 @@ export function useAdmin() {
     return res.data
   }
 
-  async function getPlanSetting(key: string): Promise<AdminPlanSetting> {
-    const res = await $fetch<ApiResponse<AdminPlanSetting>>(
-      `${config.public.apiBase}/admin/plans/${encodeURIComponent(key)}`,
-      { headers: headers() },
-    )
-    return res.data
-  }
-
   async function updatePlanSetting(key: string, payload: Omit<AdminPlanSetting, 'plan_key' | 'updated_at'>): Promise<AdminPlanSetting> {
     const res = await $fetch<ApiResponse<AdminPlanSetting>>(
       `${config.public.apiBase}/admin/plans/${encodeURIComponent(key)}`,
@@ -182,6 +159,19 @@ export function useAdmin() {
     })
   }
 
+  async function adminRefundPayment(
+    id: string,
+    reason?: string,
+  ): Promise<void> {
+    await $fetch(`${config.public.apiBase}/admin/payments/${id}/refund`, {
+      method: 'PATCH',
+      headers: headers(),
+      body: {
+        reason: reason?.trim() || undefined,
+      },
+    })
+  }
+
   return {
     getStats,
     listUsers,
@@ -192,10 +182,10 @@ export function useAdmin() {
     deleteUser,
     updateUserProfile,
     listPlanSettings,
-    getPlanSetting,
     updatePlanSetting,
     deletePlanSetting,
     adminListPayments,
     adminConfirmPayment,
+    adminRefundPayment,
   }
 }

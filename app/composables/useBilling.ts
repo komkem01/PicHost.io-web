@@ -1,20 +1,6 @@
 import type { AuthUser } from './useAuth'
-
-export interface PublicPlanSetting {
-  plan_key: string
-  display_name: string
-  monthly_price_thb: number
-  storage_limit_bytes: number
-  image_limit: number
-  max_upload_mb: number
-  is_enabled: boolean
-  allow_private: boolean
-  custom_domain: boolean
-  api_access: boolean
-  priority_support: boolean
-  no_ads: boolean
-  watermark_removal: boolean
-}
+import type { PublicPlanSetting, ApiResponse } from '~/types/api'
+export type { PublicPlanSetting } from '~/types/api'
 
 export interface PaymentTransaction {
   id: string
@@ -22,7 +8,7 @@ export interface PaymentTransaction {
   plan_key: string
   amount_thb: number
   currency: string
-  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'expired'
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'expired' | 'refunded'
   provider: string
   checkout_reference: string
   provider_reference: string | null
@@ -47,12 +33,6 @@ export interface BankInfo {
   bank_logo_url: string
 }
 
-interface ApiResponse<T> {
-  code: string
-  message: string
-  data: T
-}
-
 export function useBilling() {
   const config = useRuntimeConfig()
   const { getToken } = useAuth()
@@ -69,13 +49,13 @@ export function useBilling() {
     return (res.data ?? []).filter((plan) => plan.is_enabled)
   }
 
-  async function createCheckout(planKey: string): Promise<PaymentTransaction> {
+  async function createCheckout(planKey: string, provider = 'manual'): Promise<PaymentTransaction> {
     const res = await $fetch<ApiResponse<PaymentTransaction>>(
       `${config.public.apiBase}/billing/checkout`,
       {
         method: 'POST',
         headers: authHeaders(),
-        body: { plan_key: planKey },
+        body: { plan_key: planKey, provider },
       },
     )
     return res.data

@@ -34,10 +34,26 @@ export default defineNuxtConfig({
       ],
     },
   },
+  modules: ['@nuxtjs/i18n'],
+  i18n: {
+    locales: [
+      { code: 'th', name: 'ไทย', file: 'th.json' },
+      { code: 'en', name: 'English', file: 'en.json' }
+    ],
+    defaultLocale: 'th',
+    strategy: 'no_prefix',
+    lazy: false,
+    langDir: '../i18n/locales',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root'
+    }
+  },
   runtimeConfig: {
     public: {
-      apiBase: '/api/v1',
-      storagesServiceUrl: 'https://storages-production.up.railway.app/api/v1',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1',
+      storagesServiceUrl: process.env.NUXT_PUBLIC_STORAGES_SERVICE_URL || 'http://localhost:8080/api/v1',
     },
   },
 })

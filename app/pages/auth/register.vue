@@ -13,12 +13,15 @@
           <span class="text-blue-500 text-2xl font-bold tracking-tight">PicHost</span>
           <span class="text-white text-2xl font-light">.io</span>
         </NuxtLink>
-        <p class="text-sm text-white/40">
-          Already have an account?
-          <NuxtLink to="/auth/login" class="text-blue-400 hover:text-blue-300 transition-colors font-medium ml-1">
-            Sign in
-          </NuxtLink>
-        </p>
+        <div class="flex items-center gap-3">
+          <p class="text-sm text-white/40 hidden sm:block">
+            {{ $t('auth.register.hasAccount') }}
+            <NuxtLink to="/auth/login" class="text-blue-400 hover:text-blue-300 transition-colors font-medium ml-1">
+              {{ $t('auth.register.loginLink') }}
+            </NuxtLink>
+          </p>
+          <LanguageSwitcher />
+        </div>
       </div>
     </header>
 
@@ -28,19 +31,12 @@
 
         <!-- Heading -->
         <div class="text-center mb-8">
-          <div class="inline-flex items-center gap-2 bg-blue-600/[0.08] border border-blue-500/20 text-blue-400 text-[11px] px-3 py-1 rounded-full mb-4 tracking-wide">
-            <span class="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
-            Free forever on Starter plan
-          </div>
-          <h1 class="text-[28px] font-bold tracking-tight text-white mb-1.5">Create your account</h1>
-          <p class="text-[14px] text-white/40">Start hosting images in seconds</p>
+          <h1 class="text-[28px] font-bold tracking-tight text-white mb-1.5">{{ $t('auth.register.title') }}</h1>
+          <p class="text-[14px] text-white/40">{{ $t('auth.register.subtitle') }}</p>
         </div>
 
         <!-- Card -->
         <div class="relative rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl shadow-2xl shadow-black/60 p-7">
-          <!-- Subtle top shimmer -->
-          <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent rounded-t-2xl"></div>
-
           <!-- Google OAuth -->
           <a
             :href="`${config.public.apiBase}/public/auth/google`"
@@ -52,7 +48,7 @@
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            Continue with Google
+            {{ $t('auth.register.googleBtn') }}
           </a>
 
           <!-- Divider -->
@@ -66,11 +62,8 @@
           <form @submit.prevent="handleSubmit" novalidate class="space-y-4">
             <!-- Username -->
             <div>
-              <label for="username" class="block text-[12.5px] font-medium text-white/50 mb-1.5">Username</label>
+              <label for="username" class="block text-[12.5px] font-medium text-white/50 mb-1.5">{{ $t('auth.register.nameLabel') }}</label>
               <div class="relative">
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-white/25 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
                 <input
                   id="username"
                   v-model="form.username"
@@ -78,7 +71,7 @@
                   autocomplete="username"
                   placeholder="your_username"
                   :class="[
-                    'w-full bg-white/[0.05] border rounded-xl pl-10 pr-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/20 outline-none transition-all duration-150 focus:bg-white/[0.07]',
+                    'w-full bg-white/[0.05] border rounded-xl px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/20 outline-none transition-all duration-150 focus:bg-white/[0.07]',
                     fieldErrors.username
                       ? 'border-red-500/50 focus:border-red-500/70 focus:ring-1 focus:ring-red-500/20'
                       : 'border-white/[0.09] focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/15',
@@ -87,7 +80,6 @@
               </div>
               <Transition enter-from-class="opacity-0 -translate-y-0.5" enter-active-class="transition duration-150">
                 <p v-if="fieldErrors.username" class="mt-1.5 text-[11.5px] text-red-400 flex items-center gap-1">
-                  <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                   {{ fieldErrors.username }}
                 </p>
               </Transition>
@@ -95,11 +87,8 @@
 
             <!-- Email -->
             <div>
-              <label for="email" class="block text-[12.5px] font-medium text-white/50 mb-1.5">Email address</label>
+              <label for="email" class="block text-[12.5px] font-medium text-white/50 mb-1.5">{{ $t('auth.register.emailLabel') }}</label>
               <div class="relative">
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-white/25 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
                 <input
                   id="email"
                   v-model="form.email"
@@ -107,7 +96,7 @@
                   autocomplete="email"
                   placeholder="you@example.com"
                   :class="[
-                    'w-full bg-white/[0.05] border rounded-xl pl-10 pr-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/20 outline-none transition-all duration-150 focus:bg-white/[0.07]',
+                    'w-full bg-white/[0.05] border rounded-xl px-3.5 py-2.5 text-[13.5px] text-white placeholder:text-white/20 outline-none transition-all duration-150 focus:bg-white/[0.07]',
                     fieldErrors.email
                       ? 'border-red-500/50 focus:border-red-500/70 focus:ring-1 focus:ring-red-500/20'
                       : 'border-white/[0.09] focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/15',
@@ -116,7 +105,6 @@
               </div>
               <Transition enter-from-class="opacity-0 -translate-y-0.5" enter-active-class="transition duration-150">
                 <p v-if="fieldErrors.email" class="mt-1.5 text-[11.5px] text-red-400 flex items-center gap-1">
-                  <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                   {{ fieldErrors.email }}
                 </p>
               </Transition>
@@ -124,14 +112,8 @@
 
             <!-- Password -->
             <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label for="password" class="block text-[12.5px] font-medium text-white/50">Password</label>
-                <span class="text-[11px] text-white/25">min. 8 characters</span>
-              </div>
+              <label for="password" class="block text-[12.5px] font-medium text-white/50 mb-1.5">{{ $t('auth.register.passwordLabel') }}</label>
               <div class="relative">
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-white/25 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
                 <input
                   id="password"
                   v-model="form.password"
@@ -139,32 +121,15 @@
                   autocomplete="new-password"
                   placeholder="••••••••"
                   :class="[
-                    'w-full bg-white/[0.05] border rounded-xl pl-10 pr-10 py-2.5 text-[13.5px] text-white placeholder:text-white/20 outline-none transition-all duration-150 focus:bg-white/[0.07]',
+                    'w-full bg-white/[0.05] border rounded-xl px-3.5 pr-10 py-2.5 text-[13.5px] text-white placeholder:text-white/20 outline-none transition-all duration-150 focus:bg-white/[0.07]',
                     fieldErrors.password
                       ? 'border-red-500/50 focus:border-red-500/70 focus:ring-1 focus:ring-red-500/20'
                       : 'border-white/[0.09] focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/15',
                   ]"
                 />
-                <button
-                  type="button"
-                  @click="showPassword = !showPassword"
-                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
-                >
-                  <svg v-if="!showPassword" class="w-[15px] h-[15px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                  </svg>
-                  <svg v-else class="w-[15px] h-[15px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-                  </svg>
-                </button>
-              </div>
-              <!-- Password strength bar -->
-              <div v-if="form.password.length > 0" class="mt-2 flex gap-1">
-                <div v-for="i in 4" :key="i" class="flex-1 h-0.5 rounded-full transition-all duration-300" :class="passwordStrength >= i ? strengthColor : 'bg-white/10'"></div>
               </div>
               <Transition enter-from-class="opacity-0 -translate-y-0.5" enter-active-class="transition duration-150">
                 <p v-if="fieldErrors.password" class="mt-1.5 text-[11.5px] text-red-400 flex items-center gap-1">
-                  <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                   {{ fieldErrors.password }}
                 </p>
               </Transition>
@@ -182,16 +147,9 @@
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                 </svg>
-                {{ loading ? 'Creating account…' : 'Create Account' }}
+                {{ loading ? $t('common.loading') : $t('auth.register.submitBtn') }}
               </span>
             </button>
-
-            <p class="text-center text-[11.5px] text-white/20 mt-3">
-              By creating an account, you agree to our
-              <a href="#" class="text-white/35 hover:text-white/55 transition-colors underline underline-offset-2">Terms</a>
-              and
-              <a href="#" class="text-white/35 hover:text-white/55 transition-colors underline underline-offset-2">Privacy Policy</a>.
-            </p>
           </form>
         </div>
 
@@ -201,6 +159,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'guest' })
+
 interface RegisterResponse {
   code: string
   message: string
@@ -219,42 +179,22 @@ interface RegisterResponse {
   }
 }
 
-interface ErrorBody {
-  code: string
-  message: string
-  data: null | {
-    error?: string
-    errors?: Record<string, { code: string; message: string; input: string }>
-  }
-}
-
 const config = useRuntimeConfig()
 const router = useRouter()
 const { setToken, fetchMe } = useAuth()
 const { error: toastError } = useToast()
+const { t, locale } = useI18n()
+
+useHead({
+  htmlAttrs: {
+    lang: computed(() => locale.value)
+  }
+})
 
 const form = reactive({ username: '', email: '', password: '' })
 const loading = ref(false)
 const fieldErrors = reactive<Record<string, string>>({})
 const showPassword = ref(false)
-
-const passwordStrength = computed(() => {
-  const p = form.password
-  if (!p) return 0
-  let score = 0
-  if (p.length >= 8) score++
-  if (p.length >= 12) score++
-  if (/[A-Z]/.test(p) && /[0-9]/.test(p)) score++
-  if (/[^A-Za-z0-9]/.test(p)) score++
-  return score
-})
-
-const strengthColor = computed(() => {
-  if (passwordStrength.value <= 1) return 'bg-red-500'
-  if (passwordStrength.value === 2) return 'bg-yellow-500'
-  if (passwordStrength.value === 3) return 'bg-blue-500'
-  return 'bg-green-500'
-})
 
 async function handleSubmit() {
   Object.keys(fieldErrors).forEach((k) => delete fieldErrors[k])
@@ -270,7 +210,7 @@ async function handleSubmit() {
 
   loading.value = true
   try {
-    const res = await $fetch<RegisterResponse>(`${config.public.apiBase}/public/auth/register`, {
+    const res = await apiFetch<RegisterResponse>('/public/auth/register', {
       method: 'POST',
       body: { email: form.email, password: form.password, username: form.username },
     })
@@ -278,19 +218,9 @@ async function handleSubmit() {
     setToken(res.data.access_token)
     await fetchMe()
     router.push('/dashboard')
-  } catch (err: unknown) {
-    const body = (err as { data?: ErrorBody })?.data
-    if (body?.data?.errors) {
-      for (const [key, val] of Object.entries(body.data.errors)) {
-        fieldErrors[key] = val.message
-      }
-    } else if (body?.data?.error) {
-      toastError(body.data.error)
-    } else if (body?.message) {
-      toastError(body.message)
-    } else {
-      toastError('Something went wrong. Please try again.')
-    }
+  } catch (err: any) {
+    const msg = err?.data?.message || t('common.error')
+    toastError(msg)
   } finally {
     loading.value = false
   }

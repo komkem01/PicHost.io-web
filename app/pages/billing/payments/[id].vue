@@ -237,6 +237,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
 import type { PaymentTransaction } from '~/composables/useBilling'
 
 const route = useRoute()
@@ -456,12 +458,7 @@ const step3Desc = computed(() => {
 })
 
 onMounted(async () => {
-  const me = await fetchMe()
-  if (!me) {
-    router.replace('/auth/login')
-    return
-  }
-
+  await fetchMe()
   try {
     await loadPayment()
     ensurePolling()

@@ -3,8 +3,9 @@
     <NuxtRouteAnnouncer />
     <AppPageLoader :show="pageLoading" />
     <AppToast />
-    <AppLogoutModal />
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>
 

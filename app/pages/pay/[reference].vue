@@ -10,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
 const route = useRoute()
 const router = useRouter()
 const { error: toastError } = useToast()
@@ -20,11 +22,7 @@ const errorText = ref('')
 const reference = computed(() => String(route.params.reference ?? '').trim().toUpperCase())
 
 onMounted(async () => {
-  const me = await fetchMe()
-  if (!me) {
-    router.replace(`/auth/login?redirect=${encodeURIComponent(route.fullPath)}`)
-    return
-  }
+  await fetchMe()
 
   try {
     const rows = await listMyPayments(100)

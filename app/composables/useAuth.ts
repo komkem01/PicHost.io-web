@@ -5,6 +5,7 @@ export interface AuthUser {
   plan: string
   plan_expires_at: string | null
   plan_cancelled_at: string | null
+  email_verified_at: string | null
   is_active: boolean
   is_guest: boolean
   is_admin: boolean
@@ -184,6 +185,41 @@ export function useAuth() {
     return exp * 1000 - Date.now() < bufferSeconds * 1000
   }
 
+  async function forgotPassword(email: string): Promise<string> {
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/forgot-password`, {
+      method: 'POST',
+      body: { email },
+    })
+    return res.message
+  }
+
+  async function resetPassword(token: string, newPassword: string): Promise<string> {
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/reset-password`, {
+      method: 'POST',
+      body: { token, new_password: newPassword },
+    })
+    return res.message
+  }
+
+  async function verifyEmail(token: string): Promise<string> {
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/verify-email`, {
+      method: 'POST',
+      body: { token },
+    })
+    await refreshMe()
+    return res.message
+  }
+
+  async function resendVerification(): Promise<string> {
+    const token = getToken()
+    if (!token) throw new Error('Not authenticated')
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/auth/resend-verification`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    return res.message
+  }
+
   async function logout() {
     if (_refreshTimer) clearTimeout(_refreshTimer)
     const token = getToken()
@@ -208,5 +244,9 @@ export function useAuth() {
     logout,
     refreshToken,
     isTokenExpired,
+    forgotPassword,
+    resetPassword,
+    verifyEmail,
+    resendVerification,
   }
 }

@@ -1,0 +1,269 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "docs": "API Docs",
+    "upload": "Upload Image",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "admin": "Admin",
+    "logout": "Sign Out",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "contact": "Contact Us"
+  },
+  "hero": {
+    "badge": "⚡ High-Performance Image Upload & S3 CDN Support",
+    "titlePrefix": "Image Hosting for",
+    "titleHighlight": "Developers & Teams",
+    "subtitle": "Upload images instantly and get permanent shareable links in seconds. Secure, REST API ready, backed by worldwide CDN.",
+    "ctaUpload": "Upload Free Now",
+    "ctaPricing": "View Pricing"
+  },
+  "features": {
+    "title": "Built for Modern Developers",
+    "subtitle": "Everything you need to host, embed, and manage your assets with ease",
+    "fast": {
+      "title": "Lightning Fast",
+      "desc": "Powered by Go high-performance core and edge CDN acceleration worldwide"
+    },
+    "secure": {
+      "title": "Secure & Private",
+      "desc": "Set files to Public or Private with presigned URL access control"
+    },
+    "api": {
+      "title": "REST API Access",
+      "desc": "Seamlessly integrate image uploads into your apps using our REST API"
+    },
+    "analytics": {
+      "title": "Usage Analytics",
+      "desc": "Track image view stats, storage usage, and bandwidth in real-time"
+    }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Choose the perfect plan for your needs. Upgrade or cancel anytime.",
+    "free": {
+      "name": "Free",
+      "desc": "For hobbyists and trial usage",
+      "cta": "Get Started Free"
+    },
+    "basic": {
+      "name": "Basic",
+      "desc": "For creators and freelancers",
+      "badge": "Best Value",
+      "cta": "Upgrade to Basic"
+    },
+    "pro": {
+      "name": "Pro",
+      "desc": "For developers and small teams",
+      "badge": "Most Popular",
+      "cta": "Upgrade to Pro"
+    },
+    "monthly": "/ mo",
+    "currentPlan": "Your Current Plan",
+    "features": {
+      "storage": "{size} Storage",
+      "maxFileSize": "{size} Max File Size",
+      "bandwidth": "{size}/mo Bandwidth",
+      "noWatermark": "No Watermark",
+      "apiAccess": "REST API Access",
+      "customDomain": "Custom Domain",
+      "prioritySupport": "Priority Support"
+    }
+  },
+  "upload": {
+    "title": "Upload Image",
+    "subtitle": "Drag and drop your images here, or click to browse from your computer",
+    "dropzoneText": "Drag and drop image files here",
+    "browseText": "Browse files from device",
+    "supportsText": "Supports PNG, JPG, WEBP, GIF (up to {maxSize})",
+    "guestNotice": "You are uploading as Guest (images will not be saved under an account)",
+    "uploading": "Uploading...",
+    "success": "Image uploaded successfully!",
+    "directLink": "Direct Link",
+    "markdownLink": "Markdown Embed Code",
+    "htmlLink": "HTML Embed Code",
+    "deleteUrl": "Delete URL",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "uploadAnother": "Upload Another Image"
+  },
+  "dashboard": {
+    "title": "Image Dashboard",
+    "subtitle": "Manage and inspect all your uploaded images",
+    "stats": {
+      "totalFiles": "Total Images",
+      "storageUsed": "Storage Used",
+      "totalViews": "Total Views",
+      "currentPlan": "Current Plan"
+    },
+    "searchPlaceholder": "Search by filename...",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "sortSize": "File Size",
+    "sortViews": "Views",
+    "noFilesTitle": "No images uploaded yet",
+    "noFilesSub": "Start uploading your first image now!",
+    "deleteConfirmTitle": "Delete Image?",
+    "deleteConfirmSub": "This action cannot be undone."
+  },
+  "settings": {
+    "title": "Account Settings",
+    "subtitle": "Manage your profile, security, and developer API keys",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Security",
+      "plan": "Plan & Billing",
+      "api": "API Keys"
+    },
+    "profile": {
+      "name": "Full Name / Display Name",
+      "email": "Email Address",
+      "saveBtn": "Save Changes"
+    },
+    "security": {
+      "changePassword": "Change Password",
+      "oldPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submitBtn": "Update Password"
+    },
+    "api": {
+      "title": "Developer API Keys",
+      "subtitle": "Use this API Key to authenticate requests when calling the REST API",
+      "generateBtn": "Generate New API Key",
+      "revokeBtn": "Revoke Key"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to manage your images and subscription",
+      "emailLabel": "Email Address",
+      "passwordLabel": "Password",
+      "forgotPassword": "Forgot password?",
+      "submitBtn": "Sign In",
+      "googleBtn": "Sign in with Google",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Sign up for free"
+    },
+    "register": {
+      "title": "Create an Account",
+      "subtitle": "Get started with PicHost.io for free today",
+      "nameLabel": "Full Name",
+      "emailLabel": "Email Address",
+      "passwordLabel": "Password",
+      "confirmPasswordLabel": "Confirm Password",
+      "agreeTerms": "I agree to the {terms} and {privacy}",
+      "submitBtn": "Create Account",
+      "googleBtn": "Sign up with Google",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email address to receive a password reset link",
+      "submitBtn": "Send Reset Link",
+      "successMsg": "If an account exists with this email, a password reset link has been sent. Please check your inbox or spam folder.",
+      "backToLogin": "Back to Sign In"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your new password below",
+      "submitBtn": "Confirm New Password",
+      "successMsg": "Your password has been successfully reset. You can now sign in with your new password."
+    },
+    "verification": {
+      "bannerText": "Your email is not verified yet. Please verify your email to unlock payment features.",
+      "resendBtn": "Resend Verification Email",
+      "successMsg": "Verification email sent successfully."
+    }
+  },
+  "billing": {
+    "checkout": {
+      "title": "Order Summary",
+      "planLabel": "Selected Plan",
+      "priceLabel": "Price",
+      "totalLabel": "Total Amount",
+      "paymentMethod": "Payment Method",
+      "promptpayTransfer": "PromptPay / Bank Transfer",
+      "proceedBtn": "Proceed to Payment"
+    },
+    "slip": {
+      "title": "Payment Submission (Upload Slip)",
+      "subtitle": "Transfer the required amount and upload the payment slip to confirm your subscription",
+      "bankAccountInfo": "Bank Account Information",
+      "bankName": "Kasikorn Bank (KBANK)",
+      "accountNumber": "123-4-56789-0",
+      "accountName": "PicHost.io Co., Ltd.",
+      "selectSlip": "Select Payment Slip Image",
+      "submitBtn": "Submit Payment Slip",
+      "pendingStatus": "Payment slip is currently being reviewed by admin",
+      "approvedStatus": "Payment approved successfully!",
+      "rejectedStatus": "Payment slip was rejected. Please contact support."
+    }
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "menu": {
+      "overview": "Overview",
+      "payments": "Payment Slips",
+      "users": "All Users",
+      "images": "Content Moderation",
+      "audit": "Audit Logs"
+
+    },
+    "payments": {
+      "title": "Manage Payment Slips",
+      "user": "User",
+      "plan": "Plan",
+      "amount": "Amount",
+      "slipImage": "Slip Image",
+      "date": "Submitted Date",
+      "status": "Status",
+      "approveBtn": "Approve",
+      "rejectBtn": "Reject",
+      "statusPending": "Pending",
+      "statusApproved": "Approved",
+      "statusRejected": "Rejected"
+    }
+  },
+  "legal": {
+    "termsTitle": "Terms of Service",
+    "privacyTitle": "Privacy Policy"
+  },
+  "docs": {
+    "title": "REST API Documentation",
+    "subtitle": "Developer guide for integrating with PicHost API"
+  },
+  "contact": {
+    "title": "Contact Support",
+    "subtitle": "Have questions or need assistance? Send us a message.",
+    "name": "Your Name",
+    "email": "Email Address",
+    "subject": "Subject",
+    "message": "Message",
+    "submitBtn": "Send Message",
+    "successMsg": "Thank you for reaching out. We will get back to you shortly."
+  },
+  "common": {
+    "language": "Language",
+    "th": "ไทย 🇹🇭",
+    "en": "English 🇬🇧",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "close": "Close",
+    "loading": "Loading...",
+    "copy": "Copy",
+    "copied": "Copied",
+    "success": "Success",
+    "error": "Error",
+    "back": "Back"
+  }
+}

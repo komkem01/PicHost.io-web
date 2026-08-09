@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
 import type { PublicPlanSetting } from '~/composables/useBilling'
 
 const route = useRoute()
@@ -6,6 +8,13 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const { fetchMe } = useAuth()
 const { listPublicPlans, createCheckout, submitSlip } = useBilling()
+const { t, locale } = useI18n()
+
+useHead({
+  htmlAttrs: {
+    lang: computed(() => locale.value)
+  }
+})
 
 const plan = ref<PublicPlanSetting | null>(null)
 const loading = ref(true)
@@ -22,20 +31,19 @@ async function load() {
     const plans = await listPublicPlans()
     const found = plans.find((p) => p.plan_key.toLowerCase() === planKey.value)
     if (!found) {
-      error.value = 'ไม่พบแผนบริการที่เลือก'
+      error.value = t('common.error')
       return
     }
     plan.value = found
   } catch (err) {
-    error.value = 'ไม่สามารถโหลดข้อมูลแผนบริการได้'
+    error.value = t('common.error')
   } finally {
     loading.value = false
   }
 }
 
 onMounted(async () => {
-  const me = await fetchMe()
-  if (!me) { router.replace('/auth/login'); return }
+  await fetchMe()
   load()
 })
 
@@ -44,11 +52,11 @@ function onFileChange(e: Event) {
   const file = input.files?.[0]
   if (!file) return
   if (!file.type.startsWith('image/')) {
-    error.value = 'กรุณาเลือกไฟล์รูปภาพเท่านั้น'
+    error.value = 'Please select an image file.'
     return
   }
   if (file.size > 10 * 1024 * 1024) {
-    error.value = 'ขนาดไฟล์ต้องไม่เกิน 10 MB'
+    error.value = 'File size must not exceed 10 MB'
     return
   }
   error.value = ''
@@ -72,11 +80,9 @@ async function handleSubmit() {
   
   let paymentId = ''
   try {
-    // 1. Create checkout (order transaction) at the moment of uploading
     const checkout = await createCheckout(plan.value.plan_key)
     paymentId = checkout.id
 
-    // 2. Upload to external storages service
     const formData = new FormData()
     formData.append('file', selectedFile.value)
     const uploadRes = await $fetch<{ data: { id: string } }>(
@@ -86,21 +92,18 @@ async function handleSubmit() {
     const storageId = uploadRes?.data?.id
     if (!storageId) throw new Error('upload failed: no id returned')
 
-    // 3. Store storage_id on the payment transaction
     await submitSlip(paymentId, storageId)
-
-    // 4. Navigate to waiting page
     router.push(`/billing/payments/${paymentId}`)
   } catch (e: unknown) {
     const msg = (e as { data?: { message?: string } })?.data?.message
-    error.value = msg ?? 'อัปโหลดสลิปไม่สำเร็จ กรุณาลองใหม่'
+    error.value = msg ?? t('common.error')
   } finally {
     uploading.value = false
   }
 }
 
 const planName = computed(() => plan.value?.display_name ?? '')
-const priceText = computed(() => `฿${plan.value?.monthly_price_thb?.toLocaleString() ?? 0} THB`)
+const priceText = computed(() => formatCurrency(plan.value?.monthly_price_thb ?? 0, locale.value))
 </script>
 
 <template>
@@ -108,14 +111,17 @@ const priceText = computed(() => `฿${plan.value?.monthly_price_thb?.toLocaleSt
     style="background:#09090b">
     <div class="w-full max-w-7xl">
       <!-- Back -->
-      <button
-        class="mb-6 flex items-center gap-1 text-sm text-white/50 hover:text-white/80 transition-colors"
-        @click="router.push(`/billing/checkout/${planKey}`)">
-        ← Back
-      </button>
+      <div class="flex items-center justify-between mb-6">
+        <button
+          class="flex items-center gap-1 text-sm text-white/50 hover:text-white/80 transition-colors"
+          @click="router.push(`/billing/checkout/${planKey}`)">
+          ← {{ $t('common.back') }}
+        </button>
+        <LanguageSwitcher />
+      </div>
 
       <!-- Loading -->
-      <div v-if="loading" class="text-center text-white/50 py-16">Loading…</div>
+      <div v-if="loading" class="text-center text-white/50 py-16">{{ $t('common.loading') }}</div>
 
       <!-- Error only state (plan not found) -->
       <div v-else-if="error && !plan" class="text-center text-red-400 py-16">{{ error }}</div>
@@ -125,9 +131,9 @@ const priceText = computed(() => `฿${plan.value?.monthly_price_thb?.toLocaleSt
           <!-- Left Column -->
           <div class="lg:col-span-7 space-y-4">
             <div class="mb-6">
-              <h1 class="text-2xl font-bold text-white">อัปโหลดสลิปการโอนเงิน</h1>
+              <h1 class="text-2xl font-bold text-white">{{ $t('billing.slip.title') }}</h1>
               <p class="text-white/50 mt-1 text-sm">
-                แผน <span class="text-white font-medium">{{ planName }}</span> —
+                {{ planName }} —
                 {{ priceText }}
               </p>
             </div>
@@ -150,9 +156,9 @@ const priceText = computed(() => `฿${plan.value?.monthly_price_thb?.toLocaleSt
                 class="flex flex-col items-center justify-center gap-3 py-10 rounded-xl border-2 border-dashed border-white/[0.12] hover:border-blue-500/50 cursor-pointer transition-colors group">
                 <span class="text-4xl opacity-40 group-hover:opacity-60 transition-opacity">🖼</span>
                 <span class="text-white/50 text-sm group-hover:text-white/70 transition-colors">
-                  คลิกหรือลากไฟล์รูปภาพมาวาง
+                  {{ $t('upload.dropzoneText') }}
                 </span>
-                <span class="text-white/30 text-xs">JPG, PNG, WEBP — ไม่เกิน 10 MB</span>
+                <span class="text-white/30 text-xs">JPG, PNG, WEBP (Max 10 MB)</span>
                 <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
               </label>
             </div>
@@ -163,12 +169,6 @@ const priceText = computed(() => `฿${plan.value?.monthly_price_thb?.toLocaleSt
 
           <!-- Right Column -->
           <div class="lg:col-span-5 space-y-4 lg:pt-[84px]">
-            <!-- Note -->
-            <div class="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 text-white/40 text-sm leading-relaxed">
-              <p class="font-medium text-white/70 mb-1">เงื่อนไขและข้อควรทราบ</p>
-              หลังอัปโหลดสลิป ทีมงานจะทำการตรวจสอบความถูกต้องของสลิปและปรับปรุงระดับบัญชีของคุณโดยอัตโนมัติภายใน 1–24 ชั่วโมง
-            </div>
-
             <!-- Actions -->
             <div class="flex flex-col gap-3">
               <button
@@ -182,12 +182,12 @@ const priceText = computed(() => `฿${plan.value?.monthly_price_thb?.toLocaleSt
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                 </svg>
-                {{ uploading ? 'กำลังอัปโหลดและสร้างรายการสั่งซื้อ…' : 'ส่งสลิปการชำระเงิน' }}
+                {{ uploading ? $t('common.loading') : $t('billing.slip.submitBtn') }}
               </button>
               <button
                 class="w-full py-3 rounded-xl border border-white/[0.08] text-white/60 hover:text-white hover:border-white/20 text-sm transition-colors"
                 @click="router.push(`/billing/checkout/${planKey}`)">
-                กลับ
+                {{ $t('common.back') }}
               </button>
             </div>
           </div>

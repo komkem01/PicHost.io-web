@@ -431,12 +431,6 @@ function showError(msg: string) {
   setTimeout(() => (saveError.value = ''), 3500)
 }
 
-function formatBytes(bytes: number | null) {
-  if (!bytes) return '—'
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-}
-
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
 }

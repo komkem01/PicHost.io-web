@@ -1,29 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#09090b] text-white font-sans">
-
-    <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] bg-[#09090b]/90 backdrop-blur-xl">
-      <div class="max-w-7xl mx-auto px-6 h-[64px] flex items-center justify-between">
-        <NuxtLink to="/" class="flex items-center gap-0.5">
-          <span class="text-blue-500 text-xl font-bold tracking-tight">PicHost</span>
-          <span class="text-white text-xl font-light">.io</span>
-        </NuxtLink>
-        <nav class="flex items-center gap-1">
-          <NuxtLink to="/dashboard" class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">Dashboard</NuxtLink>
-          <NuxtLink to="/upload" class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">Upload</NuxtLink>
-          <NuxtLink to="/settings/account" class="text-[13px] text-white px-3 py-1.5 rounded-lg bg-white/[0.06] font-medium">Settings</NuxtLink>
-          <button
-            @click="openLogoutModal()"
-            class="text-[13px] text-red-400 hover:text-white border border-red-500/30 hover:border-red-500/60 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-colors font-medium"
-          >
-            Sign out
-          </button>
-        </nav>
-      </div>
-    </header>
-
-    <main class="pt-[64px]">
-      <div class="max-w-7xl mx-auto px-6 py-10">
+  <div class="max-w-7xl mx-auto px-6 py-10">
 
         <div class="mb-8">
           <h1 class="text-[26px] font-bold tracking-tight leading-tight text-white">Settings</h1>
@@ -85,6 +61,28 @@
                 <span class="w-1.5 h-1.5 rounded-full" :class="planBadge.dot" />
                 {{ user.plan }}
               </span>
+            <!-- Email Verification Notice -->
+            <div v-if="user.email && !user.email_verified_at" class="rounded-2xl border border-yellow-500/20 bg-yellow-500/[0.04] p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-yellow-500/30 bg-yellow-500/10 text-yellow-400">
+                    Unverified Email
+                  </span>
+                </div>
+                <p class="text-[13px] text-white/70">Please verify your email address to unlock plan upgrades and account recovery.</p>
+              </div>
+              <button
+                type="button"
+                @click="handleResendVerification"
+                :disabled="resendingVerification"
+                class="shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-yellow-500/10 hover:bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-[12.5px] font-semibold transition-all disabled:opacity-40"
+              >
+                <svg v-if="resendingVerification" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                </svg>
+                {{ resendingVerification ? "Sending…" : "Resend Verification Email" }}
+              </button>
             </div>
 
             <div class="rounded-2xl border border-white/[0.07] bg-white/[0.02]">
@@ -540,23 +538,50 @@
           </div>
           </div>
           </div>
-
+          </div>
         </template>
-      </div>
-    </main>
   </div>
-
 </template>
 
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' })
+
 import type { PaymentTransaction } from '~/composables/useBilling'
 
 const config = useRuntimeConfig()
 const router = useRouter()
-const { user, fetchMe, refreshMe, getToken } = useAuth()
+const { user, fetchMe, refreshMe, getToken, resendVerification } = useAuth()
 const { success, error: toastError } = useToast()
 const { open: openLogoutModal } = useLogoutModal()
 const { listPublicPlans, createCheckout, cancelSubscription, listMyPayments, toPlanDisplayName } = useBilling()
+
+const SITE_URL = 'https://pichost.io'
+useSeoMeta({
+  title: 'Account Settings — PicHost.io',
+  description: 'Manage your profile, password security, active storage plan, and payments.',
+  ogTitle: 'Account Settings — PicHost.io',
+  ogDescription: 'Manage your profile, password security, active storage plan, and payments.',
+  ogImage: `${SITE_URL}/og-image.png`,
+  twitterCard: 'summary_large_image',
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: `${SITE_URL}/settings/account` }],
+})
+
+const resendingVerification = ref(false)
+
+async function handleResendVerification() {
+  resendingVerification.value = true
+  try {
+    const msg = await resendVerification()
+    success(msg || 'Verification email sent!')
+  } catch (err: any) {
+    toastError(err?.data?.message || err?.message || 'Failed to resend verification email')
+  } finally {
+    resendingVerification.value = false
+  }
+}
 
 const myPayments = ref<PaymentTransaction[]>([])
 const paymentsLoading = ref(false)
@@ -600,13 +625,14 @@ const tabs = [
 
 onMounted(async () => {
   const me = await fetchMe()
-  if (!me) { router.replace('/auth/login'); return }
   const queryTab = String(router.currentRoute.value.query.tab ?? '').trim().toLowerCase()
   if (queryTab === 'profile' || queryTab === 'security' || queryTab === 'plan' || queryTab === 'danger') {
     activeTab.value = queryTab as typeof activeTab.value
   }
-  profileForm.username = me.username ?? ''
-  profileForm.email = me.email ?? ''
+  if (me) {
+    profileForm.username = me.username ?? ''
+    profileForm.email = me.email ?? ''
+  }
   pageLoading.value = false
 
   if (activeTab.value === 'plan') {
@@ -827,13 +853,6 @@ const imagePercent = computed(() => {
   if (!quota.value || quota.value.max_images <= 0) return 0
   return Math.min(Math.round((quota.value.image_count / quota.value.max_images) * 100), 100)
 })
-
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
-  return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`
-}
 
 function formatStorage(bytes: number) {
   if (bytes <= 0) return 'Unlimited storage'

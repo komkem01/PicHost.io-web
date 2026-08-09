@@ -135,7 +135,15 @@
                 >
                   Reject
                 </button>
-                <span v-if="tx.status !== 'pending'" class="text-white/20 text-[11.5px]">—</span>
+                <button
+                  v-if="tx.status === 'paid'"
+                  @click="openRefundModal(tx.id)"
+                  :disabled="confirming === tx.id"
+                  class="px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-purple-700/60 hover:bg-purple-600 text-white disabled:opacity-40 transition-colors"
+                >
+                  Refund
+                </button>
+                <span v-if="tx.status !== 'pending' && tx.status !== 'paid'" class="text-white/20 text-[11.5px]">—</span>
               </div>
             </td>
           </tr>
@@ -214,16 +222,48 @@
       </div>
     </Transition>
 
-    <!-- confirm modal feedback -->
-    <Transition name="toast">
+    <!-- refund modal -->
+    <Transition name="fade">
       <div
-        v-if="toast"
-        class="fixed bottom-6 right-6 z-50 rounded-2xl border px-5 py-3.5 text-[13px] font-medium shadow-xl"
-        :class="toast.type === 'success'
-          ? 'border-emerald-500/30 bg-emerald-900/80 text-emerald-200'
-          : 'border-red-500/30 bg-red-900/80 text-red-200'"
+        v-if="refundModalId"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       >
-        {{ toast.message }}
+        <div class="w-full max-w-md rounded-2xl border border-white/[0.1] bg-[#111216] p-5 shadow-2xl">
+          <h3 class="text-[16px] font-semibold text-white">Refund Transaction</h3>
+          <p class="mt-2 text-[13px] text-white/60">
+            Are you sure you want to refund transaction
+            <span class="font-mono text-purple-300" :title="refundModalId">{{ toReadableId(refundModalId, 'PMT') }}</span>
+            ?
+          </p>
+          <p class="mt-1 text-[12px] text-white/35">The transaction status will be marked as refunded.</p>
+
+          <div class="mt-4">
+            <label class="block text-[12px] text-white/55 mb-1.5">Refund note / reason</label>
+            <textarea
+              v-model="refundReason"
+              rows="3"
+              placeholder="e.g. User requested refund via support ticket #104"
+              class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2.5 text-[13px] text-white placeholder:text-white/25 outline-none focus:border-purple-400/50 transition-colors resize-y"
+            />
+          </div>
+
+          <div class="mt-5 flex items-center justify-end gap-2">
+            <button
+              @click="closeRefundModal"
+              :disabled="confirming === refundModalId"
+              class="px-3 py-2 rounded-lg text-[12px] font-medium border border-white/[0.12] bg-white/[0.03] hover:bg-white/[0.07] disabled:opacity-40 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="submitRefundAction"
+              :disabled="confirming === refundModalId"
+              class="px-3 py-2 rounded-lg text-[12px] font-semibold bg-purple-700/80 hover:bg-purple-600 text-white disabled:opacity-40 transition-colors"
+            >
+              {{ confirming === refundModalId ? 'Refunding...' : 'Confirm Refund' }}
+            </button>
+          </div>
+        </div>
       </div>
     </Transition>
 
@@ -234,7 +274,8 @@
 import type { PaymentTransaction } from '~/composables/useBilling'
 
 const config = useRuntimeConfig()
-const { adminListPayments, adminConfirmPayment } = useAdmin()
+const { adminListPayments, adminConfirmPayment, adminRefundPayment } = useAdmin()
+const { success: toastSuccess, error: toastError } = useToast()
 
 const loading = ref(false)
 const error = ref('')
@@ -245,8 +286,9 @@ const offset = ref(0)
 const confirming = ref<string | null>(null)
 const openingSlipId = ref<string | null>(null)
 const confirmModal = ref<{ id: string; status: 'paid' | 'failed' } | null>(null)
+const refundModalId = ref<string | null>(null)
+const refundReason = ref('')
 const rejectReason = ref('')
-const toast = ref<{ type: 'success' | 'error'; message: string } | null>(null)
 
 const filterStatus = ref('')
 const filterSlip = ref<'all' | 'with' | 'without'>('all')
@@ -287,6 +329,7 @@ function statusBadgeClass(tx: PaymentTransaction) {
   switch (tx.status) {
     case 'paid': return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
     case 'pending': return 'border-blue-500/30 bg-blue-500/10 text-blue-300'
+    case 'refunded': return 'border-purple-500/30 bg-purple-500/10 text-purple-300'
     case 'failed': return 'border-red-500/30 bg-red-500/10 text-red-300'
     case 'cancelled': return 'border-orange-500/30 bg-orange-500/10 text-orange-300'
     default: return 'border-white/10 bg-white/5 text-white/40'
@@ -335,6 +378,32 @@ function closeConfirmModal() {
   rejectReason.value = ''
 }
 
+function openRefundModal(id: string) {
+  refundModalId.value = id
+  refundReason.value = ''
+}
+
+function closeRefundModal() {
+  refundModalId.value = null
+  refundReason.value = ''
+}
+
+async function submitRefundAction() {
+  if (!refundModalId.value) return
+  const id = refundModalId.value
+  confirming.value = id
+  try {
+    await adminRefundPayment(id, refundReason.value.trim() || undefined)
+    await load()
+    showToast('success', 'Payment refunded ✓')
+    closeRefundModal()
+  } catch (e: unknown) {
+    showToast('error', e instanceof Error ? e.message : 'Refund failed')
+  } finally {
+    confirming.value = null
+  }
+}
+
 async function submitConfirmAction() {
   if (!confirmModal.value) return
   const { id, status } = confirmModal.value
@@ -357,8 +426,11 @@ async function submitConfirmAction() {
 }
 
 function showToast(type: 'success' | 'error', message: string) {
-  toast.value = { type, message }
-  setTimeout(() => { toast.value = null }, 3500)
+  if (type === 'success') {
+    toastSuccess(message)
+  } else {
+    toastError(message)
+  }
 }
 
 onMounted(load)
@@ -367,6 +439,4 @@ onMounted(load)
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
-.toast-enter-active, .toast-leave-active { transition: opacity 0.25s, transform 0.25s; }
-.toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(8px); }
 </style>
