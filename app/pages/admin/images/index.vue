@@ -159,7 +159,7 @@ const selectedImg = ref<ImageItem | null>(null)
 async function fetchImages() {
   loading.value = true
   try {
-    const res = await apiFetch<any>('/api/v1/admin/images', {
+    const res = await apiFetch<any>('/admin/images', {
       params: { page: page.value, limit: limit.value }
     })
     if (res.data) {
@@ -199,7 +199,7 @@ function formatDate(iso: string) {
 async function confirmDeleteImage(img: ImageItem) {
   if (!confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพ ID: ${img.id} ?`)) return
   try {
-    await apiFetch(`/api/v1/admin/images/${img.id}`, { method: 'DELETE' })
+    await apiFetch(`/admin/images/${img.id}`, { method: 'DELETE' })
     fetchImages()
   } catch (e) {
     alert('เกิดข้อผิดพลาดในการลบรูปภาพ')
@@ -209,7 +209,7 @@ async function confirmDeleteImage(img: ImageItem) {
 async function banUser(userId: string) {
   if (!confirm(`คุณต้องการระงับบัญชีผู้ใช้ ID: ${userId} หรือไม่?`)) return
   try {
-    await apiFetch(`/api/v1/admin/users/${userId}/active`, {
+    await apiFetch(`/admin/users/${userId}/active`, {
       method: 'PATCH',
       body: { is_active: false }
     })

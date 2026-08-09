@@ -226,7 +226,7 @@ async function fetchLogs() {
     if (filters.value.from_date) params.from_date = filters.value.from_date
     if (filters.value.to_date) params.to_date = filters.value.to_date
 
-    const res = await apiFetch<any>('/api/v1/admin/audit-logs', { params })
+    const res = await apiFetch<any>('/admin/audit-logs', { params })
     if (res.data) {
       logs.value = res.data.items || []
       total.value = res.data.total || 0
