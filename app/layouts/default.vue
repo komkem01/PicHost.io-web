@@ -96,7 +96,7 @@
 
 <script setup lang="ts">
 const { user } = useAuth()
-const { openLogoutModal } = useLogoutModal()
+const { open: openLogoutModal } = useLogoutModal()
 const { locale } = useI18n()
 
 useHead({

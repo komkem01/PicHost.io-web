@@ -61,6 +61,7 @@
                 <span class="w-1.5 h-1.5 rounded-full" :class="planBadge.dot" />
                 {{ user.plan }}
               </span>
+            </div>
             <!-- Email Verification Notice -->
             <div v-if="user.email && !user.email_verified_at" class="rounded-2xl border border-yellow-500/20 bg-yellow-500/[0.04] p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div class="space-y-1">
@@ -536,10 +537,9 @@
               </div>
             </div>
           </div>
-          </div>
-          </div>
-          </div>
-        </template>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
