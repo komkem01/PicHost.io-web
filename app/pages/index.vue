@@ -225,7 +225,8 @@ interface LandingPlan {
 }
 
 const { data: plansResponse } = await useFetch<{ code: string; message: string; data: PublicPlanSetting[] }>(
-  `${config.public.apiBase}/public/plans`
+  `${config.public.apiBase}/public/plans`,
+  { lazy: true }
 )
 
 const publicPlans = computed<PublicPlanSetting[]>(() => {
