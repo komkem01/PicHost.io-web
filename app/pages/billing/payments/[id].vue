@@ -1,18 +1,6 @@
 <template>
   <div class="min-h-screen bg-[#09090b] text-white font-sans">
-    <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.08] bg-[#09090b]/90 backdrop-blur-xl">
-      <div class="max-w-7xl mx-auto px-6 h-[64px] flex items-center justify-between">
-        <NuxtLink to="/" class="flex items-center gap-0.5">
-          <span class="text-blue-500 text-xl font-bold tracking-tight">PicHost</span>
-          <span class="text-white text-xl font-light">.io</span>
-        </NuxtLink>
-        <NuxtLink to="/settings/account" class="text-[13px] text-white/60 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">
-          Back to Settings
-        </NuxtLink>
-      </div>
-    </header>
-
-    <main class="pt-[64px]">
+    <main class="pt-[24px]">
       <div class="max-w-7xl mx-auto px-6 py-10">
         <div class="mb-8">
           <h1 class="text-[22px] font-bold text-white">Payment Status</h1>

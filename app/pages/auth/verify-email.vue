@@ -6,19 +6,6 @@
       <div class="absolute bottom-[-10%] right-[10%] w-[400px] h-[350px] bg-indigo-700/[0.05] rounded-full blur-[120px]"></div>
     </div>
 
-    <!-- Fixed header -->
-    <header class="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.07] bg-[#09090b]/90 backdrop-blur-xl">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <NuxtLink to="/" class="flex items-center gap-2">
-          <span class="text-blue-500 text-2xl font-bold tracking-tight">PicHost</span>
-          <span class="text-white text-2xl font-light">.io</span>
-        </NuxtLink>
-        <NuxtLink to="/dashboard" class="text-sm text-blue-400 hover:text-blue-300 transition-colors font-medium">
-          Dashboard →
-        </NuxtLink>
-      </div>
-    </header>
-
     <!-- Main content -->
     <div class="flex-1 flex items-center justify-center px-4 py-12 pt-[88px]">
       <div class="w-full max-w-[420px]">

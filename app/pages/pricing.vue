@@ -6,25 +6,6 @@
       <div class="absolute top-[40%] right-[-5%] w-[400px] h-[400px] bg-cyan-600/[0.05] rounded-full blur-[120px]"></div>
     </div>
 
-    <!-- Header Navigation -->
-    <header class="border-b border-white/[0.08] bg-[#09090b]/80 backdrop-blur-xl sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-6 h-[64px] flex items-center justify-between">
-        <NuxtLink to="/" class="flex items-center gap-0.5">
-          <span class="text-blue-500 text-xl font-bold tracking-tight">PicHost</span>
-          <span class="text-white text-xl font-light">.io</span>
-        </NuxtLink>
-        <nav class="flex items-center gap-4 text-xs font-medium text-white/60">
-          <NuxtLink to="/upload" class="hover:text-white transition-colors">{{ $t('nav.upload') }}</NuxtLink>
-          <NuxtLink to="/docs" class="hover:text-white transition-colors">{{ $t('nav.docs') }}</NuxtLink>
-          <NuxtLink to="/terms" class="hover:text-white transition-colors">{{ $t('nav.terms') }}</NuxtLink>
-          <NuxtLink to="/auth/register" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3.5 py-1.5 rounded-lg transition-colors ml-1">
-            {{ $t('nav.register') }}
-          </NuxtLink>
-          <LanguageSwitcher />
-        </nav>
-      </div>
-    </header>
-
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-16">
       <!-- Title section -->
@@ -39,133 +20,184 @@
 
       <!-- Pricing Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch mb-20">
-        <!-- Free Tier -->
-        <div class="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 flex flex-col justify-between backdrop-blur-xl">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-white">{{ $t('pricing.free.name') }}</h3>
-            </div>
-            <div class="flex items-baseline gap-1 mb-6">
-              <span class="text-4xl font-extrabold text-white">{{ formatCurrency(0, locale) }}</span>
-              <span class="text-white/40 text-sm">{{ $t('pricing.monthly') }}</span>
-            </div>
-            <p class="text-xs text-white/50 mb-6">{{ $t('pricing.free.desc') }}</p>
-
-            <div class="space-y-3 text-xs text-white/70 border-t border-white/[0.06] pt-6 mb-8">
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.storage', { size: '1 GB' }) }}</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.maxFileSize', { size: '5 MB' }) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <NuxtLink
-            to="/auth/register"
-            class="w-full py-3 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-white text-center font-semibold text-sm transition-all"
-          >
-            {{ $t('pricing.free.cta') }}
-          </NuxtLink>
-        </div>
-
-        <!-- Basic Tier (Popular) -->
-        <div class="relative rounded-2xl border-2 border-blue-500/50 bg-blue-500/[0.04] p-8 flex flex-col justify-between backdrop-blur-xl shadow-2xl shadow-blue-500/10">
-          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-[11px] font-bold uppercase tracking-wider text-white">
-            {{ $t('pricing.basic.badge') }}
+        <div
+          v-for="plan in displayPlans"
+          :key="plan.key"
+          :class="[
+            'relative rounded-2xl border p-8 flex flex-col justify-between backdrop-blur-xl transition-all',
+            plan.highlighted
+              ? 'border-2 border-blue-500/50 bg-blue-500/[0.04] shadow-2xl shadow-blue-500/10'
+              : 'border-white/[0.08] bg-white/[0.02]'
+          ]"
+        >
+          <div v-if="plan.badge" class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-[11px] font-bold uppercase tracking-wider text-white">
+            {{ plan.badge }}
           </div>
           <div>
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-white">{{ $t('pricing.basic.name') }}</h3>
+              <h3 class="text-xl font-bold text-white">{{ plan.name }}</h3>
             </div>
             <div class="flex items-baseline gap-1 mb-6">
-              <span class="text-4xl font-extrabold text-white">{{ formatCurrency(19, locale) }}</span>
-              <span class="text-white/40 text-sm">{{ $t('pricing.monthly') }}</span>
+              <span class="text-4xl font-extrabold text-white">{{ plan.price }}</span>
+              <span v-if="plan.period" class="text-white/40 text-sm">{{ plan.period }}</span>
             </div>
-            <p class="text-xs text-white/50 mb-6">{{ $t('pricing.basic.desc') }}</p>
+            <p class="text-xs text-white/50 mb-6">{{ plan.desc }}</p>
 
             <div class="space-y-3 text-xs text-white/80 border-t border-white/[0.08] pt-6 mb-8">
-              <div class="flex items-center gap-2.5">
+              <div v-for="feat in plan.features" :key="feat" class="flex items-center gap-2.5">
                 <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.storage', { size: '10 GB' }) }}</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.maxFileSize', { size: '15 MB' }) }}</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.noWatermark') }}</span>
+                <span>{{ feat }}</span>
               </div>
             </div>
           </div>
 
           <NuxtLink
-            to="/auth/register"
-            class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-center font-semibold text-sm shadow-lg shadow-blue-600/25 transition-all"
+            :to="plan.cta.href"
+            :class="[
+              'w-full py-3 rounded-xl text-center font-semibold text-sm transition-all',
+              plan.highlighted
+                ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-600/25'
+                : 'border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-white'
+            ]"
           >
-            {{ $t('pricing.basic.cta') }}
-          </NuxtLink>
-        </div>
-
-        <!-- Pro Tier -->
-        <div class="relative rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 flex flex-col justify-between backdrop-blur-xl">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-white">{{ $t('pricing.pro.name') }}</h3>
-              <span class="px-2.5 py-1 rounded-md bg-purple-500/20 text-xs text-purple-300 font-medium">{{ $t('pricing.pro.badge') }}</span>
-            </div>
-            <div class="flex items-baseline gap-1 mb-6">
-              <span class="text-4xl font-extrabold text-white">{{ formatCurrency(190, locale) }}</span>
-              <span class="text-white/40 text-sm">{{ $t('pricing.monthly') }}</span>
-            </div>
-            <p class="text-xs text-white/50 mb-6">{{ $t('pricing.pro.desc') }}</p>
-
-            <div class="space-y-3 text-xs text-white/70 border-t border-white/[0.06] pt-6 mb-8">
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.storage', { size: '100 GB' }) }}</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.apiAccess') }}</span>
-              </div>
-              <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-purple-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                <span>{{ $t('pricing.features.prioritySupport') }}</span>
-              </div>
-            </div>
-          </div>
-
-          <NuxtLink
-            to="/auth/register"
-            class="w-full py-3 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-white text-center font-semibold text-sm transition-all"
-          >
-            {{ $t('pricing.pro.cta') }}
+            {{ plan.cta.label }}
           </NuxtLink>
         </div>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-white/[0.08] py-8 text-center text-xs text-white/30">
-      <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p>&copy; {{ new Date().getFullYear() }} PicHost.io. All rights reserved.</p>
-        <div class="flex items-center gap-6">
-          <NuxtLink to="/terms" class="text-white/60 hover:text-white">{{ $t('nav.terms') }}</NuxtLink>
-          <NuxtLink to="/privacy" class="text-white/60 hover:text-white">{{ $t('nav.privacy') }}</NuxtLink>
-          <NuxtLink to="/contact" class="text-white/60 hover:text-white">{{ $t('nav.contact') }}</NuxtLink>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
+import { formatBytes, formatCurrency } from '~/utils/format'
+
+interface PublicPlanSetting {
+  id?: string
+  plan_key: string
+  display_name: string
+  monthly_price_thb: number
+  storage_limit_bytes: number
+  max_upload_mb: number
+  watermark_removal: boolean
+  api_access: boolean
+  is_enabled: boolean
+}
+
+interface DisplayPlan {
+  key: string
+  name: string
+  badge?: string
+  price: string
+  period: string
+  desc: string
+  highlighted: boolean
+  features: string[]
+  cta: {
+    label: string
+    href: string
+  }
+}
+
 const SITE_URL = 'https://pichost.io'
+const config = useRuntimeConfig()
+const { user, fetchMe } = useAuth()
 const { locale, t } = useI18n()
+
+onMounted(async () => {
+  try {
+    await fetchMe()
+  } catch {}
+})
+
+const defaultPlans: PublicPlanSetting[] = [
+  {
+    plan_key: 'free',
+    display_name: 'Free',
+    monthly_price_thb: 0,
+    storage_limit_bytes: 1 * 1024 * 1024 * 1024,
+    max_upload_mb: 5,
+    watermark_removal: false,
+    api_access: false,
+    is_enabled: true,
+  },
+  {
+    plan_key: 'basic',
+    display_name: 'Basic',
+    monthly_price_thb: 19,
+    storage_limit_bytes: 10 * 1024 * 1024 * 1024,
+    max_upload_mb: 15,
+    watermark_removal: true,
+    api_access: false,
+    is_enabled: true,
+  },
+  {
+    plan_key: 'pro',
+    display_name: 'Pro',
+    monthly_price_thb: 190,
+    storage_limit_bytes: 100 * 1024 * 1024 * 1024,
+    max_upload_mb: 50,
+    watermark_removal: true,
+    api_access: true,
+    is_enabled: true,
+  },
+]
+
+const { data: plansResponse } = useFetch<{ code: string; message: string; data: PublicPlanSetting[] }>(
+  `${config.public.apiBase}/public/plans`,
+  { lazy: true, server: false }
+)
+
+const publicPlans = computed<PublicPlanSetting[]>(() => {
+  const apiPlans = (plansResponse.value?.data ?? []).filter((p) => p.is_enabled)
+  return apiPlans.length > 0 ? apiPlans : defaultPlans
+})
+
+const displayPlans = computed<DisplayPlan[]>(() => {
+  return publicPlans.value
+    .slice()
+    .sort((a, b) => a.monthly_price_thb - b.monthly_price_thb)
+    .map((plan) => {
+      const isFree = plan.monthly_price_thb <= 0
+      const isLoggedIn = !!user.value
+      const isCurrentPlan = (user.value?.plan ?? '').toLowerCase() === plan.plan_key.toLowerCase()
+
+      const features: string[] = [
+        t('pricing.features.storage', { size: formatBytes(plan.storage_limit_bytes) }),
+        t('pricing.features.maxFileSize', { size: `${plan.max_upload_mb} MB` }),
+      ]
+      if (plan.watermark_removal) {
+        features.push(t('pricing.features.noWatermark'))
+      }
+      if (plan.api_access) {
+        features.push(t('pricing.features.apiAccess'))
+      }
+
+      let desc = t('pricing.free.desc')
+      if (plan.plan_key === 'basic') desc = t('pricing.basic.desc')
+      if (plan.plan_key === 'pro') desc = t('pricing.pro.desc')
+
+      let badge = undefined
+      if (plan.plan_key === 'basic') badge = t('pricing.basic.badge')
+      if (plan.plan_key === 'pro') badge = t('pricing.pro.badge')
+
+      return {
+        key: plan.plan_key,
+        name: plan.display_name,
+        badge,
+        price: isFree ? (locale.value === 'th' ? 'ฟรี' : 'Free') : formatCurrency(plan.monthly_price_thb, locale.value),
+        period: isFree ? '' : t('pricing.monthly'),
+        desc,
+        highlighted: plan.plan_key === 'basic',
+        features,
+        cta: {
+          label: isLoggedIn
+            ? (isCurrentPlan ? t('pricing.currentPlan') : `Upgrade ${plan.display_name}`)
+            : (isFree ? t('pricing.free.cta') : `Get ${plan.display_name}`),
+          href: isLoggedIn ? '/settings/account?tab=plan' : '/auth/register',
+        },
+      }
+    })
+})
 
 useSeoMeta({
   title: 'Pricing — PicHost.io Image Hosting',

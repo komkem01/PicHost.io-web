@@ -1,38 +1,6 @@
 <template>
   <main class="min-h-screen bg-[#09090b] text-white font-sans">
 
-    <!-- Navbar -->
-    <header class="border-b border-white/[0.06] bg-[#09090b]/90 backdrop-blur-md sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between relative">
-        <NuxtLink to="/" class="flex items-center gap-1.5">
-          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3 21h18M2.25 12V4.5A2.25 2.25 0 0 1 4.5 2.25h15A2.25 2.25 0 0 1 21.75 4.5V12" />
-          </svg>
-          <span class="text-blue-500 text-[17px] font-bold tracking-tight">PicHost</span><span class="text-white text-[17px] font-light tracking-tight">.io</span>
-        </NuxtLink>
-
-        <nav class="hidden md:flex items-center gap-0.5 absolute left-1/2 -translate-x-1/2">
-          <a href="#features" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">{{ $t('nav.features') }}</a>
-          <a href="#pricing" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">{{ $t('nav.pricing') }}</a>
-        </nav>
-
-        <div class="flex items-center gap-2">
-          <template v-if="user">
-            <NuxtLink to="/dashboard" class="text-[13px] text-white/60 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">{{ $t('nav.dashboard') }}</NuxtLink>
-            <NuxtLink to="/upload" class="text-[13px] text-white font-medium bg-blue-600 hover:bg-blue-500 px-3.5 py-2 rounded-lg transition-colors">{{ $t('nav.upload') }}</NuxtLink>
-          </template>
-          <template v-else>
-            <NuxtLink to="/upload" class="text-[13px] text-white/80 font-medium border border-white/20 hover:border-white/40 hover:bg-white/[0.04] px-3.5 py-2 rounded-lg transition-colors">
-              {{ $t('hero.ctaUpload') }}
-            </NuxtLink>
-            <NuxtLink to="/auth/login" class="text-[13px] text-white/55 hover:text-white px-3.5 py-2 rounded-lg hover:bg-white/[0.04] transition-colors">{{ $t('nav.login') }}</NuxtLink>
-            <NuxtLink to="/auth/register" class="text-[13px] text-white font-medium bg-blue-600 hover:bg-blue-500 px-3.5 py-2 rounded-lg transition-colors">{{ $t('nav.register') }}</NuxtLink>
-          </template>
-          <LanguageSwitcher class="ml-1" />
-        </div>
-      </div>
-    </header>
-
     <!-- Hero -->
     <section class="max-w-7xl mx-auto px-6 pt-28 pb-24 text-center">
       <div class="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 text-[11.5px] px-3 py-1.5 rounded-full mb-10 font-medium">
@@ -160,29 +128,10 @@
         </div>
       </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="border-t border-white/[0.06] py-10">
-      <div class="max-w-7xl mx-auto px-6 flex items-center justify-between text-[13px] text-white/25">
-        <div class="flex items-center gap-1.5">
-          <span class="text-blue-500/60 font-bold">PicHost</span><span class="text-white/25 font-light">.io</span>
-          <span class="mx-2">·</span>
-          <span>© 2026 All rights reserved.</span>
-        </div>
-        <div class="flex items-center gap-6">
-          <NuxtLink to="/pricing" class="hover:text-white/60">{{ $t('nav.pricing') }}</NuxtLink>
-          <NuxtLink to="/docs" class="hover:text-white/60">{{ $t('nav.docs') }}</NuxtLink>
-          <NuxtLink to="/terms" class="hover:text-white/60">{{ $t('nav.terms') }}</NuxtLink>
-          <NuxtLink to="/privacy" class="hover:text-white/60">{{ $t('nav.privacy') }}</NuxtLink>
-        </div>
-      </div>
-    </footer>
   </main>
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: false })
-
 const SITE_URL = 'https://pichost.io'
 const OG_IMAGE = `${SITE_URL}/og-image.png`
 const { user, fetchMe } = useAuth()
@@ -224,13 +173,47 @@ interface LandingPlan {
   }
 }
 
+const defaultPlans: PublicPlanSetting[] = [
+  {
+    plan_key: 'free',
+    display_name: 'Free',
+    monthly_price_thb: 0,
+    storage_limit_bytes: 1 * 1024 * 1024 * 1024,
+    max_upload_mb: 5,
+    watermark_removal: false,
+    api_access: false,
+    is_enabled: true,
+  },
+  {
+    plan_key: 'basic',
+    display_name: 'Basic',
+    monthly_price_thb: 19,
+    storage_limit_bytes: 10 * 1024 * 1024 * 1024,
+    max_upload_mb: 15,
+    watermark_removal: true,
+    api_access: false,
+    is_enabled: true,
+  },
+  {
+    plan_key: 'pro',
+    display_name: 'Pro',
+    monthly_price_thb: 190,
+    storage_limit_bytes: 100 * 1024 * 1024 * 1024,
+    max_upload_mb: 50,
+    watermark_removal: true,
+    api_access: true,
+    is_enabled: true,
+  },
+]
+
 const { data: plansResponse } = useFetch<{ code: string; message: string; data: PublicPlanSetting[] }>(
   `${config.public.apiBase}/public/plans`,
   { lazy: true, server: false }
 )
 
 const publicPlans = computed<PublicPlanSetting[]>(() => {
-  return (plansResponse.value?.data ?? []).filter((plan) => plan.is_enabled)
+  const apiPlans = (plansResponse.value?.data ?? []).filter((plan) => plan.is_enabled)
+  return apiPlans.length > 0 ? apiPlans : defaultPlans
 })
 
 onMounted(async () => {

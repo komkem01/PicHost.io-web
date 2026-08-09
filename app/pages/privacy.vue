@@ -6,25 +6,6 @@
       <div class="absolute bottom-[20%] left-[-5%] w-[400px] h-[400px] bg-blue-600/[0.05] rounded-full blur-[120px]"></div>
     </div>
 
-    <!-- Header Navigation -->
-    <header class="border-b border-white/[0.08] bg-[#09090b]/80 backdrop-blur-xl sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-6 h-[64px] flex items-center justify-between">
-        <NuxtLink to="/" class="flex items-center gap-0.5">
-          <span class="text-blue-500 text-xl font-bold tracking-tight">PicHost</span>
-          <span class="text-white text-xl font-light">.io</span>
-        </NuxtLink>
-        <nav class="flex items-center gap-4 text-xs font-medium text-white/60">
-          <NuxtLink to="/pricing" class="hover:text-white transition-colors">{{ $t('nav.pricing') }}</NuxtLink>
-          <NuxtLink to="/docs" class="hover:text-white transition-colors">{{ $t('nav.docs') }}</NuxtLink>
-          <NuxtLink to="/terms" class="hover:text-white transition-colors">{{ $t('nav.terms') }}</NuxtLink>
-          <NuxtLink to="/auth/register" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold px-3.5 py-1.5 rounded-lg transition-colors ml-2">
-            {{ $t('nav.register') }}
-          </NuxtLink>
-          <LanguageSwitcher />
-        </nav>
-      </div>
-    </header>
-
     <!-- Main Content Container -->
     <main class="max-w-4xl mx-auto px-6 py-12 sm:py-16">
       <!-- Header Badge & Title -->
@@ -53,17 +34,6 @@
         </section>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-white/[0.08] py-8 text-center text-xs text-white/30">
-      <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p>&copy; {{ new Date().getFullYear() }} PicHost.io. All rights reserved.</p>
-        <div class="flex items-center gap-6">
-          <NuxtLink to="/terms" class="text-white/60 hover:text-white">{{ $t('nav.terms') }}</NuxtLink>
-          <NuxtLink to="/contact" class="text-white/60 hover:text-white">{{ $t('nav.contact') }}</NuxtLink>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 

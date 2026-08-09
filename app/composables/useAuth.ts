@@ -97,12 +97,24 @@ export function useAuth() {
   _apiBase = config.public.apiBase as string
 
   function getToken(): string | null {
-    if (import.meta.client) return localStorage.getItem('access_token')
+    if (import.meta.client) {
+      const val = localStorage.getItem('access_token')
+      if (!val || val === 'null' || val === 'undefined' || val.trim() === '') {
+        return null
+      }
+      return val
+    }
     return null
   }
 
   function setToken(token: string) {
-    if (import.meta.client) localStorage.setItem('access_token', token)
+    if (import.meta.client) {
+      if (!token || token.trim() === '') {
+        localStorage.removeItem('access_token')
+      } else {
+        localStorage.setItem('access_token', token)
+      }
+    }
   }
 
   function clearToken() {
@@ -131,30 +143,32 @@ export function useAuth() {
       _scheduleRefresh(token)
       return res.data
     } catch (err: any) {
-      // 401 → try silent refresh once, then retry
+      // 401 → try silent refresh once, then retry. 404 → user no longer exists in DB.
       const status = err?.status ?? err?.response?.status
-      if (status === 401) {
-        const ok = await _doRefresh()
-        if (ok) {
-          const newToken = getToken()
-          if (newToken) {
-            try {
-              const res2 = await $fetch<MeResponse>(`${config.public.apiBase}/auth/me`, {
-                headers: { Authorization: `Bearer ${newToken}` },
-              })
-              user.value = res2.data
-              initialized.value = true
-              return res2.data
-            } catch {}
+      if (status === 401 || status === 404) {
+        if (status === 401) {
+          const ok = await _doRefresh()
+          if (ok) {
+            const newToken = getToken()
+            if (newToken) {
+              try {
+                const res2 = await $fetch<MeResponse>(`${config.public.apiBase}/auth/me`, {
+                  headers: { Authorization: `Bearer ${newToken}` },
+                })
+                user.value = res2.data
+                initialized.value = true
+                return res2.data
+              } catch {}
+            }
           }
         }
-        // Definitive 401 — user is not authenticated
+        // Definitive 401 or 404 — clear stale token and mark unauthenticated
+        setToken('')
         user.value = null
         initialized.value = true
         return null
       }
-      // Non-401 error (network error, 5xx): preserve existing user state.
-      // A transient backend failure should never log the user out.
+      // Non-401/404 error (network error, 5xx): preserve existing user state.
       initialized.value = true
       return user.value
     }
