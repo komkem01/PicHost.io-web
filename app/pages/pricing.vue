@@ -194,15 +194,16 @@ const displayPlans = computed<DisplayPlan[]>(() => {
 })
 
 useSeoMeta({
-  title: 'Pricing — PicHost.io Image Hosting',
+  title: computed(() => locale.value === 'th' ? 'ราคาและแพ็กเกจ - PicHost.io' : 'Pricing & Plans - PicHost.io'),
   description: 'Compare PicHost.io free and paid plans. Get up to 100 GB storage, watermark removal, and API access.',
-  ogTitle: 'Pricing — PicHost.io Image Hosting',
+  ogTitle: computed(() => locale.value === 'th' ? 'ราคาและแพ็กเกจ - PicHost.io' : 'Pricing & Plans - PicHost.io'),
   ogDescription: 'Compare PicHost.io free and paid plans. Get up to 100 GB storage, watermark removal, and API access.',
   ogImage: `${SITE_URL}/og-image.png`,
   twitterCard: 'summary_large_image',
 })
 
 useHead({
+  title: computed(() => locale.value === 'th' ? 'ราคาและแพ็กเกจ - PicHost.io' : 'Pricing & Plans - PicHost.io'),
   htmlAttrs: {
     lang: computed(() => locale.value)
   },

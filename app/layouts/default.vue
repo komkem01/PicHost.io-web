@@ -3,9 +3,12 @@
     <!-- Fixed Top Navigation -->
     <header class="fixed top-0 left-0 right-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur-xl">
       <div class="max-w-7xl mx-auto px-6 h-[64px] flex items-center justify-between">
-        <NuxtLink to="/" class="flex items-center gap-0.5">
-          <span class="text-zinc-900 text-xl font-bold tracking-tight">PicHost</span>
-          <span class="text-zinc-400 text-xl font-light">.io</span>
+        <NuxtLink to="/" class="flex items-center gap-2">
+          <img src="/favicon.svg" class="w-6 h-6 rounded-md shadow-2xs border border-zinc-200/80" alt="PicHost logo" />
+          <div class="flex items-center gap-0.5">
+            <span class="text-zinc-900 text-xl font-bold tracking-tight">PicHost</span>
+            <span class="text-zinc-400 text-xl font-light">.io</span>
+          </div>
         </NuxtLink>
         <nav class="flex items-center gap-1.5">
           <NuxtLink

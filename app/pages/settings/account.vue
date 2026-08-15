@@ -716,15 +716,16 @@ const { t, locale } = useI18n()
 
 const SITE_URL = 'https://pichost.io'
 useSeoMeta({
-  title: 'Account Settings — PicHost.io',
+  title: computed(() => locale.value === 'th' ? 'ตั้งค่าบัญชี - PicHost.io' : 'Account Settings - PicHost.io'),
   description: 'Manage your profile, password security, active storage plan, and payments.',
-  ogTitle: 'Account Settings — PicHost.io',
+  ogTitle: computed(() => locale.value === 'th' ? 'ตั้งค่าบัญชี - PicHost.io' : 'Account Settings - PicHost.io'),
   ogDescription: 'Manage your profile, password security, active storage plan, and payments.',
   ogImage: `${SITE_URL}/og-image.png`,
   twitterCard: 'summary_large_image',
 })
 
 useHead({
+  title: computed(() => locale.value === 'th' ? 'ตั้งค่าบัญชี - PicHost.io' : 'Account Settings - PicHost.io'),
   htmlAttrs: {
     lang: computed(() => locale.value)
   },

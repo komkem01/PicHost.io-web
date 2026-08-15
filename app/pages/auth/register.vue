@@ -211,6 +211,7 @@ const { success: toastSuccess, error: toastError } = useToast()
 const { t, locale } = useI18n()
 
 useHead({
+  title: computed(() => locale.value === 'th' ? 'สมัครใช้งาน - PicHost.io' : 'Sign Up - PicHost.io'),
   htmlAttrs: {
     lang: computed(() => locale.value)
   }

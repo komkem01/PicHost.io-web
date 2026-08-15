@@ -410,6 +410,10 @@ const { t, locale } = useI18n()
 const { success: toastSuccess, error: toastError } = useToast()
 const config = useRuntimeConfig()
 
+useHead({
+  title: computed(() => locale.value === 'th' ? 'รูปภาพของฉัน - PicHost.io' : 'My Images - PicHost.io')
+})
+
 const loading = ref(true)
 const files = ref<StorageFile[]>([])
 

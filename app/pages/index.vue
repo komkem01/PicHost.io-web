@@ -140,6 +140,7 @@ const config = useRuntimeConfig()
 const { t, locale } = useI18n()
 
 useHead({
+  title: computed(() => locale.value === 'th' ? 'PicHost.io - บริการฝากรูปภาพและวิดีโอออนไลน์' : 'PicHost.io - Online Image & Video Hosting'),
   htmlAttrs: {
     lang: computed(() => locale.value)
   }

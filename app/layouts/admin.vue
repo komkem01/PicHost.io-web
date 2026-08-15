@@ -4,9 +4,12 @@
     <aside class="w-[220px] shrink-0 border-r border-white/[0.06] flex flex-col fixed top-0 left-0 h-full z-40">
       <!-- Logo -->
       <div class="px-5 pt-6 pb-5">
-        <NuxtLink to="/" class="flex items-center gap-1 mb-3">
-          <span class="text-blue-400 font-bold text-[15px] tracking-tight">PicHost</span>
-          <span class="text-white/70 font-light text-[15px]">.io</span>
+        <NuxtLink to="/" class="flex items-center gap-2 mb-3">
+          <img src="/favicon.svg" class="w-5 h-5 rounded-md border border-white/10" alt="PicHost logo" />
+          <div class="flex items-center gap-0.5">
+            <span class="text-blue-400 font-bold text-[15px] tracking-tight">PicHost</span>
+            <span class="text-white/70 font-light text-[15px]">.io</span>
+          </div>
         </NuxtLink>
         <div class="flex items-center gap-2">
           <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-500/10 border border-red-500/20 text-[10.5px] font-semibold text-red-400 uppercase tracking-widest">

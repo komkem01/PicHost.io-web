@@ -9,6 +9,8 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
   app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+    layoutTransition: { name: 'layout', mode: 'out-in' },
     head: {
       title: 'PicHost.io',
       htmlAttrs: { lang: 'en' },
@@ -27,6 +29,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'alternate icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', href: '/favicon.svg' },
         { rel: 'sitemap', type: 'application/xml', href: '/sitemap.xml' },
       ],
     },

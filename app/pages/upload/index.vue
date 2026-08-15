@@ -363,11 +363,12 @@ const { t, locale } = useI18n()
 
 const SITE_URL = 'https://pichost.io'
 useSeoMeta({
-  title: 'Bulk Upload Images — PicHost.io',
-  description: 'Upload multiple JPEG, PNG, WebP, GIF images at once with PicHost.io free image hosting.',
+  title: computed(() => locale.value === 'th' ? 'อัปโหลดรูปภาพและวิดีโอ - PicHost.io' : 'Upload Images & Videos - PicHost.io'),
+  description: 'Upload multiple JPEG, PNG, WebP, GIF, MP4, MOV videos at once with PicHost.io free hosting.',
 })
 
 useHead({
+  title: computed(() => locale.value === 'th' ? 'อัปโหลดรูปภาพและวิดีโอ - PicHost.io' : 'Upload Images & Videos - PicHost.io'),
   htmlAttrs: {
     lang: computed(() => locale.value)
   },
