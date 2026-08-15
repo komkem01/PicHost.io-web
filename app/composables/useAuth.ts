@@ -37,7 +37,6 @@ let _apiBase = ''
 /** Decode JWT payload and return `exp` (Unix seconds), or null on failure. */
 function _getJwtExp(token: string): number | null {
   try {
-    // JWT payload is the second segment; base64url-encoded
     const parts = token.split('.')
     if (parts.length < 3) return null
     const b64 = parts[1]!.replace(/-/g, '+').replace(/_/g, '/')
@@ -56,8 +55,6 @@ function _scheduleRefresh(token: string) {
   if (!exp) return
   const delay = exp * 1000 - Date.now() - 60_000 // 1 min before expiry
 
-  // setTimeout's limit is 2147483647 ms (approx 24.8 days).
-  // Capping the timeout at 24 hours prevents integer overflow when tokens have a long TTL.
   const MAX_DELAY = 86400000 // 24 hours
   if (delay > MAX_DELAY) {
     _refreshTimer = setTimeout(_doRefresh, MAX_DELAY)
@@ -68,23 +65,25 @@ function _scheduleRefresh(token: string) {
 
 /** Call POST /public/auth/refresh (uses HttpOnly refresh-token cookie). */
 async function _doRefresh(): Promise<boolean> {
-  if (!_apiBase || !import.meta.client) return false
+  if (!_apiBase) return false
   try {
     const res = await $fetch<RefreshResponse>(`${_apiBase}/public/auth/refresh`, {
       method: 'POST',
       credentials: 'include',
     })
     const token = res.data.access_token
-    localStorage.setItem('access_token', token)
+    if (import.meta.client) localStorage.setItem('access_token', token)
+    const cookie = useCookie('access_token', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+    cookie.value = token
     user.value = res.data.user
     _scheduleRefresh(token)
     return true
   } catch (err: any) {
-    // Only clear auth state on a definitive 401 (refresh token expired/invalid).
-    // Network errors, 5xx, CORS failures, etc. must NOT log the user out.
     const status = err?.status ?? err?.response?.status
     if (status === 401) {
-      localStorage.removeItem('access_token')
+      if (import.meta.client) localStorage.removeItem('access_token')
+      const cookie = useCookie('access_token')
+      cookie.value = null
       user.value = null
     }
     return false
@@ -93,37 +92,37 @@ async function _doRefresh(): Promise<boolean> {
 
 export function useAuth() {
   const config = useRuntimeConfig()
-  // Store apiBase once so module-level functions can use it
   _apiBase = config.public.apiBase as string
 
   function getToken(): string | null {
     if (import.meta.client) {
       const val = localStorage.getItem('access_token')
-      if (!val || val === 'null' || val === 'undefined' || val.trim() === '') {
-        return null
+      if (val && val !== 'null' && val !== 'undefined' && val.trim() !== '') {
+        return val
       }
-      return val
     }
-    return null
+    const cookie = useCookie<string | null>('access_token')
+    return cookie.value || null
   }
 
   function setToken(token: string) {
-    if (import.meta.client) {
-      if (!token || token.trim() === '') {
-        localStorage.removeItem('access_token')
-      } else {
-        localStorage.setItem('access_token', token)
-      }
+    const cookie = useCookie<string | null>('access_token', { maxAge: 60 * 60 * 24 * 7, path: '/' })
+    if (!token || token.trim() === '') {
+      cookie.value = null
+      if (import.meta.client) localStorage.removeItem('access_token')
+    } else {
+      cookie.value = token
+      if (import.meta.client) localStorage.setItem('access_token', token)
     }
   }
 
   function clearToken() {
+    const cookie = useCookie<string | null>('access_token')
+    cookie.value = null
     if (import.meta.client) localStorage.removeItem('access_token')
   }
 
   async function fetchMe(): Promise<AuthUser | null> {
-    // If already initialized with a valid user, return cached value without hitting the API.
-    // This prevents spurious logouts when navigating between pages.
     if (initialized.value && user.value !== null) {
       return user.value
     }
@@ -143,7 +142,6 @@ export function useAuth() {
       _scheduleRefresh(token)
       return res.data
     } catch (err: any) {
-      // 401 → try silent refresh once, then retry. 404 → user no longer exists in DB.
       const status = err?.status ?? err?.response?.status
       if (status === 401 || status === 404) {
         if (status === 401) {
@@ -162,71 +160,35 @@ export function useAuth() {
             }
           }
         }
-        // Definitive 401 or 404 — clear stale token and mark unauthenticated
-        setToken('')
+        clearToken()
         user.value = null
         initialized.value = true
         return null
       }
-      // Non-401/404 error (network error, 5xx): preserve existing user state.
-      initialized.value = true
       return user.value
     }
   }
 
-  /** Force re-fetch from API, bypassing the cache. Use after profile updates. */
-  async function refreshMe(): Promise<AuthUser | null> {
+  function refreshMe(): Promise<AuthUser | null> {
     initialized.value = false
     return fetchMe()
   }
 
-  /** Expose a manual refresh for external callers (e.g. visibility-change). */
+  function isTokenExpired(): boolean {
+    const token = getToken()
+    if (!token) return true
+    const exp = _getJwtExp(token)
+    if (!exp) return false
+    return Date.now() >= exp * 1000
+  }
+
   async function refreshToken(): Promise<boolean> {
     return _doRefresh()
   }
 
-  /**
-   * Returns true if the stored access token is missing, already expired,
-   * or within `bufferSeconds` of expiry (default 60 s).
-   * Use this to gate visibility-change refreshes so we don't hit the backend
-   * unnecessarily when the token is still healthy.
-   */
-  function isTokenExpired(bufferSeconds = 60): boolean {
+  async function resendVerificationEmail(): Promise<string> {
     const token = getToken()
-    if (!token) return true
-    const exp = _getJwtExp(token)
-    if (!exp) return true
-    return exp * 1000 - Date.now() < bufferSeconds * 1000
-  }
-
-  async function forgotPassword(email: string): Promise<string> {
-    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/forgot-password`, {
-      method: 'POST',
-      body: { email },
-    })
-    return res.message
-  }
-
-  async function resetPassword(token: string, newPassword: string): Promise<string> {
-    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/reset-password`, {
-      method: 'POST',
-      body: { token, new_password: newPassword },
-    })
-    return res.message
-  }
-
-  async function verifyEmail(token: string): Promise<string> {
-    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/verify-email`, {
-      method: 'POST',
-      body: { token },
-    })
-    await refreshMe()
-    return res.message
-  }
-
-  async function resendVerification(): Promise<string> {
-    const token = getToken()
-    if (!token) throw new Error('Not authenticated')
+    if (!token) throw new Error('Unauthenticated')
     const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/auth/resend-verification`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -242,10 +204,43 @@ export function useAuth() {
         method: 'POST',
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
+        timeout: 3000,
       })
-    } catch {}
-    clearToken()
-    user.value = null
+    } catch {
+      // Ignore network or timeout errors on logout
+    } finally {
+      clearToken()
+      user.value = null
+      initialized.value = false
+    }
+  }
+
+  async function forgotPassword(email: string): Promise<string> {
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/forgot-password`, {
+      method: 'POST',
+      body: { email },
+    })
+    return res.message
+  }
+
+  async function resetPassword(token: string, password: string): Promise<string> {
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/reset-password`, {
+      method: 'POST',
+      body: { token, password },
+    })
+    return res.message
+  }
+
+  async function verifyEmail(token: string): Promise<string> {
+    const res = await $fetch<{ code: string; message: string }>(`${config.public.apiBase}/public/auth/verify-email`, {
+      method: 'POST',
+      body: { token },
+    })
+    return res.message
+  }
+
+  async function resendVerification(): Promise<string> {
+    return resendVerificationEmail()
   }
 
   return {
@@ -253,14 +248,16 @@ export function useAuth() {
     initialized: readonly(initialized),
     getToken,
     setToken,
+    clearToken,
     fetchMe,
     refreshMe,
     logout,
     refreshToken,
     isTokenExpired,
+    resendVerificationEmail,
+    resendVerification,
     forgotPassword,
     resetPassword,
     verifyEmail,
-    resendVerification,
   }
 }

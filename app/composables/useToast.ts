@@ -1,3 +1,5 @@
+import Swal from 'sweetalert2'
+
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
 export interface Toast {
@@ -7,30 +9,110 @@ export interface Toast {
   duration: number
 }
 
-const toasts = ref<Toast[]>([])
-let nextId = 0
+/**
+ * Friendly translation map for technical error codes & server error messages.
+ */
+function friendlyErrorMessage(rawMsg: string, lang = 'th'): string {
+  if (!rawMsg) return lang === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' : 'An error occurred. Please try again.'
 
-export function useToast() {
-  function add(message: string, type: ToastType = 'info', duration = 4000) {
-    const id = ++nextId
-    toasts.value.push({ id, message, type, duration })
+  const cleanMsg = String(rawMsg).trim()
 
-    if (duration > 0) {
-      setTimeout(() => remove(id), duration)
-    }
+  const mapTh: Record<string, string> = {
+    'invalid_credentials': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+    'email_already_exists': 'อีเมลนี้ถูกลงทะเบียนไว้ในระบบแล้ว',
+    'username_already_exists': 'ชื่อผู้ใช้งานนี้ถูกใช้ไปแล้ว',
+    'user_not_found': 'ไม่พบบัญชีผู้ใช้นี้ในระบบ',
+    'current_password_incorrect': 'รหัสผ่านปัจจุบันไม่ถูกต้อง',
+    'token_expired': 'เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
+    'token_invalid': 'ลิงก์ไม่ถูกต้องหรือหมดอายุแล้ว',
+    'file_too_large': 'ขนาดไฟล์ใหญ่เกินที่กำหนด',
+    'invalid_file_type': 'ประเภทไฟล์ไม่รองรับ',
+    'storage_limit_exceeded': 'พื้นที่จัดเก็บเต็มแล้ว กรุณาอัปเกรดแพ็กเกจ',
+    'unauthorized': 'กรุณาเข้าสู่ระบบก่อนใช้งาน',
+    'forbidden': 'คุณไม่มีสิทธิ์เข้าถึงส่วนนี้',
   }
 
-  function remove(id: number) {
-    const idx = toasts.value.findIndex((t) => t.id === id)
-    if (idx !== -1) toasts.value.splice(idx, 1)
+  const mapEn: Record<string, string> = {
+    'invalid_credentials': 'Invalid email or password',
+    'email_already_exists': 'This email is already registered',
+    'username_already_exists': 'This username is already taken',
+    'user_not_found': 'Account not found',
+    'current_password_incorrect': 'Current password is incorrect',
+    'token_expired': 'Session expired. Please sign in again.',
+    'token_invalid': 'Link is invalid or has expired',
+    'file_too_large': 'File size exceeds limit',
+    'invalid_file_type': 'File format not supported',
+    'storage_limit_exceeded': 'Storage limit reached. Please upgrade your plan.',
+    'unauthorized': 'Please sign in first',
+    'forbidden': 'You do not have permission to perform this action',
+  }
+
+  const map = lang === 'th' ? mapTh : mapEn
+
+  if (map[cleanMsg]) return map[cleanMsg]
+
+  if (cleanMsg.includes('FetchError') || cleanMsg.includes('NetworkError') || cleanMsg.includes('Failed to fetch')) {
+    return lang === 'th'
+      ? 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต'
+      : 'Unable to connect to server. Please check your internet connection.'
+  }
+
+  return cleanMsg
+}
+
+// Clean SVG icons for each toast type
+const toastIcons: Record<ToastType, string> = {
+  success: `<svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  error: `<svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+  warning: `<svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.008v.008H12v-.008z"/></svg>`,
+  info: `<svg class="w-5 h-5 text-zinc-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>`,
+}
+
+// Global SweetAlert2 Toast Mixin configured for top-right placement
+const ToastSwal = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  customClass: {
+    popup: '!items-center !rounded-xl !border !border-zinc-200 !shadow-elevated !bg-white !text-zinc-900 !px-4 !py-3 font-sans',
+    title: '!self-center !text-[13.5px] !font-medium !text-zinc-900 !m-0 !p-0 leading-snug',
+  },
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer
+    toast.onmouseleave = Swal.resumeTimer
+  },
+})
+
+export function useToast() {
+  let lang = 'th'
+  try {
+    const nuxtApp = useNuxtApp()
+    if ((nuxtApp as any)?.$i18n?.locale?.value) {
+      lang = (nuxtApp as any).$i18n.locale.value
+    }
+  } catch {}
+
+  function showToast(message: string, type: ToastType = 'info', duration = 3000) {
+    if (typeof window === 'undefined') return
+
+    const formattedMessage = type === 'error' ? friendlyErrorMessage(message, lang) : message
+
+    ToastSwal.fire({
+      iconHtml: toastIcons[type],
+      title: formattedMessage,
+      timer: duration,
+    })
   }
 
   return {
-    toasts: readonly(toasts),
-    success: (msg: string, duration?: number) => add(msg, 'success', duration),
-    error: (msg: string, duration?: number) => add(msg, 'error', duration),
-    warning: (msg: string, duration?: number) => add(msg, 'warning', duration),
-    info: (msg: string, duration?: number) => add(msg, 'info', duration),
-    remove,
+    toasts: readonly(ref<Toast[]>([])),
+    add: (msg: string, type: ToastType = 'info', duration?: number) => showToast(msg, type, duration),
+    success: (msg: string, duration?: number) => showToast(msg, 'success', duration),
+    error: (msg: string, duration?: number) => showToast(msg, 'error', duration),
+    warning: (msg: string, duration?: number) => showToast(msg, 'warning', duration),
+    info: (msg: string, duration?: number) => showToast(msg, 'info', duration),
+    remove: () => {},
   }
 }

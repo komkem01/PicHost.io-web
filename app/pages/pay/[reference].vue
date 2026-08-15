@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-[#09090b] text-white font-sans flex items-center justify-center px-6">
-    <div class="w-full max-w-md rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 text-center">
-      <div class="mx-auto mb-4 w-10 h-10 rounded-full border-2 border-blue-500/40 border-t-blue-400 animate-spin" />
-      <h1 class="text-[18px] font-semibold">Opening payment status…</h1>
-      <p class="text-[13px] text-white/40 mt-2">Resolving checkout reference {{ reference }}</p>
-      <p v-if="errorText" class="text-[12px] text-red-300 mt-3">{{ errorText }}</p>
+  <div class="min-h-screen bg-[#FAFAFA] text-zinc-900 font-sans flex items-center justify-center px-6">
+    <div class="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-card">
+      <div class="mx-auto mb-4 w-10 h-10 rounded-full border-2 border-zinc-900/20 border-t-zinc-900 animate-spin" />
+      <h1 class="text-[18px] font-semibold text-zinc-900">Opening payment status…</h1>
+      <p class="text-[13px] text-zinc-500 mt-2">Resolving checkout reference {{ reference }}</p>
+      <p v-if="errorText" class="text-[12px] text-red-600 mt-3 font-medium">{{ errorText }}</p>
     </div>
   </div>
 </template>

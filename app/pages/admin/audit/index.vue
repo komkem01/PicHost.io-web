@@ -185,7 +185,6 @@ definePageMeta({
   middleware: 'admin'
 })
 
-const { apiFetch } = useApi()
 
 interface AuditLog {
   id: string

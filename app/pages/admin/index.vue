@@ -170,6 +170,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'admin' })
+
 const { getStats } = useAdmin()
 
 const stats = ref<Awaited<ReturnType<typeof getStats>> | null>(null)

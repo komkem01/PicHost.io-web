@@ -23,3 +23,5 @@ logs
 .local.env
 .env.*
 !.env.example
+
+plan.md

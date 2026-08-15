@@ -11,20 +11,17 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'PicHost.io',
-      // titleTemplate: '%s — PicHost.io',
       htmlAttrs: { lang: 'en' },
       meta: [
         { name: 'description', content: 'Upload any image and get a permanent shareable link in seconds. No account needed, S3-backed storage, remove watermark on Basic. Free image hosting for developers and teams.' },
         { name: 'keywords', content: 'free image hosting, image upload, permanent image links, image sharing, image CDN, free photo hosting' },
-        { name: 'theme-color', content: '#09090b' },
+        { name: 'theme-color', content: '#FAFAFA' },
         { name: 'robots', content: 'index, follow' },
-        // Open Graph defaults (overridden per-page by useSeoMeta)
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'PicHost.io' },
         { property: 'og:image', content: 'https://pichost.io/og-image.png' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
-        // Twitter Card defaults
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:image', content: 'https://pichost.io/og-image.png' },
       ],
@@ -42,7 +39,6 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'th',
     strategy: 'no_prefix',
-    lazy: false,
     langDir: '../i18n/locales',
     detectBrowserLanguage: {
       useCookie: true,
@@ -52,8 +48,8 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1',
-      storagesServiceUrl: process.env.NUXT_PUBLIC_STORAGES_SERVICE_URL || 'http://localhost:8080/api/v1',
+      apiBase: (import.meta as any).env?.NUXT_PUBLIC_API_BASE || 'http://localhost:8080/api/v1',
+      storagesServiceUrl: (import.meta as any).env?.NUXT_PUBLIC_STORAGES_SERVICE_URL || 'http://localhost:8080/api/v1',
     },
   },
 })

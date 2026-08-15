@@ -34,7 +34,7 @@ export async function apiFetch<T = any>(
   }
 
   try {
-    return await $fetch<T>(request, mergedOptions)
+    return await $fetch<T>(request, mergedOptions as any)
   } catch (err: any) {
     // If 401 Unauthorized occurs and we have a token, attempt refresh & retry once
     if (err?.status === 401 || err?.response?.status === 401) {
@@ -48,7 +48,7 @@ export async function apiFetch<T = any>(
             ...mergedOptions.headers,
             ...retryHeaders,
           },
-        })
+        } as any)
       }
     }
     throw err

@@ -186,6 +186,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'admin' })
+
 import type { AdminUser } from '~/composables/useAdmin'
 
 const route = useRoute()

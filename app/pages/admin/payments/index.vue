@@ -271,6 +271,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'admin' })
+
 import type { PaymentTransaction } from '~/composables/useBilling'
 
 const config = useRuntimeConfig()

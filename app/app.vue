@@ -1,5 +1,5 @@
 <template>
-  <div class="dark">
+  <div>
     <NuxtRouteAnnouncer />
     <AppPageLoader :show="pageLoading" />
     <AppToast />

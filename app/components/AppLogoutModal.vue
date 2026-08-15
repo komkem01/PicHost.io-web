@@ -8,7 +8,7 @@
     >
       <div
         v-if="show"
-        class="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        class="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-xs"
         @click.self="close"
       >
         <Transition
@@ -19,38 +19,36 @@
         >
           <div
             v-if="show"
-            class="relative w-full max-w-[360px] rounded-2xl border border-white/[0.08] bg-[#111113] shadow-2xl shadow-black/80 p-6"
+            class="relative w-full max-w-[360px] rounded-2xl border border-zinc-200 bg-white shadow-modal p-6 text-center flex flex-col items-center"
           >
-            <!-- Top shimmer -->
-            <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-t-2xl"></div>
-
-            <!-- Icon -->
-            <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
-              <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <!-- Icon (Centered) -->
+            <div class="w-11 h-11 rounded-2xl bg-red-50 border border-red-200/80 flex items-center justify-center mb-4 text-red-600 shadow-2xs">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
               </svg>
             </div>
 
-            <h3 class="text-white font-semibold text-[15px] mb-1">Sign out?</h3>
-            <p class="text-white/40 text-[13px] mb-6">You will be redirected to the home page.</p>
+            <h3 class="text-zinc-900 font-bold text-base mb-1">
+              {{ $t('auth.logoutModal.title') }}
+            </h3>
+            <p class="text-zinc-500 text-xs sm:text-sm mb-6 leading-relaxed">
+              {{ $t('auth.logoutModal.subtitle') }}
+            </p>
 
-            <div class="flex gap-3">
+            <div class="flex gap-3 w-full">
               <button
                 @click="close"
-                class="flex-1 py-2 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/70 hover:text-white text-[13px] font-medium transition-colors"
+                class="flex-1 py-2.5 rounded-xl border border-zinc-200/80 bg-white hover:bg-zinc-50 text-zinc-700 text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
               >
-                Cancel
+                {{ $t('common.cancel') }}
               </button>
               <button
                 @click="confirm"
                 :disabled="loading"
-                class="flex-1 py-2 rounded-xl bg-red-600/80 hover:bg-red-600 text-white text-[13px] font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white text-xs sm:text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
-                <svg v-if="loading" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-                </svg>
-                Sign out
+                <AppSpinner v-if="loading" size="sm" />
+                <span>{{ $t('auth.logoutModal.confirmBtn') }}</span>
               </button>
             </div>
           </div>
@@ -63,13 +61,23 @@
 <script setup lang="ts">
 const { show, close } = useLogoutModal()
 const { logout } = useAuth()
+const { success: toastSuccess } = useToast()
+const { locale } = useI18n()
 const router = useRouter()
 const loading = ref(false)
 
 async function confirm() {
+  if (loading.value) return
   loading.value = true
-  await logout()
-  close()
-  router.push('/')
+  try {
+    await logout()
+  } catch (e) {
+    // Ignore any network errors on logout
+  } finally {
+    loading.value = false
+    close()
+    toastSuccess(locale.value === 'th' ? 'ออกจากระบบเรียบร้อยแล้ว' : 'Signed out successfully')
+    router.push('/')
+  }
 }
 </script>

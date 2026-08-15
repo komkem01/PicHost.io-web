@@ -26,10 +26,10 @@ export interface PublicPlanSetting {
   priority_support: boolean
   no_ads: boolean
   watermark_removal: boolean
+  is_enabled: boolean
 }
 
 export interface AdminPlanSetting extends PublicPlanSetting {
-  is_enabled: boolean
   updated_at: string
 }
 

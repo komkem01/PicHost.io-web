@@ -139,7 +139,6 @@ definePageMeta({
   middleware: 'admin'
 })
 
-const { apiFetch } = useApi()
 
 interface ImageItem {
   id: string
