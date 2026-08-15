@@ -338,6 +338,9 @@
     "copied": "Copied",
     "success": "Done",
     "error": "Something went wrong",
-    "back": "Back"
+    "back": "Back",
+    "prev": "Previous",
+    "next": "Next",
+    "page": "Page {current} of {total}"
   }
 }

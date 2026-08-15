@@ -232,9 +232,17 @@
           :key="file.id"
           class="group rounded-2xl border border-zinc-200/90 bg-white overflow-hidden shadow-card hover:shadow-elevated transition-all flex flex-col justify-between"
         >
-          <!-- Image Preview -->
-          <div class="relative aspect-4/3 bg-zinc-100 overflow-hidden border-b border-zinc-100 flex items-center justify-center">
+          <!-- Image / Video Preview -->
+          <div class="relative aspect-4/3 bg-zinc-900 overflow-hidden border-b border-zinc-100 flex items-center justify-center">
+            <video
+              v-if="file.content_type?.startsWith('video/')"
+              :src="file.public_url || getPublicUrl(file.id)"
+              class="w-full h-full object-cover"
+              controls
+              preload="metadata"
+            />
             <img
+              v-else
               :src="file.public_url || getPublicUrl(file.id)"
               :alt="file.name"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -306,24 +314,43 @@
         </div>
       </div>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex items-center justify-between pt-4 border-t border-zinc-200/80">
+      <!-- Premium Pagination -->
+      <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-8 border-t border-zinc-200/80">
+        <!-- Previous Button -->
         <button
           @click="currentPage--"
           :disabled="currentPage === 1"
-          class="px-3.5 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 disabled:opacity-40 text-xs font-semibold text-zinc-700 transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-200/90 bg-white hover:bg-zinc-50 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed text-xs font-semibold text-zinc-700 shadow-2xs hover:shadow-xs transition-all cursor-pointer select-none"
         >
+          <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+          </svg>
           {{ $t('common.prev') }}
         </button>
-        <span class="text-xs font-semibold text-zinc-500">
-          Page {{ currentPage }} of {{ totalPages }}
-        </span>
+
+        <!-- Page Numbers & Page Info -->
+        <div class="flex items-center gap-1.5">
+          <button
+            v-for="p in totalPages"
+            :key="p"
+            @click="currentPage = p"
+            class="w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center select-none"
+            :class="currentPage === p ? 'bg-zinc-900 text-white shadow-xs scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'"
+          >
+            {{ p }}
+          </button>
+        </div>
+
+        <!-- Next Button -->
         <button
           @click="currentPage++"
           :disabled="currentPage === totalPages"
-          class="px-3.5 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 disabled:opacity-40 text-xs font-semibold text-zinc-700 transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-200/90 bg-white hover:bg-zinc-50 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed text-xs font-semibold text-zinc-700 shadow-2xs hover:shadow-xs transition-all cursor-pointer select-none"
         >
           {{ $t('common.next') }}
+          <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
         </button>
       </div>
 
@@ -470,7 +497,7 @@ const storagePercent = computed(() => {
 })
 
 function fileExt(mime: string | null): string {
-  if (!mime) return 'IMG'
+  if (!mime) return 'FILE'
   const cleanMime = mime.toLowerCase()
   if (cleanMime.includes('jpeg') || cleanMime.includes('jpg')) return 'JPG'
   if (cleanMime.includes('png')) return 'PNG'
@@ -478,7 +505,13 @@ function fileExt(mime: string | null): string {
   if (cleanMime.includes('gif')) return 'GIF'
   if (cleanMime.includes('avif')) return 'AVIF'
   if (cleanMime.includes('svg')) return 'SVG'
-  return cleanMime.split('/')[1]?.toUpperCase() || 'IMG'
+  if (cleanMime.includes('mp4')) return 'MP4'
+  if (cleanMime.includes('webm')) return 'WEBM'
+  if (cleanMime.includes('quicktime') || cleanMime.includes('mov')) return 'MOV'
+  if (cleanMime.includes('avi')) return 'AVI'
+  if (cleanMime.includes('mkv')) return 'MKV'
+  if (cleanMime.startsWith('video/')) return 'VIDEO'
+  return cleanMime.split('/')[1]?.toUpperCase() || 'FILE'
 }
 
 const filteredFiles = computed(() => {
