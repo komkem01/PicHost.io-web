@@ -59,9 +59,18 @@
         <button
           v-if="search || filterPlan || filterStatus"
           @click="clearFilters"
-          class="h-10 px-3.5 rounded-xl border border-zinc-200 bg-white text-[12.5px] text-zinc-600 hover:bg-zinc-50 transition-colors shadow-xs"
+          class="h-10 px-3.5 rounded-xl border border-zinc-200 bg-white text-[12.5px] text-zinc-600 hover:bg-zinc-50 transition-colors shadow-xs cursor-pointer"
         >
           {{ $t('admin.users.clearFilters') }}
+        </button>
+        <button
+          @click="exportUsersCsv"
+          class="h-10 px-4 inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-[12.5px] font-medium text-zinc-700 transition-colors shadow-xs cursor-pointer shrink-0 ml-auto"
+        >
+          <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>{{ $t('common.exportCsv') }}</span>
         </button>
       </div>
     </div>
@@ -106,6 +115,7 @@
             <th class="text-left px-4 py-3.5 text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Plan</th>
             <th class="text-left px-4 py-3.5 text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Storage</th>
             <th class="text-left px-4 py-3.5 text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Status</th>
+            <th class="text-left px-4 py-3.5 text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">{{ $t('admin.users.lastLogin') }}</th>
             <th class="text-left px-4 py-3.5 text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Joined</th>
             <th class="text-right px-5 py-3.5 text-[11px] font-semibold text-zinc-500 uppercase tracking-widest">Actions</th>
           </tr>
@@ -152,6 +162,14 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500" />Inactive
               </span>
             </td>
+            <!-- Last Login -->
+            <td class="px-4 py-3.5 text-zinc-600 text-[12px]">
+              <div v-if="u.last_login_at" class="tabular-nums">
+                <p class="font-medium text-zinc-800">{{ formatDate(u.last_login_at) }}</p>
+                <p class="text-[10.5px] text-zinc-400 font-mono">{{ u.login_count || 1 }} logins</p>
+              </div>
+              <span v-else class="text-zinc-400 text-xs font-mono">Never</span>
+            </td>
             <!-- Joined -->
             <td class="px-4 py-3.5 text-zinc-500 text-[12px] tabular-nums">{{ formatDate(u.created_at) }}</td>
             <!-- Actions -->
@@ -159,8 +177,19 @@
               <div class="inline-flex items-center justify-end gap-1.5" @click.stop>
                 <button
                   type="button"
+                  @click.stop="openResetPasswordModal(u)"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-100/60 text-[12px] font-medium text-amber-800 transition-colors shadow-2xs cursor-pointer"
+                  :title="$t('admin.users.resetPassword')"
+                >
+                  <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                  </svg>
+                  <span>{{ $t('admin.users.resetPassword') }}</span>
+                </button>
+                <button
+                  type="button"
                   @click.stop="openUserModal(u, 'view')"
-                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-[12px] font-medium text-zinc-700 transition-colors shadow-2xs"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-[12px] font-medium text-zinc-700 transition-colors shadow-2xs cursor-pointer"
                   :title="$t('common.viewDetails')"
                 >
                   <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -364,7 +393,7 @@
             <button
               @click="closeUserModal"
               type="button"
-              class="h-9 px-4 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition-colors"
+              class="h-9 px-4 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition-colors cursor-pointer"
             >
               {{ $t('common.close') || 'ปิด' }}
             </button>
@@ -373,12 +402,92 @@
               @click="saveEditUser"
               :disabled="editSaving"
               type="button"
-              class="h-9 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold disabled:opacity-40 transition-colors shadow-xs flex items-center gap-2"
+              class="h-9 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold disabled:opacity-40 transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
             >
               <svg v-if="editSaving" class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
               <span>{{ editSaving ? $t('common.loading') : $t('common.save') }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Reset Password Modal -->
+    <Teleport to="body">
+      <div
+        v-if="resetPasswordUser"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-xs"
+        @click.self="resetPasswordUser = null"
+      >
+        <div class="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-modal space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <h3 class="text-sm font-semibold text-zinc-900 flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+              </svg>
+              <span>{{ $t('admin.users.resetPassword') }}</span>
+            </h3>
+            <button @click="resetPasswordUser = null" class="text-zinc-400 hover:text-zinc-700 text-lg leading-none">&times;</button>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-700 space-y-1">
+              <p><span class="text-zinc-400">User:</span> <strong class="text-zinc-900 font-mono">{{ resetPasswordUser.email || resetPasswordUser.username || resetPasswordUser.id }}</strong></p>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-medium text-zinc-700">New Password</label>
+                <button
+                  type="button"
+                  @click="generateRandomPassword"
+                  class="text-[11px] text-blue-600 hover:text-blue-700 font-semibold underline cursor-pointer"
+                >
+                  {{ $t('admin.users.generatePassword') }}
+                </button>
+              </div>
+              <div class="relative">
+                <input
+                  v-model="newPasswordInput"
+                  type="text"
+                  placeholder="Min 8 characters..."
+                  class="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2.5 text-xs text-zinc-900 font-mono placeholder:text-zinc-400 outline-none focus:border-zinc-400 shadow-xs"
+                />
+                <button
+                  v-if="newPasswordInput"
+                  type="button"
+                  @click="copyPassword"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-[10.5px] font-semibold text-zinc-700 cursor-pointer"
+                >
+                  {{ passwordCopied ? 'Copied!' : 'Copy' }}
+                </button>
+              </div>
+            </div>
+
+            <div v-if="resetPasswordError" class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+              {{ resetPasswordError }}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+            <button
+              @click="resetPasswordUser = null"
+              class="px-4 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-xs font-medium text-zinc-700 cursor-pointer"
+            >
+              {{ $t('common.cancel') }}
+            </button>
+            <button
+              @click="submitResetPassword"
+              :disabled="resettingPassword || newPasswordInput.length < 8"
+              class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold disabled:opacity-40 transition shadow-xs cursor-pointer flex items-center gap-1.5"
+            >
+              <svg v-if="resettingPassword" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              <span>{{ resettingPassword ? 'Resetting...' : 'Save New Password' }}</span>
             </button>
           </div>
         </div>
@@ -392,6 +501,7 @@
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 import type { AdminUser } from '~/composables/useAdmin'
+import { exportToCsv } from '~/utils/export'
 
 const { listUsers, getStats, setUserPlan, setUserActive, setUserAdmin, updateUserProfile } = useAdmin()
 const toast = useToast()
@@ -550,16 +660,104 @@ async function saveEditUser() {
     user.is_active = editForm.isActive
     user.is_admin = editForm.isAdmin
 
-    toast.success('บันทึกการแก้ไขผู้ใช้สำเร็จ')
+    toast.success(t('toast.userSaveSuccess'))
     editingUser.value = null
   } catch (e: any) {
-    editError.value = e?.data?.message || e?.message || 'ไม่สามารถบันทึกข้อมูลได้'
+    editError.value = e?.data?.message || e?.message || t('toast.saveError')
   } finally {
     editSaving.value = false
   }
 }
 
-function formatDate(iso: string) {
+function formatDate(iso?: string) {
+  if (!iso) return '-'
   return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+// Reset Password Logic
+const resetPasswordUser = ref<AdminUser | null>(null)
+const newPasswordInput = ref('')
+const resettingPassword = ref(false)
+const resetPasswordError = ref('')
+const passwordCopied = ref(false)
+
+function openResetPasswordModal(user: AdminUser) {
+  resetPasswordUser.value = user
+  newPasswordInput.value = ''
+  resetPasswordError.value = ''
+  passwordCopied.value = false
+  generateRandomPassword()
+}
+
+function generateRandomPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%'
+  let pass = ''
+  for (let i = 0; i < 14; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  newPasswordInput.value = pass
+  passwordCopied.value = false
+}
+
+async function copyPassword() {
+  if (!newPasswordInput.value) return
+  await navigator.clipboard.writeText(newPasswordInput.value)
+  passwordCopied.value = true
+  toast.success(t('toast.copySuccess'))
+  setTimeout(() => {
+    passwordCopied.value = false
+  }, 2000)
+}
+
+async function submitResetPassword() {
+  if (!resetPasswordUser.value || newPasswordInput.value.length < 8) return
+  resettingPassword.value = true
+  resetPasswordError.value = ''
+  try {
+    await apiFetch(`/admin/users/${resetPasswordUser.value.id}/reset-password`, {
+      method: 'POST',
+      body: { password: newPasswordInput.value }
+    })
+    toast.success(t('toast.resetPasswordSuccess'))
+    resetPasswordUser.value = null
+  } catch (e: any) {
+    resetPasswordError.value = e?.data?.message || e?.message || 'Failed to reset password'
+  } finally {
+    resettingPassword.value = false
+  }
+}
+
+function exportUsersCsv() {
+  const headers = [
+    { label: 'รหัสผู้ใช้งาน (User ID)', key: 'id' },
+    { label: 'ชื่อผู้ใช้งาน (Username)', key: 'username' },
+    { label: 'อีเมล (Email)', key: 'email' },
+    { label: 'แพ็กเกจ (Plan)', key: 'plan_display' },
+    { label: 'สิทธิ์ผู้ดูแลระบบ (Is Admin)', key: 'is_admin_display' },
+    { label: 'สถานะบัญชี (Status)', key: 'status_display' },
+    { label: 'ประเภทบัญชี (Account Type)', key: 'account_type' },
+    { label: 'พื้นที่จัดเก็บที่ใช้ (Used Storage)', key: 'used_storage_formatted' },
+    { label: 'จำนวนรูปภาพ (Image Count)', key: 'image_count_formatted' },
+    { label: 'เข้าสู่ระบบล่าสุด (Last Login At)', key: 'last_login_formatted' },
+    { label: 'จำนวนครั้งที่เข้าใช้ (Login Count)', key: 'login_count_formatted' },
+    { label: 'IP ล่าสุด (Last Login IP)', key: 'last_login_ip' },
+    { label: 'วันที่ลงทะเบียน (Registered At)', key: 'created_at_formatted' }
+  ]
+
+  const exportRows = filtered.value.map(u => ({
+    ...u,
+    plan_display: String(u.plan || 'free').toUpperCase(),
+    is_admin_display: u.is_admin ? 'แอดมิน (Admin)' : 'ผู้ใช้ทั่วไป (User)',
+    status_display: u.is_active ? 'เปิดใช้งานปกติ (Active)' : 'ระงับบัญชี (Suspended)',
+    account_type: u.is_guest ? 'ผู้ใช้ชั่วคราว (Guest)' : 'สมาชิก (Registered)',
+    used_storage_formatted: formatBytes(u.used_storage_bytes || 0),
+    image_count_formatted: (u.image_count || 0).toLocaleString(),
+    last_login_formatted: u.last_login_at ? formatDate(u.last_login_at) : 'ไม่เคยเข้าสู่ระบบ',
+    login_count_formatted: (u.login_count || 0).toLocaleString(),
+    last_login_ip: u.last_login_ip || '-',
+    created_at_formatted: formatDate(u.created_at)
+  }))
+
+  exportToCsv('pichost_users', headers, exportRows)
 }
 </script>

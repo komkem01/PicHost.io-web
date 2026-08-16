@@ -49,6 +49,9 @@
             >
               {{ $t('nav.settings') }}
             </NuxtLink>
+            
+            <AppNotificationBell class="ml-0.5" />
+
             <button
               @click="openLogoutModal()"
               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[13px] font-semibold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/80 border border-red-200/80 transition-all shadow-2xs hover:shadow-xs cursor-pointer ml-1 group"

@@ -188,6 +188,57 @@
                 </div>
               </div>
             </div>
+
+            <div class="p-6">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <p class="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-widest">{{ $t('admin.users.resetPassword') }}</p>
+                <p class="text-[11.5px] text-zinc-500">Force set a new password and invalidate active sessions</p>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <label class="text-[12px] font-medium text-zinc-700">New Password</label>
+                  <button
+                    type="button"
+                    @click="generateRandomPassword"
+                    class="text-[11.5px] text-blue-600 hover:text-blue-700 font-semibold underline cursor-pointer"
+                  >
+                    {{ $t('admin.users.generatePassword') }}
+                  </button>
+                </div>
+                <div class="flex gap-2">
+                  <div class="relative flex-1">
+                    <input
+                      v-model="newPassword"
+                      type="text"
+                      placeholder="Min 8 characters..."
+                      class="w-full bg-white border border-zinc-200 rounded-xl px-3.5 py-2.5 text-[13px] text-zinc-900 font-mono placeholder:text-zinc-400 outline-none focus:border-zinc-400 transition-colors shadow-xs"
+                    />
+                    <button
+                      v-if="newPassword"
+                      type="button"
+                      @click="copyPassword"
+                      class="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 text-[11px] font-semibold text-zinc-700 cursor-pointer"
+                    >
+                      {{ passwordCopied ? 'Copied!' : 'Copy' }}
+                    </button>
+                  </div>
+                  <button
+                    @click="handleResetPassword"
+                    :disabled="resettingPassword || newPassword.length < 8"
+                    class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-[13px] font-semibold text-white transition-colors shadow-xs cursor-pointer flex items-center gap-1.5 shrink-0"
+                  >
+                    <svg v-if="resettingPassword" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    <span>{{ resettingPassword ? 'Resetting...' : 'Reset Password' }}</span>
+                  </button>
+                </div>
+                <p v-if="resetSuccess" class="text-xs text-emerald-600 font-medium">Password has been reset successfully.</p>
+                <p v-if="resetError" class="text-xs text-red-600 font-medium">{{ resetError }}</p>
+              </div>
+            </div>
           </div>
 
           <div class="rounded-2xl border border-red-200 bg-red-50/60 p-6 flex items-center gap-4">
@@ -432,8 +483,9 @@ function showError(msg: string) {
   setTimeout(() => (saveError.value = ''), 3500)
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
+function formatDate(iso?: string) {
+  if (!iso) return '-'
+  return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function avatarInitials(user: AdminUser) {
@@ -449,6 +501,57 @@ const userStats = computed(() => {
     { label: 'Images', value: (u.value.image_count ?? 0).toLocaleString(), color: '' },
     { label: 'Storage', value: formatBytes(u.value.used_storage_bytes), color: '' },
     { label: 'Joined', value: formatDate(u.value.created_at), color: '' },
+    { label: 'Last Login', value: u.value.last_login_at ? formatDate(u.value.last_login_at) : 'Never', color: '' },
+    { label: 'Logins', value: (u.value.login_count || 0).toLocaleString(), color: '' },
+    { label: 'Last IP', value: u.value.last_login_ip || '—', color: '' },
   ]
 })
+
+// Reset Password Logic
+const newPassword = ref('')
+const resettingPassword = ref(false)
+const resetError = ref('')
+const resetSuccess = ref(false)
+const passwordCopied = ref(false)
+
+function generateRandomPassword() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%'
+  let pass = ''
+  for (let i = 0; i < 14; i++) {
+    pass += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  newPassword.value = pass
+  passwordCopied.value = false
+}
+
+async function copyPassword() {
+  if (!newPassword.value) return
+  await navigator.clipboard.writeText(newPassword.value)
+  passwordCopied.value = true
+  setTimeout(() => {
+    passwordCopied.value = false
+  }, 2000)
+}
+
+async function handleResetPassword() {
+  if (!newPassword.value || newPassword.value.length < 8) return
+  resettingPassword.value = true
+  resetError.value = ''
+  resetSuccess.value = false
+  try {
+    await apiFetch(`/admin/users/${id}/reset-password`, {
+      method: 'POST',
+      body: { password: newPassword.value }
+    })
+    resetSuccess.value = true
+    newPassword.value = ''
+    setTimeout(() => {
+      resetSuccess.value = false
+    }, 4000)
+  } catch (e: any) {
+    resetError.value = e?.data?.message || e?.message || 'Failed to reset password'
+  } finally {
+    resettingPassword.value = false
+  }
+}
 </script>

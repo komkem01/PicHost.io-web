@@ -11,20 +11,31 @@
         </h1>
         <p class="text-xs text-zinc-500 mt-1">{{ $t('admin.audit.subtitle') }}</p>
       </div>
-      <button
-        @click="fetchLogs"
-        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-700 transition shadow-xs"
-      >
-        <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-        </svg>
-        <span>{{ $t('common.refresh') }}</span>
-      </button>
+      <div class="flex items-center gap-2">
+        <button
+          @click="exportAuditCsv"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-700 transition shadow-xs cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>{{ $t('common.exportCsv') }}</span>
+        </button>
+        <button
+          @click="fetchLogs"
+          class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-700 transition shadow-xs cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          <span>{{ $t('common.refresh') }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Filter Toolbar -->
     <div class="p-4 rounded-2xl bg-white border border-zinc-200 shadow-card space-y-3">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 text-xs">
         <div>
           <label class="block text-[11.5px] text-zinc-700 font-medium mb-1">{{ $t('admin.audit.action') }}</label>
           <div class="relative">
@@ -37,6 +48,22 @@
               type="text"
               placeholder="e.g. auth.login..."
               class="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white border border-zinc-200 text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 shadow-xs transition-colors"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] text-zinc-700 font-medium mb-1">{{ $t('admin.audit.userId') }}</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+            <input
+              v-model="filters.user_id"
+              @keyup.enter="fetchLogs"
+              type="text"
+              placeholder="UUID..."
+              class="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white border border-zinc-200 text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 shadow-xs transition-colors font-mono"
             />
           </div>
         </div>
@@ -180,6 +207,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { exportToCsv } from '~/utils/export'
 
 const { t } = useI18n()
 
@@ -187,7 +215,6 @@ definePageMeta({
   layout: 'admin',
   middleware: 'admin'
 })
-
 
 interface AuditLog {
   id: string
@@ -217,21 +244,47 @@ const statusOptions = computed(() => [
 
 const filters = ref({
   action: '',
+  user_id: '',
   status: '',
   from_date: '',
   to_date: ''
 })
 
 const hasActiveFilters = computed(() => {
-  return !!(filters.value.action || filters.value.status || filters.value.from_date || filters.value.to_date)
+  return !!(filters.value.action || filters.value.user_id || filters.value.status || filters.value.from_date || filters.value.to_date)
 })
 
 function clearFilters() {
   filters.value.action = ''
+  filters.value.user_id = ''
   filters.value.status = ''
   filters.value.from_date = ''
   filters.value.to_date = ''
   fetchLogs()
+}
+
+function exportAuditCsv() {
+  const headers = [
+    { label: 'รหัสบันทึก (Log ID)', key: 'id' },
+    { label: 'การทำงาน (Action)', key: 'action' },
+    { label: 'ผู้ดำเนินการ (User ID)', key: 'user_display' },
+    { label: 'หมายเลข IP (IP Address)', key: 'ip_address' },
+    { label: 'สถานะ (Status)', key: 'status_display' },
+    { label: 'เบราว์เซอร์ / อุปกรณ์ (User Agent)', key: 'user_agent' },
+    { label: 'ข้อมูลเพิ่มเติม (Metadata)', key: 'metadata_str' },
+    { label: 'วันเวลาบันทึก (Date & Time)', key: 'created_at_formatted' }
+  ]
+  const data = logs.value.map(l => ({
+    id: l.id,
+    action: l.action,
+    user_display: l.user_id ? `User (${l.user_id})` : 'ระบบ / ผู้ใช้ทั่วไป (System/Guest)',
+    ip_address: l.ip_address || '-',
+    status_display: String(l.status || '').toUpperCase(),
+    user_agent: l.user_agent || '-',
+    metadata_str: l.metadata ? JSON.stringify(l.metadata) : '-',
+    created_at_formatted: formatDate(l.created_at)
+  }))
+  exportToCsv('pichost_audit_logs', headers, data)
 }
 
 async function fetchLogs() {
@@ -242,6 +295,7 @@ async function fetchLogs() {
       limit: limit.value
     }
     if (filters.value.action) params.action = filters.value.action
+    if (filters.value.user_id) params.user_id = filters.value.user_id
     if (filters.value.status) params.status = filters.value.status
     if (filters.value.from_date) params.from_date = filters.value.from_date
     if (filters.value.to_date) params.to_date = filters.value.to_date

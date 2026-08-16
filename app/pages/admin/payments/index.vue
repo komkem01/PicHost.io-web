@@ -50,16 +50,27 @@
             />
           </div>
         </div>
-        <button
-          @click="load"
-          :disabled="loading"
-          class="h-10 px-4 inline-flex items-center justify-center gap-2 rounded-xl text-[13px] font-medium border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 disabled:opacity-40 transition-colors shadow-xs"
-        >
-          <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-          </svg>
-          <span>{{ $t('common.refresh') }}</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            @click="handleExport"
+            class="h-10 px-4 inline-flex items-center justify-center gap-1.5 rounded-xl text-[13px] font-medium border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 transition-colors shadow-xs cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>{{ $t('common.exportCsv') }}</span>
+          </button>
+          <button
+            @click="load"
+            :disabled="loading"
+            class="h-10 px-4 inline-flex items-center justify-center gap-2 rounded-xl text-[13px] font-medium border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 disabled:opacity-40 transition-colors shadow-xs cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+            <span>{{ $t('common.refresh') }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -124,11 +135,22 @@
             <td class="px-4 py-3.5 text-zinc-500 whitespace-nowrap">{{ formatDate(tx.created_at) }}</td>
             <td class="px-4 py-3.5">
               <div class="flex items-center gap-1.5 justify-end">
+                <NuxtLink
+                  :to="`/admin/payments/${tx.id}`"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-[12px] font-medium transition-colors shadow-2xs"
+                  title="ดูรายละเอียดการชำระเงิน"
+                >
+                  <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                  </svg>
+                  <span>{{ $t('common.viewDetails') }}</span>
+                </NuxtLink>
                 <button
                   v-if="tx.status === 'pending'"
                   @click="openConfirmModal(tx.id, 'paid')"
                   :disabled="confirming === tx.id"
-                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 text-[12px] font-medium disabled:opacity-40 transition-colors shadow-2xs"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 text-[12px] font-medium disabled:opacity-40 transition-colors shadow-2xs cursor-pointer"
                   title="อนุมัติการชำระเงิน"
                 >
                   <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -140,7 +162,7 @@
                   v-if="tx.status === 'pending'"
                   @click="openConfirmModal(tx.id, 'failed')"
                   :disabled="confirming === tx.id"
-                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100/70 text-red-700 text-[12px] font-medium disabled:opacity-40 transition-colors shadow-2xs"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100/70 text-red-700 text-[12px] font-medium disabled:opacity-40 transition-colors shadow-2xs cursor-pointer"
                   title="ปฏิเสธการชำระเงิน"
                 >
                   <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -152,11 +174,10 @@
                   v-if="tx.status === 'paid'"
                   @click="openRefundModal(tx.id)"
                   :disabled="confirming === tx.id"
-                  class="px-3 py-1.5 rounded-xl text-[11.5px] font-semibold bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 disabled:opacity-40 transition-colors"
+                  class="px-3 py-1.5 rounded-xl text-[11.5px] font-semibold bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 disabled:opacity-40 transition-colors cursor-pointer"
                 >
                   Refund
                 </button>
-                <span v-if="tx.status !== 'pending' && tx.status !== 'paid'" class="text-zinc-400 text-[11.5px]">—</span>
               </div>
             </td>
           </tr>
@@ -274,6 +295,7 @@
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 import type { PaymentTransaction } from '~/composables/useBilling'
+import { exportToCsv } from '~/utils/export'
 
 const config = useRuntimeConfig()
 const { adminListPayments, adminConfirmPayment, adminRefundPayment } = useAdmin()
@@ -341,6 +363,44 @@ async function load() {
   } finally {
     loading.value = false
   }
+}
+
+function handleExport() {
+  const headers = [
+    { label: 'รหัสรายการ (Payment ID)', key: 'formatted_id' },
+    { label: 'ผู้ใช้งาน (User ID)', key: 'formatted_user' },
+    { label: 'แพ็กเกจ (Plan)', key: 'formatted_plan' },
+    { label: 'จำนวนเงิน (Amount)', key: 'formatted_amount' },
+    { label: 'สกุลเงิน (Currency)', key: 'currency' },
+    { label: 'สถานะ (Status)', key: 'formatted_status' },
+    { label: 'ช่องทางชำระเงิน (Provider)', key: 'provider' },
+    { label: 'อ้างอิงชำระเงิน (Checkout Ref)', key: 'checkout_reference' },
+    { label: 'เหตุผลการตรวจสอบ (Review Reason)', key: 'review_reason' },
+    { label: 'วันที่ชำระเงิน (Paid At)', key: 'formatted_paid_at' },
+    { label: 'วันที่สร้างรายการ (Created At)', key: 'formatted_created_at' }
+  ]
+
+  const exportRows = filtered.value.map(item => {
+    let statusText = 'รอตรวจสอบ (Pending)'
+    if (item.status === 'paid') statusText = 'ชำระเงินสำเร็จ (Paid)'
+    else if (item.status === 'refunded') statusText = 'คืนเงินเรียบร้อย (Refunded)'
+    else if (item.status === 'failed') statusText = 'ปฏิเสธ / ล้มเหลว (Failed)'
+    else if (item.status === 'cancelled') statusText = 'ยกเลิกรายการ (Cancelled)'
+
+    return {
+      ...item,
+      formatted_id: `${toReadableId(item.id, 'PMT')} (${item.id})`,
+      formatted_user: item.user_id ? `User (${item.user_id})` : 'Guest User',
+      formatted_plan: String(item.plan_key || '').toUpperCase(),
+      formatted_amount: `฿${(item.amount_thb || 0).toLocaleString()}`,
+      formatted_status: statusText,
+      review_reason: item.review_reason || '-',
+      formatted_paid_at: formatDate(item.paid_at),
+      formatted_created_at: formatDate(item.created_at)
+    }
+  })
+
+  exportToCsv('pichost_payments', headers, exportRows)
 }
 
 function goPage(dir: 1 | -1) {

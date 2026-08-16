@@ -14,11 +14,22 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2.5">
+        <button
+          @click="exportDashboardSummary"
+          :disabled="!stats"
+          class="h-9 px-3.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition-all shadow-2xs flex items-center gap-1.5 active:scale-95 disabled:opacity-40 cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+          <span>{{ $t('common.exportCsv') }}</span>
+        </button>
+
         <button
           @click="fetchData"
           :disabled="refreshing"
-          class="h-9 px-3.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition-all shadow-2xs flex items-center gap-2 active:scale-95 disabled:opacity-50"
+          class="h-9 px-3.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition-all shadow-2xs flex items-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer"
         >
           <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': refreshing }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -466,6 +477,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin', middleware: 'admin' })
 
+import { exportToCsv } from '~/utils/export'
+
 const { t, locale } = useI18n()
 const { getStats } = useAdmin()
 const { list: listPlanSettings, load: loadPlanSettings } = usePlanSettings()
@@ -474,6 +487,34 @@ const stats = ref<Awaited<ReturnType<typeof getStats>> | null>(null)
 const loading = ref(true)
 const refreshing = ref(false)
 const error = ref('')
+
+function exportDashboardSummary() {
+  if (!stats.value) return
+  const s = stats.value
+  const headers = [
+    { label: 'หมวดหมู่ (Category)', key: 'category' },
+    { label: 'ตัวชี้วัด (Metric)', key: 'metric' },
+    { label: 'ค่าตัวเลข (Value)', key: 'value_formatted' },
+    { label: 'หน่วย (Unit)', key: 'unit' }
+  ]
+  const rows = [
+    { category: 'ผู้ใช้งาน (Users)', metric: 'ผู้ใช้งานทั้งหมด (Total Users)', value_formatted: (s.users?.total_count || 0).toLocaleString(), unit: 'บัญชี (accounts)' },
+    { category: 'ผู้ใช้งาน (Users)', metric: 'บัญชีเปิดใช้งาน (Active Users)', value_formatted: (s.users?.active_count || 0).toLocaleString(), unit: 'บัญชี (accounts)' },
+    { category: 'ผู้ใช้งาน (Users)', metric: 'บัญชีถูกระงับ (Inactive Users)', value_formatted: (s.users?.inactive_count || 0).toLocaleString(), unit: 'บัญชี (accounts)' },
+    { category: 'ผู้ใช้งาน (Users)', metric: 'ผู้ใช้ทั่วไป (Guest Users)', value_formatted: (s.users?.guest_count || 0).toLocaleString(), unit: 'บัญชี (accounts)' },
+    { category: 'รูปภาพ (Images)', metric: 'รูปภาพทั้งหมด (Total Images)', value_formatted: (s.images?.total_count || 0).toLocaleString(), unit: 'ไฟล์ (files)' },
+    { category: 'รูปภาพ (Images)', metric: 'พื้นที่จัดเก็บทั้งหมด (Total Storage)', value_formatted: formatBytes(s.images?.total_bytes || 0), unit: 'พื้นที่ (storage)' },
+    { category: 'รูปภาพ (Images)', metric: 'อัปโหลดวันนี้ (Today Uploads)', value_formatted: (s.images?.today_count || 0).toLocaleString(), unit: 'ไฟล์ (files)' },
+    { category: 'รูปภาพ (Images)', metric: 'อัปโหลดสัปดาห์นี้ (This Week Uploads)', value_formatted: (s.images?.week_count || 0).toLocaleString(), unit: 'ไฟล์ (files)' },
+    { category: 'รูปภาพ (Images)', metric: 'อัปโหลดเดือนนี้ (This Month Uploads)', value_formatted: (s.images?.month_count || 0).toLocaleString(), unit: 'ไฟล์ (files)' },
+    { category: 'การชำระเงิน (Payments)', metric: 'รายได้รวม (Total Revenue)', value_formatted: `฿${(s.payments?.total_amount_thb || 0).toLocaleString()}`, unit: 'บาท (THB)' },
+    { category: 'การชำระเงิน (Payments)', metric: 'รายการอนุมัติสำเร็จ (Paid Tx)', value_formatted: (s.payments?.paid_count || 0).toLocaleString(), unit: 'รายการ (tx)' },
+    { category: 'การชำระเงิน (Payments)', metric: 'รายการรอตรวจสอบ (Pending Tx)', value_formatted: (s.payments?.pending_count || 0).toLocaleString(), unit: 'รายการ (tx)' },
+    { category: 'การชำระเงิน (Payments)', metric: 'รายการปฏิเสธ / ล้มเหลว (Failed Tx)', value_formatted: (s.payments?.failed_count || 0).toLocaleString(), unit: 'รายการ (tx)' },
+    { category: 'Storage Providers', metric: 'จำนวน Storage Providers', value_formatted: (s.storage_providers?.length || 0).toLocaleString(), unit: 'ผู้ให้บริการ (providers)' }
+  ]
+  exportToCsv('pichost_dashboard_summary', headers, rows)
+}
 
 const knownPlans = ['free', 'basic', 'pro', 'enterprise']
 

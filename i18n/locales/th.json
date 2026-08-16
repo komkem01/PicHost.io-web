@@ -290,7 +290,9 @@
       "plans": "จัดการแพ็กเกจ",
       "payments": "รายการชำระเงิน",
       "images": "จัดการรูปภาพ",
-      "audit": "ประวัติกิจกรรม"
+      "notifications": "แจ้งเตือน & ประกาศ",
+      "audit": "ประวัติกิจกรรม",
+      "storage": "พื้นที่จัดเก็บ"
     },
     "overview": {
       "title": "ศูนย์ควบคุมการทำงาน (Control Center)",
@@ -321,7 +323,12 @@
       "searchPlaceholder": "ค้นหาอีเมล หรือชื่อผู้ใช้...",
       "allPlans": "ทุกแพ็กเกจ",
       "allStatuses": "ทุกสถานะ",
-      "clearFilters": "ล้างตัวกรอง"
+      "clearFilters": "ล้างตัวกรอง",
+      "resetPassword": "รีเซ็ตรหัสผ่าน",
+      "generatePassword": "สุ่มรหัสผ่านที่ปลอดภัย",
+      "lastLogin": "เข้าสู่ระบบล่าสุด",
+      "loginCount": "จำนวนครั้ง",
+      "lastLoginIp": "IP ล่าสุด"
     },
     "images": {
       "title": "Content Moderation (จัดการรูปภาพ)",
@@ -333,11 +340,27 @@
       "guestUpload": "ผู้ใช้ทั่วไป (Guest)",
       "deleteImage": "ลบรูปภาพ",
       "deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?",
+      "deleteModalTitle": "ลบรูปภาพ",
+      "deleteModalDesc": "คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้ออกจากระบบ? ระบบจะส่งแจ้งเตือนไปยังผู้ใช้พร้อมเหตุผล",
+      "reasonLabel": "ระบุเหตุผลในการลบ (ส่งแจ้งเตือนไปยังผู้ใช้):",
+      "customReasonPlaceholder": "ระบุเหตุผลเพิ่มเติม...",
+      "reasons": {
+        "terms": "ละเมิดข้อกำหนดการใช้งาน (Violates Terms of Service)",
+        "nsfw": "เนื้อหาไม่เหมาะสม / ลามกอนาจาร (Inappropriate Content)",
+        "copyright": "ละเมิดลิขสิทธิ์ (Copyright Infringement)",
+        "spam": "ไฟล์สแปมหรืออันตราย (Spam or Malicious File)",
+        "other": "ระบุเหตุผลอื่นๆ (Other reason...)"
+      },
       "banConfirm": "คุณต้องการระงับบัญชีผู้ใช้นี้หรือไม่?",
       "close": "ปิด",
       "deleteNow": "ลบรูปนี้ทันที",
       "private": "ส่วนตัว",
-      "public": "สาธารณะ"
+      "public": "สาธารณะ",
+      "bulkDelete": "ลบรูปที่เลือก",
+      "selectAll": "เลือกทั้งหมด",
+      "deselectAll": "ยกเลิกการเลือก",
+      "selectedCount": "เลือกแล้ว {count} รูป",
+      "bulkDeleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบ {count} รูปภาพที่เลือก?"
     },
     "audit": {
       "title": "Audit Logs (ประวัติกิจกรรม)",
@@ -346,6 +369,7 @@
       "status": "Status (สถานะ)",
       "fromDate": "ตั้งแต่วันที่",
       "toDate": "ถึงวันที่",
+      "userId": "User ID",
       "all": "ทั้งหมด",
       "loading": "กำลังโหลดข้อมูล...",
       "empty": "ไม่พบประวัติ Audit log",
@@ -357,6 +381,7 @@
     "payments": {
       "title": "รายการชำระเงิน",
       "subtitle": "ตรวจสอบสลิปและยืนยันการชำระเงินโอนผ่านธนาคาร",
+      "detailTitle": "รายละเอียดรายการชำระเงิน",
       "user": "ผู้ใช้งาน",
       "plan": "แพ็กเกจ",
       "amount": "จำนวนเงิน",
@@ -365,9 +390,62 @@
       "status": "สถานะ",
       "approveBtn": "อนุมัติ",
       "rejectBtn": "ปฏิเสธ",
+      "refundBtn": "คืนเงิน (Refund)",
       "statusPending": "รอตรวจสอบ",
       "statusApproved": "อนุมัติแล้ว",
-      "statusRejected": "ปฏิเสธแล้ว"
+      "statusRejected": "ปฏิเสธแล้ว",
+      "statusRefunded": "คืนเงินแล้ว"
+    },
+    "storage": {
+      "title": "จัดการพื้นที่จัดเก็บ & Clean up",
+      "subtitle": "วิเคราะห์การใช้พื้นที่ ตรวจสอบไฟล์ขยะตกค้าง (Orphaned Objects) และทำความสะอาดระบบ",
+      "totalFiles": "ไฟล์ทั้งหมดในระบบ",
+      "totalStorage": "พื้นที่จัดเก็บทั้งหมด",
+      "orphanFiles": "ไฟล์ขยะตกค้าง (Orphan)",
+      "orphanStorage": "พื้นที่ขยะที่สามารถกู้คืนได้",
+      "providerBreakdown": "สัดส่วนการจัดเก็บไฟล์ตาม Provider",
+      "cleanupAll": "ล้างไฟล์ขยะตกค้างทั้งหมด",
+      "cleanupConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบไฟล์ขยะตกค้างทั้งหมดออกจาก Storage อย่างถาวร? การกระทำนี้ไม่สามารถยกเลิกได้",
+      "noOrphan": "ระบบสะอาด 100% ไม่พบไฟล์ขยะตกค้างในระบบ",
+      "scanning": "กำลังสแกน Storage...",
+      "healthyStatus": "พื้นที่จัดเก็บปกติ",
+      "needsCleanup": "มีไฟล์ขยะตกค้าง",
+      "searchPlaceholder": "ค้นหาด้วย Storage ID หรือ Short code...",
+      "allProviders": "ผู้ให้บริการทั้งหมด",
+      "fileType": "ประเภทไฟล์",
+      "fileSize": "ขนาดไฟล์",
+      "createdDate": "วันที่บันทึก",
+      "actions": "การจัดการ",
+      "freeUpSpace": "กู้คืนพื้นที่ได้",
+      "cleanNow": "ทำความสะอาดทันที"
+    },
+    "notifications": {
+      "title": "ระบบแจ้งเตือน & ประกาศ (Notifications Console)",
+      "desc": "ตรวจสอบรายการแจ้งเตือนทั้งหมดของระบบ และส่งประกาศแจ้งเตือน (Broadcast) ถึงผู้ใช้ทุกคน",
+      "sendBroadcast": "ส่งประกาศระบบ (Broadcast)",
+      "totalAlerts": "การแจ้งเตือนทั้งหมด",
+      "moderationCount": "การจัดการลบรูป",
+      "paymentAlerts": "การชำระเงิน & สลิป",
+      "broadcasts": "ประกาศสาธารณะ",
+      "type": "ประเภท",
+      "target": "เป้าหมาย",
+      "titleCol": "หัวข้อ & ข้อความ",
+      "link": "ลิงก์ที่เกี่ยวข้อง",
+      "createdAt": "เวลา",
+      "broadcastModalTitle": "ส่งประกาศแจ้งเตือนระบบ (Broadcast)",
+      "targetRole": "กลุ่มเป้าหมาย",
+      "message": "เนื้อหาข้อความ",
+      "sendNow": "ส่งประกาศทันที",
+      "targetOptions": {
+        "all": "ผู้ใช้ทุกคน (All Users & Guests)",
+        "user": "เฉพาะสมาชิกที่เข้าสู่ระบบ (Registered Users)",
+        "admin": "เฉพาะผู้ดูแลระบบ (Admins Only)"
+      },
+      "typeOptions": {
+        "announcement": "ประกาศทั่วไป (Announcement)",
+        "system": "แจ้งเตือนระบบ / ซ่อมบำรุง (System Maintenance)",
+        "security": "ความปลอดภัย (Security Alert)"
+      }
     }
   },
   "legal": {
@@ -407,6 +485,49 @@
     "back": "ย้อนกลับ",
     "prev": "หน้าก่อนหน้า",
     "next": "ถัดไป",
-    "page": "หน้า {current} จาก {total}"
+    "exportCsv": "ส่งออก CSV",
+    "page": "หน้า {current} จาก {total}",
+    "actions": "การจัดการ",
+    "showing": "แสดง"
+  },
+  "notifications": {
+    "title": "การแจ้งเตือน",
+    "centerTitle": "ศูนย์การแจ้งเตือน",
+    "centerDesc": "ติดตามข่าวสาร การแจ้งเตือนความปลอดภัย การชำระเงิน และการแจ้งเตือนจากระบบ",
+    "unread": "ยังไม่ได้อ่าน",
+    "empty": "ไม่มีการแจ้งเตือนในขณะนี้",
+    "emptyHint": "เมื่อมีความคืบหน้าเกี่ยวกับการใช้งานบัญชีหรือรูปภาพของคุณ ระบบจะแจ้งเตือนให้ทราบที่นี่",
+    "markRead": "ทำเครื่องหมายว่าอ่านแล้ว",
+    "markAllRead": "อ่านทั้งหมดแล้ว",
+    "viewAll": "ดูการแจ้งเตือนทั้งหมด",
+    "viewDetails": "ดูรายละเอียด",
+    "new": "ใหม่",
+    "tabs": {
+      "all": "ทั้งหมด",
+      "unread": "ยังไม่ได้อ่าน",
+      "moderation": "การลบรูป (Moderation)",
+      "payment": "การชำระเงิน",
+      "system": "ระบบ & ประกาศ"
+    }
+  },
+  "toast": {
+    "saveSuccess": "บันทึกข้อมูลเรียบร้อยแล้ว",
+    "saveError": "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+    "deleteSuccess": "ลบข้อมูลเรียบร้อยแล้ว",
+    "deleteError": "เกิดข้อผิดพลาดในการลบข้อมูล",
+    "imageDeleteSuccess": "ลบรูปภาพเรียบร้อยแล้ว",
+    "bulkDeleteSuccess": "ลบรูปภาพสำเร็จ {count} รูป",
+    "userSaveSuccess": "บันทึกการแก้ไขผู้ใช้สำเร็จ",
+    "resetPasswordSuccess": "รีเซ็ตรหัสผ่านเรียบร้อยแล้ว",
+    "userBanSuccess": "ระงับบัญชีผู้ใช้เรียบร้อยแล้ว",
+    "cleanupSuccess": "ล้างไฟล์ขยะเรียบร้อยแล้ว ({count} ไฟล์)",
+    "cleanupError": "เกิดข้อผิดพลาดในการล้างไฟล์",
+    "copySuccess": "คัดลอกลงคลิปบอร์ดแล้ว",
+    "loginSuccess": "เข้าสู่ระบบสำเร็จ",
+    "loginError": "เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+    "registerSuccess": "สมัครสมาชิกสำเร็จ",
+    "paymentApproved": "อนุมัติการชำระเงินเรียบร้อยแล้ว",
+    "paymentRejected": "ปฏิเสธการชำระเงินเรียบร้อยแล้ว",
+    "paymentRefunded": "คืนเงินเรียบร้อยแล้ว"
   }
 }

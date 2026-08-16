@@ -8,42 +8,92 @@
           Legal Agreement
         </span>
         <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 mb-3">
-          {{ $t('legal.termsTitle') }}
+          {{ doc?.title || $t('legal.termsTitle') }}
         </h1>
         <p class="text-zinc-500 text-sm sm:text-base">
-          Last Updated: August 8, 2026 &bull; Effective immediately.
+          {{ doc?.updated_at ? `Last Updated: ${formatDate(doc.updated_at)}` : 'Last Updated: August 8, 2026' }} &bull; Effective immediately.
         </p>
       </div>
 
       <!-- Detail Sections -->
-      <div class="space-y-6 text-zinc-700 text-sm leading-relaxed">
-        <section class="rounded-2xl border border-zinc-200 bg-white shadow-card p-6 sm:p-8 space-y-4">
-          <h2 class="text-lg font-bold text-zinc-900 flex items-center gap-2">
-            <span class="text-zinc-900 font-bold">1.</span> Acceptance of Terms / การยอมรับข้อตกลง
+      <div v-if="loading" class="text-center py-20 text-zinc-400 text-sm flex flex-col items-center gap-2">
+        <svg class="w-6 h-6 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+        <span>Loading Terms of Service...</span>
+      </div>
+      <div v-else-if="sections.length > 0" class="space-y-6 text-zinc-700 text-sm leading-relaxed">
+        <section
+          v-for="(sec, i) in sections"
+          :key="i"
+          class="rounded-2xl border border-zinc-200 bg-white shadow-card p-6 sm:p-8 space-y-4"
+        >
+          <h2 v-if="sec.heading" class="text-lg font-bold text-zinc-900 flex items-center gap-2">
+            {{ sec.heading }}
           </h2>
-          <p class="text-zinc-600">
-            By accessing or using PicHost.io, you agree to be bound by these Terms of Service.
-            การเข้าใช้บริการ PicHost.io ถือว่าท่านได้ยอมรับข้อตกลงและเงื่อนไขการให้บริการนี้แล้ว
-          </p>
+          <div class="text-zinc-600 space-y-2 whitespace-pre-line">
+            {{ sec.body }}
+          </div>
         </section>
-
-        <section class="rounded-2xl border border-zinc-200 bg-white shadow-card p-6 sm:p-8 space-y-4">
-          <h2 class="text-lg font-bold text-zinc-900 flex items-center gap-2">
-            <span class="text-zinc-900 font-bold">2.</span> Acceptable Use & Content Policy
-          </h2>
-          <p class="text-zinc-600">
-            Illegal content, malware, phishing, and copyrighted content violations are strictly prohibited.
-            ห้ามใช้อัปโหลดไฟล์ที่ผิดกฎหมาย สื่อลามกอนาจาร ไวรัส/มัลแวร์ หรือไฟล์ละเมิดลิขสิทธิ์
-          </p>
-        </section>
+      </div>
+      <div v-else class="rounded-2xl border border-zinc-200 bg-white shadow-card p-6 sm:p-8 space-y-4 text-zinc-600 whitespace-pre-line">
+        {{ doc?.content }}
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+
 const SITE_URL = 'https://pichost.io'
 const { t, locale } = useI18n()
+
+interface LegalDoc {
+  key: string
+  title: string
+  content: string
+  updated_at: string
+}
+
+const doc = ref<LegalDoc | null>(null)
+const loading = ref(true)
+
+const sections = computed(() => {
+  if (!doc.value?.content) return []
+  const blocks = doc.value.content.split(/\n\n+/)
+  return blocks.map(block => {
+    const lines = block.trim().split('\n')
+    if (lines.length > 1 && (lines[0].match(/^\d+\./) || lines[0].length < 80)) {
+      return { heading: lines[0], body: lines.slice(1).join('\n') }
+    }
+    return { heading: '', body: block }
+  })
+})
+
+function formatDate(iso?: string) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+async function fetchDoc() {
+  loading.value = true
+  try {
+    const res = await apiFetch<any>('/public/legal/terms')
+    if (res.data) {
+      doc.value = res.data
+    }
+  } catch (e) {
+    console.error('Failed to load terms document:', e)
+  } finally {
+    loading.value = false
+  }
+}
 
 useHead({
   htmlAttrs: {
@@ -56,4 +106,9 @@ useSeoMeta({
   title: 'Terms of Service — PicHost.io',
   description: 'Read the Terms of Service for PicHost.io image hosting platform.',
 })
+
+onMounted(() => {
+  fetchDoc()
+})
 </script>
+

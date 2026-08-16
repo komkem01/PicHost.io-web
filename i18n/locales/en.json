@@ -290,7 +290,9 @@
       "plans": "Plans",
       "payments": "Payments",
       "images": "Images",
-      "audit": "Activity Logs"
+      "notifications": "Notifications & Broadcast",
+      "audit": "Activity Logs",
+      "storage": "Storage"
     },
     "overview": {
       "title": "Control Center",
@@ -321,7 +323,12 @@
       "searchPlaceholder": "Search email or username...",
       "allPlans": "All Plans",
       "allStatuses": "All Statuses",
-      "clearFilters": "Clear Filters"
+      "clearFilters": "Clear Filters",
+      "resetPassword": "Reset Password",
+      "generatePassword": "Generate Secure Password",
+      "lastLogin": "Last Login",
+      "loginCount": "Logins",
+      "lastLoginIp": "Last IP"
     },
     "images": {
       "title": "Content Moderation & Image Review",
@@ -333,11 +340,27 @@
       "guestUpload": "Guest Upload",
       "deleteImage": "Delete Image",
       "deleteConfirm": "Are you sure you want to delete this image?",
+      "deleteModalTitle": "Delete Image",
+      "deleteModalDesc": "Are you sure you want to delete this image? A moderation notification with the deletion reason will be sent to the user.",
+      "reasonLabel": "Select reason for deletion (notified to user):",
+      "customReasonPlaceholder": "Specify custom deletion reason...",
+      "reasons": {
+        "terms": "Violates Terms of Service",
+        "nsfw": "Inappropriate / NSFW Content",
+        "copyright": "Copyright Infringement",
+        "spam": "Spam or Malicious File",
+        "other": "Specify custom reason..."
+      },
       "banConfirm": "Are you sure you want to suspend this user account?",
       "close": "Close",
       "deleteNow": "Delete Immediately",
       "private": "Private",
-      "public": "Public"
+      "public": "Public",
+      "bulkDelete": "Delete Selected",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "selectedCount": "{count} images selected",
+      "bulkDeleteConfirm": "Are you sure you want to delete {count} selected images?"
     },
     "audit": {
       "title": "Audit Logs & Security Trail",
@@ -346,6 +369,7 @@
       "status": "Status",
       "fromDate": "From Date",
       "toDate": "To Date",
+      "userId": "User ID",
       "all": "All",
       "loading": "Loading audit logs...",
       "empty": "No audit logs found",
@@ -357,6 +381,7 @@
     "payments": {
       "title": "Payment Transactions",
       "subtitle": "Review slips and confirm manual bank-transfer payments",
+      "detailTitle": "Payment Transaction Details",
       "user": "User",
       "plan": "Plan",
       "amount": "Amount",
@@ -365,9 +390,62 @@
       "status": "Status",
       "approveBtn": "Approve",
       "rejectBtn": "Reject",
+      "refundBtn": "Refund Payment",
       "statusPending": "Pending",
       "statusApproved": "Approved",
-      "statusRejected": "Rejected"
+      "statusRejected": "Rejected",
+      "statusRefunded": "Refunded"
+    },
+    "storage": {
+      "title": "Storage Management & Cleanup",
+      "subtitle": "Analyze storage capacity, detect orphaned objects, and optimize system disk/cloud usage",
+      "totalFiles": "Total Stored Files",
+      "totalStorage": "Total Storage Used",
+      "orphanFiles": "Orphaned Files",
+      "orphanStorage": "Recoverable Storage",
+      "providerBreakdown": "Storage Provider Distribution",
+      "cleanupAll": "Clean Up All Orphaned Files",
+      "cleanupConfirm": "Are you sure you want to permanently delete all orphaned storage files? This cannot be undone.",
+      "noOrphan": "Storage is 100% clean. No orphaned files found!",
+      "scanning": "Scanning storage...",
+      "healthyStatus": "Storage Healthy",
+      "needsCleanup": "Cleanup Recommended",
+      "searchPlaceholder": "Search by Storage ID or short code...",
+      "allProviders": "All Providers",
+      "fileType": "MIME Type",
+      "fileSize": "File Size",
+      "createdDate": "Created Date",
+      "actions": "Actions",
+      "freeUpSpace": "Recoverable",
+      "cleanNow": "Clean Up Now"
+    },
+    "notifications": {
+      "title": "Notifications & Broadcast Console",
+      "desc": "Inspect all system alerts, moderation records, and broadcast announcements to users",
+      "sendBroadcast": "Send Broadcast Announcement",
+      "totalAlerts": "Total Alerts",
+      "moderationCount": "Image Moderations",
+      "paymentAlerts": "Payment Alerts",
+      "broadcasts": "Broadcasts",
+      "type": "Type",
+      "target": "Target",
+      "titleCol": "Title & Message",
+      "link": "Related Link",
+      "createdAt": "Time",
+      "broadcastModalTitle": "Broadcast System Announcement",
+      "targetRole": "Target Audience",
+      "message": "Message Content",
+      "sendNow": "Send Now",
+      "targetOptions": {
+        "all": "All Users & Guests",
+        "user": "Registered Users Only",
+        "admin": "Admins Only"
+      },
+      "typeOptions": {
+        "announcement": "Announcement",
+        "system": "System Maintenance",
+        "security": "Security Alert"
+      }
     }
   },
   "legal": {
@@ -407,6 +485,49 @@
     "back": "Back",
     "prev": "Previous",
     "next": "Next",
-    "page": "Page {current} of {total}"
+    "exportCsv": "Export CSV",
+    "page": "Page {current} of {total}",
+    "actions": "Actions",
+    "showing": "Showing"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "centerTitle": "Notification Center",
+    "centerDesc": "Stay informed about your account activity, payments, security alerts, and moderation updates",
+    "unread": "unread",
+    "empty": "No notifications right now",
+    "emptyHint": "When updates occur regarding your account or uploaded images, you'll be notified here",
+    "markRead": "Mark as read",
+    "markAllRead": "Mark all as read",
+    "viewAll": "View all notifications",
+    "viewDetails": "View Details",
+    "new": "NEW",
+    "tabs": {
+      "all": "All",
+      "unread": "Unread",
+      "moderation": "Image Moderation",
+      "payment": "Payments",
+      "system": "System & Broadcasts"
+    }
+  },
+  "toast": {
+    "saveSuccess": "Saved successfully",
+    "saveError": "Failed to save data",
+    "deleteSuccess": "Deleted successfully",
+    "deleteError": "Failed to delete data",
+    "imageDeleteSuccess": "Image deleted successfully",
+    "bulkDeleteSuccess": "Successfully deleted {count} images",
+    "userSaveSuccess": "User profile updated successfully",
+    "resetPasswordSuccess": "Password reset successfully",
+    "userBanSuccess": "User account suspended successfully",
+    "cleanupSuccess": "Cleaned up {count} orphaned files successfully",
+    "cleanupError": "Failed to clean up orphaned files",
+    "copySuccess": "Copied to clipboard",
+    "loginSuccess": "Signed in successfully",
+    "loginError": "Sign-in failed. Please try again.",
+    "registerSuccess": "Account created successfully",
+    "paymentApproved": "Payment approved successfully",
+    "paymentRejected": "Payment rejected",
+    "paymentRefunded": "Payment refunded successfully"
   }
 }
