@@ -3,11 +3,11 @@
 
     <div class="mb-6 flex items-end justify-between gap-4">
       <div>
-        <h2 class="text-[24px] font-bold tracking-tight text-white">Payment Transactions</h2>
-        <p class="text-[12.5px] text-white/30 mt-1">Review slips and confirm manual bank-transfer payments</p>
+        <h2 class="text-[24px] font-bold tracking-tight text-zinc-900">Payment Transactions</h2>
+        <p class="text-[12.5px] text-zinc-500 mt-1">Review slips and confirm manual bank-transfer payments</p>
       </div>
       <div v-if="!loading && !error" class="flex items-center gap-2 text-[12.5px]">
-        <span class="tabular-nums font-semibold text-white/45 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3 py-1.5">
+        <span class="tabular-nums font-semibold text-zinc-700 bg-zinc-100 border border-zinc-200 rounded-xl px-3 py-1.5">
           {{ total.toLocaleString() }} total
         </span>
       </div>
@@ -15,135 +15,148 @@
 
     <!-- stats row -->
     <div v-if="!loading && !error" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-      <div class="rounded-2xl border border-yellow-500/20 bg-yellow-500/[0.06] px-4 py-3.5">
-        <p class="text-[10.5px] uppercase tracking-widest text-yellow-300/70 mb-1">Pending w/ Slip</p>
-        <p class="text-[24px] leading-none font-bold tabular-nums text-yellow-300">{{ pendingWithSlip.toLocaleString() }}</p>
+      <div class="rounded-2xl border border-amber-200 bg-amber-50/60 px-4 py-3.5">
+        <p class="text-[10.5px] uppercase tracking-widest text-amber-800/70 font-semibold mb-1">Pending w/ Slip</p>
+        <p class="text-[24px] leading-none font-bold tabular-nums text-amber-700">{{ pendingWithSlip.toLocaleString() }}</p>
       </div>
-      <div class="rounded-2xl border border-blue-500/20 bg-blue-500/[0.06] px-4 py-3.5">
-        <p class="text-[10.5px] uppercase tracking-widest text-blue-300/70 mb-1">Pending</p>
-        <p class="text-[24px] leading-none font-bold tabular-nums text-blue-300">{{ pendingCount.toLocaleString() }}</p>
+      <div class="rounded-2xl border border-blue-200 bg-blue-50/60 px-4 py-3.5">
+        <p class="text-[10.5px] uppercase tracking-widest text-blue-800/70 font-semibold mb-1">Pending</p>
+        <p class="text-[24px] leading-none font-bold tabular-nums text-blue-700">{{ pendingCount.toLocaleString() }}</p>
       </div>
-      <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3.5">
-        <p class="text-[10.5px] uppercase tracking-widest text-emerald-300/70 mb-1">Paid</p>
-        <p class="text-[24px] leading-none font-bold tabular-nums text-emerald-300">{{ paidCount.toLocaleString() }}</p>
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 px-4 py-3.5">
+        <p class="text-[10.5px] uppercase tracking-widest text-emerald-800/70 font-semibold mb-1">Paid</p>
+        <p class="text-[24px] leading-none font-bold tabular-nums text-emerald-700">{{ paidCount.toLocaleString() }}</p>
       </div>
-      <div class="rounded-2xl border border-red-500/20 bg-red-500/[0.06] px-4 py-3.5">
-        <p class="text-[10.5px] uppercase tracking-widest text-red-300/70 mb-1">Failed/Cancelled</p>
-        <p class="text-[24px] leading-none font-bold tabular-nums text-red-300">{{ failedCount.toLocaleString() }}</p>
+      <div class="rounded-2xl border border-red-200 bg-red-50/60 px-4 py-3.5">
+        <p class="text-[10.5px] uppercase tracking-widest text-red-800/70 font-semibold mb-1">Failed/Cancelled</p>
+        <p class="text-[24px] leading-none font-bold tabular-nums text-red-700">{{ failedCount.toLocaleString() }}</p>
       </div>
     </div>
 
     <!-- filters -->
-    <div class="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-3.5 mb-4">
-      <div class="flex items-center gap-2.5 flex-wrap">
-        <select
-          v-model="filterStatus"
-          class="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2.5 text-[13px] text-white/70 outline-none focus:border-violet-500/50 transition-colors cursor-pointer"
+    <div class="rounded-2xl border border-zinc-200 bg-white shadow-card p-3.5 mb-4">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div class="flex flex-col sm:flex-row items-center gap-2.5 flex-1 max-w-xl">
+          <div class="w-full sm:w-52">
+            <AppSelect
+              v-model="filterStatus"
+              :options="statusOptions"
+            />
+          </div>
+          <div class="w-full sm:w-52">
+            <AppSelect
+              v-model="filterSlip"
+              :options="slipOptions"
+            />
+          </div>
+        </div>
+        <button
+          @click="load"
+          :disabled="loading"
+          class="h-10 px-4 inline-flex items-center justify-center gap-2 rounded-xl text-[13px] font-medium border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 disabled:opacity-40 transition-colors shadow-xs"
         >
-          <option value="">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="paid">Paid</option>
-          <option value="failed">Failed</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <select
-          v-model="filterSlip"
-          class="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2.5 text-[13px] text-white/70 outline-none focus:border-violet-500/50 transition-colors cursor-pointer"
-        >
-          <option value="all">All slips</option>
-          <option value="with">With slip</option>
-          <option value="without">Without slip</option>
-        </select>
-        <button @click="load" :disabled="loading" class="ml-auto px-4 py-2.5 rounded-xl text-[13px] font-medium border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] disabled:opacity-40 transition-colors">
-          Refresh
+          <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          <span>{{ $t('common.refresh') }}</span>
         </button>
       </div>
     </div>
 
     <!-- loading / error -->
-    <div v-if="loading" class="py-16 text-center text-white/30 text-[14px]">Loading…</div>
-    <div v-else-if="error" class="rounded-2xl border border-red-500/15 bg-red-500/[0.03] p-5 text-red-300 text-[14px]">
+    <div v-if="loading" class="py-16 text-center text-zinc-400 text-[14px]">Loading…</div>
+    <div v-else-if="error" class="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700 text-[14px]">
       {{ error }}
     </div>
 
     <!-- table -->
-    <div v-else-if="filtered.length === 0" class="py-16 text-center text-white/25 text-[14px]">
+    <div v-else-if="filtered.length === 0" class="py-16 text-center text-zinc-400 text-[14px]">
       No transactions found.
     </div>
-    <div v-else class="rounded-2xl border border-white/[0.06] overflow-x-auto">
+    <div v-else class="rounded-2xl border border-zinc-200 bg-white shadow-card overflow-x-auto">
       <table class="w-full text-[12.5px]">
-        <thead>
-          <tr class="border-b border-white/[0.06] text-white/30 uppercase tracking-wider text-[10.5px]">
-            <th class="px-4 py-3 text-left font-semibold">ID</th>
-            <th class="px-4 py-3 text-left font-semibold">Plan</th>
-            <th class="px-4 py-3 text-right font-semibold">Amount</th>
-            <th class="px-4 py-3 text-left font-semibold">Status</th>
-            <th class="px-4 py-3 text-left font-semibold">Slip</th>
-            <th class="px-4 py-3 text-left font-semibold">Created</th>
-            <th class="px-4 py-3 text-right font-semibold">Actions</th>
+        <thead class="bg-zinc-50">
+          <tr class="border-b border-zinc-200 text-zinc-500 uppercase tracking-wider text-[10.5px]">
+            <th class="px-4 py-3.5 text-left font-semibold">ID</th>
+            <th class="px-4 py-3.5 text-left font-semibold">Plan</th>
+            <th class="px-4 py-3.5 text-right font-semibold">Amount</th>
+            <th class="px-4 py-3.5 text-left font-semibold">Status</th>
+            <th class="px-4 py-3.5 text-left font-semibold">Slip</th>
+            <th class="px-4 py-3.5 text-left font-semibold">Created</th>
+            <th class="px-4 py-3.5 text-right font-semibold">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-white/[0.04]">
+        <tbody class="divide-y divide-zinc-200">
           <tr
             v-for="tx in filtered"
             :key="tx.id"
-            class="hover:bg-white/[0.025] transition-colors"
+            class="hover:bg-zinc-50/80 transition-colors"
           >
-            <td class="px-4 py-3 font-mono text-white/50 whitespace-nowrap" :title="tx.id">{{ toReadableId(tx.id, 'PMT') }}</td>
-            <td class="px-4 py-3 font-semibold text-white/80">{{ tx.plan_key }}</td>
-            <td class="px-4 py-3 text-right tabular-nums text-white/80">฿{{ tx.amount_thb.toLocaleString() }}</td>
-            <td class="px-4 py-3">
+            <td class="px-4 py-3.5 font-mono text-zinc-500 whitespace-nowrap" :title="tx.id">{{ toReadableId(tx.id, 'PMT') }}</td>
+            <td class="px-4 py-3.5 font-semibold text-zinc-900">{{ tx.plan_key }}</td>
+            <td class="px-4 py-3.5 text-right tabular-nums font-semibold text-zinc-900">฿{{ tx.amount_thb.toLocaleString() }}</td>
+            <td class="px-4 py-3.5">
               <span
-                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold border"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold border"
                 :class="statusBadgeClass(tx)"
               >
                 {{ tx.status.toUpperCase() }}
               </span>
             </td>
-            <td class="px-4 py-3">
+            <td class="px-4 py-3.5">
               <template v-if="tx.slip_storage_id">
                 <button
                   type="button"
                   @click="openSlip(tx.slip_storage_id)"
                   :disabled="openingSlipId === tx.slip_storage_id"
-                  class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 transition-colors font-medium underline underline-offset-2"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 transition-colors font-medium text-[12px] shadow-2xs"
+                  title="ดูรายละเอียดสลิป"
                 >
-                  {{ openingSlipId === tx.slip_storage_id ? 'Opening...' : 'View slip' }}
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6m5-3h6v6m-11 5L21 3"/>
+                  <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.573 16.49 16.638 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                   </svg>
+                  <span>{{ openingSlipId === tx.slip_storage_id ? 'Opening...' : $t('admin.payments.slipImage') }}</span>
                 </button>
               </template>
-              <span v-else class="text-white/20">—</span>
+              <span v-else class="text-zinc-400">—</span>
             </td>
-            <td class="px-4 py-3 text-white/40 whitespace-nowrap">{{ formatDate(tx.created_at) }}</td>
-            <td class="px-4 py-3">
-              <div class="flex items-center gap-2 justify-end">
+            <td class="px-4 py-3.5 text-zinc-500 whitespace-nowrap">{{ formatDate(tx.created_at) }}</td>
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-1.5 justify-end">
                 <button
                   v-if="tx.status === 'pending'"
                   @click="openConfirmModal(tx.id, 'paid')"
                   :disabled="confirming === tx.id"
-                  class="px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-emerald-600/80 hover:bg-emerald-500 text-white disabled:opacity-40 transition-colors"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100/70 text-emerald-700 text-[12px] font-medium disabled:opacity-40 transition-colors shadow-2xs"
+                  title="อนุมัติการชำระเงิน"
                 >
-                  Confirm
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                  </svg>
+                  <span>{{ $t('admin.payments.approveBtn') }}</span>
                 </button>
                 <button
                   v-if="tx.status === 'pending'"
                   @click="openConfirmModal(tx.id, 'failed')"
                   :disabled="confirming === tx.id"
-                  class="px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-red-700/60 hover:bg-red-600 text-white disabled:opacity-40 transition-colors"
+                  class="h-8 px-2.5 inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100/70 text-red-700 text-[12px] font-medium disabled:opacity-40 transition-colors shadow-2xs"
+                  title="ปฏิเสธการชำระเงิน"
                 >
-                  Reject
+                  <svg class="w-3.5 h-3.5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                  <span>{{ $t('admin.payments.rejectBtn') }}</span>
                 </button>
                 <button
                   v-if="tx.status === 'paid'"
                   @click="openRefundModal(tx.id)"
                   :disabled="confirming === tx.id"
-                  class="px-3 py-1.5 rounded-lg text-[11.5px] font-semibold bg-purple-700/60 hover:bg-purple-600 text-white disabled:opacity-40 transition-colors"
+                  class="px-3 py-1.5 rounded-xl text-[11.5px] font-semibold bg-purple-50 border border-purple-200 text-purple-700 hover:bg-purple-100 disabled:opacity-40 transition-colors"
                 >
                   Refund
                 </button>
-                <span v-if="tx.status !== 'pending' && tx.status !== 'paid'" class="text-white/20 text-[11.5px]">—</span>
+                <span v-if="tx.status !== 'pending' && tx.status !== 'paid'" class="text-zinc-400 text-[11.5px]">—</span>
               </div>
             </td>
           </tr>
@@ -152,52 +165,39 @@
     </div>
 
     <!-- pagination -->
-    <div v-if="total > limit" class="mt-4 flex items-center justify-between">
-      <p class="text-[12px] text-white/30">Showing {{ offset + 1 }}–{{ Math.min(offset + limit, total) }} of {{ total }}</p>
-      <div class="flex gap-2">
-        <button
-          :disabled="offset === 0"
-          @click="goPage(-1)"
-          class="px-3 py-1.5 rounded-lg text-[12px] border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] disabled:opacity-30 transition-colors"
-        >
-          Previous
-        </button>
-        <button
-          :disabled="offset + limit >= total"
-          @click="goPage(1)"
-          class="px-3 py-1.5 rounded-lg text-[12px] border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] disabled:opacity-30 transition-colors"
-        >
-          Next
-        </button>
-      </div>
-    </div>
+    <AppPagination
+      v-model:page="currentPage"
+      :total="total"
+      :limit="limit"
+      @change="load"
+    />
 
     <Transition name="fade">
       <div
         v-if="confirmModal"
-        class="fixed inset-0 z-40 bg-black/60 backdrop-blur-[1px] flex items-center justify-center px-4"
+        class="fixed inset-0 z-40 bg-zinc-900/40 backdrop-blur-xs flex items-center justify-center px-4"
         @click.self="closeConfirmModal"
       >
-        <div class="w-full max-w-md rounded-2xl border border-white/[0.1] bg-[#111216] p-5 shadow-2xl">
-          <h3 class="text-[16px] font-semibold text-white">Confirm Action</h3>
-          <p class="mt-2 text-[13px] text-white/60">
+        <div class="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-modal">
+          <h3 class="text-[16px] font-semibold text-zinc-900">Confirm Action</h3>
+          <p class="mt-2 text-[13px] text-zinc-600">
             Are you sure you want to
-            <span class="font-semibold" :class="confirmModal.status === 'paid' ? 'text-emerald-300' : 'text-red-300'">
+            <span class="font-semibold" :class="confirmModal.status === 'paid' ? 'text-emerald-700' : 'text-red-700'">
               {{ confirmModal.status === 'paid' ? 'approve' : 'reject' }}
             </span>
             transaction
-            <span class="font-mono text-white/80" :title="confirmModal.id">{{ toReadableId(confirmModal.id, 'PMT') }}</span>
+            <span class="font-mono text-zinc-900 font-semibold" :title="confirmModal.id">{{ toReadableId(confirmModal.id, 'PMT') }}</span>
             ?
           </p>
-          <p class="mt-1 text-[12px] text-white/35">Once confirmed, the status will be updated immediately.</p>
+          <p class="mt-1 text-[12px] text-zinc-400">Once confirmed, the status will be updated immediately.</p>
 
           <div v-if="confirmModal.status === 'failed'" class="mt-4">
-            <label class="block text-[12px] text-white/55 mb-1.5">Rejection reason <span class="text-red-300">*</span></label>
+            <label class="block text-[12px] text-zinc-700 font-medium mb-1.5">Rejection reason <span class="text-red-600">*</span></label>
             <textarea
               v-model="rejectReason"
               rows="3"
               placeholder="e.g. Amount does not match, invalid slip, unreadable transfer details"
-              class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2.5 text-[13px] text-white placeholder:text-white/25 outline-none focus:border-red-400/50 transition-colors resize-y"
+              class="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-400 transition-colors resize-y"
             />
           </div>
 
@@ -205,15 +205,15 @@
             <button
               @click="closeConfirmModal"
               :disabled="confirming === confirmModal.id"
-              class="px-3 py-2 rounded-lg text-[12px] font-medium border border-white/[0.12] bg-white/[0.03] hover:bg-white/[0.07] disabled:opacity-40 transition-colors"
+              class="px-3.5 py-2 rounded-xl text-[12.5px] font-medium border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 disabled:opacity-40 transition-colors"
             >
               Cancel
             </button>
             <button
               @click="submitConfirmAction"
               :disabled="confirming === confirmModal.id || (confirmModal.status === 'failed' && !rejectReason.trim())"
-              class="px-3 py-2 rounded-lg text-[12px] font-semibold text-white disabled:opacity-40 transition-colors"
-              :class="confirmModal.status === 'paid' ? 'bg-emerald-600/80 hover:bg-emerald-500' : 'bg-red-700/70 hover:bg-red-600'"
+              class="px-3.5 py-2 rounded-xl text-[12.5px] font-semibold text-white disabled:opacity-40 transition-colors"
+              :class="confirmModal.status === 'paid' ? 'bg-zinc-900 hover:bg-zinc-800' : 'bg-red-600 hover:bg-red-500'"
             >
               {{ confirming === confirmModal.id ? 'Saving...' : (confirmModal.status === 'paid' ? 'Confirm Approval' : 'Confirm Rejection') }}
             </button>
@@ -226,24 +226,24 @@
     <Transition name="fade">
       <div
         v-if="refundModalId"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-xs"
       >
-        <div class="w-full max-w-md rounded-2xl border border-white/[0.1] bg-[#111216] p-5 shadow-2xl">
-          <h3 class="text-[16px] font-semibold text-white">Refund Transaction</h3>
-          <p class="mt-2 text-[13px] text-white/60">
+        <div class="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-modal">
+          <h3 class="text-[16px] font-semibold text-zinc-900">Refund Transaction</h3>
+          <p class="mt-2 text-[13px] text-zinc-600">
             Are you sure you want to refund transaction
-            <span class="font-mono text-purple-300" :title="refundModalId">{{ toReadableId(refundModalId, 'PMT') }}</span>
+            <span class="font-mono text-purple-700 font-semibold" :title="refundModalId">{{ toReadableId(refundModalId, 'PMT') }}</span>
             ?
           </p>
-          <p class="mt-1 text-[12px] text-white/35">The transaction status will be marked as refunded.</p>
+          <p class="mt-1 text-[12px] text-zinc-400">The transaction status will be marked as refunded.</p>
 
           <div class="mt-4">
-            <label class="block text-[12px] text-white/55 mb-1.5">Refund note / reason</label>
+            <label class="block text-[12px] text-zinc-700 font-medium mb-1.5">Refund note / reason</label>
             <textarea
               v-model="refundReason"
               rows="3"
               placeholder="e.g. User requested refund via support ticket #104"
-              class="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-3 py-2.5 text-[13px] text-white placeholder:text-white/25 outline-none focus:border-purple-400/50 transition-colors resize-y"
+              class="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2.5 text-[13px] text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-400 transition-colors resize-y"
             />
           </div>
 
@@ -251,14 +251,14 @@
             <button
               @click="closeRefundModal"
               :disabled="confirming === refundModalId"
-              class="px-3 py-2 rounded-lg text-[12px] font-medium border border-white/[0.12] bg-white/[0.03] hover:bg-white/[0.07] disabled:opacity-40 transition-colors"
+              class="px-3.5 py-2 rounded-xl text-[12.5px] font-medium border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50 disabled:opacity-40 transition-colors"
             >
               Cancel
             </button>
             <button
               @click="submitRefundAction"
               :disabled="confirming === refundModalId"
-              class="px-3 py-2 rounded-lg text-[12px] font-semibold bg-purple-700/80 hover:bg-purple-600 text-white disabled:opacity-40 transition-colors"
+              class="px-3.5 py-2 rounded-xl text-[12.5px] font-semibold bg-purple-600 hover:bg-purple-500 text-white disabled:opacity-40 transition-colors"
             >
               {{ confirming === refundModalId ? 'Refunding...' : 'Confirm Refund' }}
             </button>
@@ -292,8 +292,29 @@ const refundModalId = ref<string | null>(null)
 const refundReason = ref('')
 const rejectReason = ref('')
 
+const currentPage = computed({
+  get: () => Math.floor(offset.value / limit) + 1,
+  set: (p: number) => {
+    offset.value = (p - 1) * limit
+  },
+})
+
 const filterStatus = ref('')
-const filterSlip = ref<'all' | 'with' | 'without'>('all')
+const filterSlip = ref<string>('all')
+
+const statusOptions = [
+  { label: 'All statuses', value: '' },
+  { label: 'Pending', value: 'pending' },
+  { label: 'Paid', value: 'paid' },
+  { label: 'Failed', value: 'failed' },
+  { label: 'Cancelled', value: 'cancelled' },
+]
+
+const slipOptions = [
+  { label: 'All slips', value: 'all' },
+  { label: 'With slip', value: 'with' },
+  { label: 'Without slip', value: 'without' },
+]
 
 const filtered = computed(() => {
   let list = rows.value
@@ -329,12 +350,12 @@ function goPage(dir: 1 | -1) {
 
 function statusBadgeClass(tx: PaymentTransaction) {
   switch (tx.status) {
-    case 'paid': return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-    case 'pending': return 'border-blue-500/30 bg-blue-500/10 text-blue-300'
-    case 'refunded': return 'border-purple-500/30 bg-purple-500/10 text-purple-300'
-    case 'failed': return 'border-red-500/30 bg-red-500/10 text-red-300'
-    case 'cancelled': return 'border-orange-500/30 bg-orange-500/10 text-orange-300'
-    default: return 'border-white/10 bg-white/5 text-white/40'
+    case 'paid': return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+    case 'pending': return 'border-amber-200 bg-amber-50 text-amber-700'
+    case 'refunded': return 'border-purple-200 bg-purple-50 text-purple-700'
+    case 'failed': return 'border-red-200 bg-red-50 text-red-700'
+    case 'cancelled': return 'border-zinc-200 bg-zinc-100 text-zinc-600'
+    default: return 'border-zinc-200 bg-zinc-100 text-zinc-600'
   }
 }
 

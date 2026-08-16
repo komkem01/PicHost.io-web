@@ -3,77 +3,92 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-xl font-semibold text-white tracking-tight flex items-center gap-2">
-          <span>📜</span>
-          <span>Audit Logs</span>
+        <h1 class="text-xl font-bold text-zinc-900 tracking-tight flex items-center gap-2">
+          <svg class="w-5 h-5 text-zinc-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+          </svg>
+          <span>{{ $t('admin.audit.title') }}</span>
         </h1>
-        <p class="text-xs text-white/40 mt-1">ติดตามและบันทึกประวัติการทำงานในระบบทั้งหมด</p>
+        <p class="text-xs text-zinc-500 mt-1">{{ $t('admin.audit.subtitle') }}</p>
       </div>
       <button
         @click="fetchLogs"
-        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] text-xs font-medium text-white/80 transition"
+        class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200 text-xs font-medium text-zinc-700 transition shadow-xs"
       >
-        <svg class="w-3.5 h-3.5" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg class="w-3.5 h-3.5 text-zinc-500" :class="{ 'animate-spin': loading }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
-        <span>{{ $t('common.refresh') || 'รีเฟรช' }}</span>
+        <span>{{ $t('common.refresh') }}</span>
       </button>
     </div>
 
     <!-- Filter Toolbar -->
-    <div class="p-4 rounded-2xl bg-white/[0.025] border border-white/[0.06] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-      <div>
-        <label class="block text-[11px] text-white/40 mb-1">Action (การทำงาน)</label>
-        <input
-          v-model="filters.action"
-          @keyup.enter="fetchLogs"
-          type="text"
-          placeholder="เช่น auth.login, admin..."
-          class="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-white/20 focus:outline-none focus:border-blue-500/50"
-        />
+    <div class="p-4 rounded-2xl bg-white border border-zinc-200 shadow-card space-y-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+        <div>
+          <label class="block text-[11.5px] text-zinc-700 font-medium mb-1">{{ $t('admin.audit.action') }}</label>
+          <div class="relative">
+            <svg class="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+            <input
+              v-model="filters.action"
+              @keyup.enter="fetchLogs"
+              type="text"
+              placeholder="e.g. auth.login..."
+              class="w-full h-10 pl-9 pr-3.5 rounded-xl bg-white border border-zinc-200 text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 shadow-xs transition-colors"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] text-zinc-700 font-medium mb-1">{{ $t('admin.audit.status') }}</label>
+          <AppSelect
+            v-model="filters.status"
+            :options="statusOptions"
+            @update:model-value="fetchLogs"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] text-zinc-700 font-medium mb-1">{{ $t('admin.audit.fromDate') }}</label>
+          <AppDatePicker
+            v-model="filters.from_date"
+            :placeholder="$t('admin.audit.fromDate')"
+            @update:model-value="fetchLogs"
+          />
+        </div>
+
+        <div>
+          <label class="block text-[11.5px] text-zinc-700 font-medium mb-1">{{ $t('admin.audit.toDate') }}</label>
+          <AppDatePicker
+            v-model="filters.to_date"
+            :placeholder="$t('admin.audit.toDate')"
+            @update:model-value="fetchLogs"
+          />
+        </div>
       </div>
 
-      <div>
-        <label class="block text-[11px] text-white/40 mb-1">Status (สถานะ)</label>
-        <select
-          v-model="filters.status"
-          @change="fetchLogs"
-          class="w-full px-3 py-2 rounded-xl bg-[#141417] border border-white/[0.08] text-white focus:outline-none focus:border-blue-500/50"
+      <div v-if="hasActiveFilters" class="flex items-center justify-end pt-1">
+        <button
+          @click="clearFilters"
+          class="inline-flex items-center gap-1.5 text-[12px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
         >
-          <option value="">ทั้งหมด</option>
-          <option value="success">Success</option>
-          <option value="failure">Failure</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-[11px] text-white/40 mb-1">ตั้งแต่วันที่</label>
-        <input
-          v-model="filters.from_date"
-          @change="fetchLogs"
-          type="date"
-          class="w-full px-3 py-2 rounded-xl bg-[#141417] border border-white/[0.08] text-white focus:outline-none focus:border-blue-500/50"
-        />
-      </div>
-
-      <div>
-        <label class="block text-[11px] text-white/40 mb-1">ถึงวันที่</label>
-        <input
-          v-model="filters.to_date"
-          @change="fetchLogs"
-          type="date"
-          class="w-full px-3 py-2 rounded-xl bg-[#141417] border border-white/[0.08] text-white focus:outline-none focus:border-blue-500/50"
-        />
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+          <span>{{ $t('admin.audit.clearFilters') }}</span>
+        </button>
       </div>
     </div>
 
     <!-- Table -->
-    <div class="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+    <div class="rounded-2xl border border-zinc-200 bg-white shadow-card overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-white/70">
-          <thead class="bg-white/[0.03] text-white/40 font-medium text-[11px] border-b border-white/[0.06]">
+        <table class="w-full text-left text-xs text-zinc-700">
+          <thead class="bg-zinc-50 text-zinc-500 font-semibold text-[11px] border-b border-zinc-200 uppercase tracking-wider">
             <tr>
-              <th class="px-4 py-3.5">เวลา (Date & Time)</th>
+              <th class="px-4 py-3.5">{{ $t('admin.audit.dateTime') }}</th>
               <th class="px-4 py-3.5">Action</th>
               <th class="px-4 py-3.5">User ID</th>
               <th class="px-4 py-3.5">IP Address</th>
@@ -81,32 +96,32 @@
               <th class="px-4 py-3.5 text-right">Details</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white/[0.04]">
+          <tbody class="divide-y divide-zinc-200">
             <tr v-if="loading" class="text-center">
-              <td colspan="6" class="py-12 text-white/40">กำลังโหลดข้อมูล...</td>
+              <td colspan="6" class="py-12 text-zinc-400">{{ $t('admin.audit.loading') }}</td>
             </tr>
             <tr v-else-if="logs.length === 0" class="text-center">
-              <td colspan="6" class="py-12 text-white/40">ไม่พบประวัติ Audit log</td>
+              <td colspan="6" class="py-12 text-zinc-400">{{ $t('admin.audit.empty') }}</td>
             </tr>
-            <tr v-for="log in logs" :key="log.id" class="hover:bg-white/[0.02] transition">
-              <td class="px-4 py-3 font-mono text-[11.5px] text-white/60">
+            <tr v-for="log in logs" :key="log.id" class="hover:bg-zinc-50/80 transition">
+              <td class="px-4 py-3 font-mono text-[11.5px] text-zinc-600 tabular-nums">
                 {{ formatDate(log.created_at) }}
               </td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-400 font-mono text-[11px]">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700 font-mono text-[11px]">
                   {{ log.action }}
                 </span>
               </td>
-              <td class="px-4 py-3 font-mono text-[11px] text-white/40 truncate max-w-[120px]">
+              <td class="px-4 py-3 font-mono text-[11px] text-zinc-500 truncate max-w-[120px]">
                 {{ log.user_id || 'Guest/System' }}
               </td>
-              <td class="px-4 py-3 font-mono text-[11px] text-white/50">
+              <td class="px-4 py-3 font-mono text-[11px] text-zinc-600">
                 {{ log.ip_address || '-' }}
               </td>
               <td class="px-4 py-3">
                 <span
-                  class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-medium"
-                  :class="log.status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'"
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold"
+                  :class="log.status === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'"
                 >
                   {{ log.status }}
                 </span>
@@ -114,9 +129,9 @@
               <td class="px-4 py-3 text-right">
                 <button
                   @click="openMetadataModal(log)"
-                  class="px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-white/70 hover:text-white transition text-[11px]"
+                  class="px-3 py-1 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 font-medium transition text-[11px]"
                 >
-                  ดู Metadata
+                  {{ $t('admin.audit.viewMetadata') }}
                 </button>
               </td>
             </tr>
@@ -125,50 +140,36 @@
       </div>
 
       <!-- Pagination -->
-      <div v-if="total > limit" class="px-4 py-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-white/40">
-        <span>แสดง {{ (page - 1) * limit + 1 }} - {{ Math.min(page * limit, total) }} จาก {{ total }} รายการ</span>
-        <div class="flex items-center gap-2">
-          <button
-            :disabled="page <= 1"
-            @click="page--; fetchLogs()"
-            class="px-3 py-1 rounded-lg bg-white/[0.05] disabled:opacity-30 text-white hover:bg-white/[0.1]"
-          >
-            ย้อนกลับ
-          </button>
-          <span class="text-white/70">{{ page }}</span>
-          <button
-            :disabled="page * limit >= total"
-            @click="page++; fetchLogs()"
-            class="px-3 py-1 rounded-lg bg-white/[0.05] disabled:opacity-30 text-white hover:bg-white/[0.1]"
-          >
-            ถัดไป
-          </button>
-        </div>
-      </div>
+      <AppPagination
+        v-model:page="page"
+        :total="total"
+        :limit="limit"
+        @change="fetchLogs"
+      />
     </div>
 
     <!-- Metadata Modal -->
     <Teleport to="body">
-      <div v-if="selectedLog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-        <div class="w-full max-w-lg rounded-2xl bg-[#141417] border border-white/[0.1] p-6 shadow-2xl space-y-4">
-          <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
-            <h3 class="text-sm font-semibold text-white">Audit Log Details</h3>
-            <button @click="selectedLog = null" class="text-white/40 hover:text-white">&times;</button>
+      <div v-if="selectedLog" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40 backdrop-blur-xs">
+        <div class="w-full max-w-lg rounded-2xl bg-white border border-zinc-200 p-6 shadow-modal space-y-4">
+          <div class="flex items-center justify-between border-b border-zinc-200 pb-3">
+            <h3 class="text-sm font-semibold text-zinc-900">{{ $t('admin.audit.detailsTitle') }}</h3>
+            <button @click="selectedLog = null" class="text-zinc-400 hover:text-zinc-700 text-lg leading-none">&times;</button>
           </div>
 
-          <div class="space-y-2 text-xs text-white/70">
-            <div><span class="text-white/40">ID:</span> <span class="font-mono text-white/80">{{ selectedLog.id }}</span></div>
-            <div><span class="text-white/40">Action:</span> <span class="text-blue-400 font-mono">{{ selectedLog.action }}</span></div>
-            <div><span class="text-white/40">User Agent:</span> <span class="font-mono text-white/50 text-[11px] block mt-1 break-all">{{ selectedLog.user_agent || '-' }}</span></div>
+          <div class="space-y-2 text-xs text-zinc-700">
+            <div><span class="text-zinc-400 font-medium">ID:</span> <span class="font-mono text-zinc-900">{{ selectedLog.id }}</span></div>
+            <div><span class="text-zinc-400 font-medium">Action:</span> <span class="text-blue-700 font-mono font-semibold">{{ selectedLog.action }}</span></div>
+            <div><span class="text-zinc-400 font-medium">User Agent:</span> <span class="font-mono text-zinc-600 text-[11px] block mt-1 break-all">{{ selectedLog.user_agent || '-' }}</span></div>
             <div>
-              <span class="text-white/40 block mb-1">Metadata (JSON):</span>
-              <pre class="p-3 rounded-xl bg-black/40 border border-white/[0.06] font-mono text-[11px] text-emerald-400 overflow-x-auto max-h-60">{{ JSON.stringify(selectedLog.metadata || {}, null, 2) }}</pre>
+              <span class="text-zinc-400 font-medium block mb-1">Metadata (JSON):</span>
+              <pre class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 font-mono text-[11px] text-zinc-800 overflow-x-auto max-h-60">{{ JSON.stringify(selectedLog.metadata || {}, null, 2) }}</pre>
             </div>
           </div>
 
           <div class="flex justify-end pt-2">
-            <button @click="selectedLog = null" class="px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-xs font-medium text-white">
-              ปิด
+            <button @click="selectedLog = null" class="px-4 py-2 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-xs font-medium text-zinc-700">
+              {{ $t('admin.images.close') }}
             </button>
           </div>
         </div>
@@ -178,7 +179,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+
+const { t } = useI18n()
 
 definePageMeta({
   layout: 'admin',
@@ -206,12 +209,30 @@ const limit = ref(20)
 const loading = ref(false)
 const selectedLog = ref<AuditLog | null>(null)
 
+const statusOptions = computed(() => [
+  { label: t('admin.audit.all'), value: '' },
+  { label: 'Success', value: 'success' },
+  { label: 'Failure', value: 'failure' },
+])
+
 const filters = ref({
   action: '',
   status: '',
   from_date: '',
   to_date: ''
 })
+
+const hasActiveFilters = computed(() => {
+  return !!(filters.value.action || filters.value.status || filters.value.from_date || filters.value.to_date)
+})
+
+function clearFilters() {
+  filters.value.action = ''
+  filters.value.status = ''
+  filters.value.from_date = ''
+  filters.value.to_date = ''
+  fetchLogs()
+}
 
 async function fetchLogs() {
   loading.value = true
@@ -239,7 +260,7 @@ async function fetchLogs() {
 
 function formatDate(iso: string) {
   if (!iso) return '-'
-  return new Date(iso).toLocaleString('th-TH', {
+  return new Date(iso).toLocaleDateString('th-TH', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

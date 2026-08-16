@@ -315,43 +315,12 @@
       </div>
 
       <!-- Premium Pagination -->
-      <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 mt-8 border-t border-zinc-200/80">
-        <!-- Previous Button -->
-        <button
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-200/90 bg-white hover:bg-zinc-50 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed text-xs font-semibold text-zinc-700 shadow-2xs hover:shadow-xs transition-all cursor-pointer select-none"
-        >
-          <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
-          {{ $t('common.prev') }}
-        </button>
-
-        <!-- Page Numbers & Page Info -->
-        <div class="flex items-center gap-1.5">
-          <button
-            v-for="p in totalPages"
-            :key="p"
-            @click="currentPage = p"
-            class="w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center select-none"
-            :class="currentPage === p ? 'bg-zinc-900 text-white shadow-xs scale-105' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'"
-          >
-            {{ p }}
-          </button>
-        </div>
-
-        <!-- Next Button -->
-        <button
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-200/90 bg-white hover:bg-zinc-50 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed text-xs font-semibold text-zinc-700 shadow-2xs hover:shadow-xs transition-all cursor-pointer select-none"
-        >
-          {{ $t('common.next') }}
-          <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-          </svg>
-        </button>
+      <div class="mt-8">
+        <AppPagination
+          v-model:page="currentPage"
+          :total="filteredFiles.length"
+          :limit="pageSize"
+        />
       </div>
 
     </div>

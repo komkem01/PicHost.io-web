@@ -15,13 +15,19 @@ export interface DashboardStats {
   total_users: number
   active_users: number
   guest_users: number
+  registered_users?: number
   new_users_today?: number
   plan_breakdown: Record<string, number>
   guest_images: number
   guest_storage_bytes: number
+  registered_storage_bytes?: number
   total_storage_bytes?: number
   total_images?: number
   total_revenue_thb?: number
+  est_monthly_revenue_thb?: number
+  conversion_rate_pct?: number
+  avg_storage_per_user_bytes?: number
+  avg_images_per_user?: number
 }
 
 

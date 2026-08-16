@@ -497,18 +497,16 @@
                 <div v-if="tier.name === user.plan && user.plan !== 'Free' && !user.plan_cancelled_at" class="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 space-y-2.5">
                   <p class="text-[11px] text-red-700">{{ locale === 'th' ? 'เลือกเดือน/ปีที่ต้องการยกเลิกแพ็กเกจนี้' : 'Choose month/year then cancel this subscription.' }}</p>
                   <div class="grid grid-cols-2 gap-2">
-                    <select
+                    <AppSelect
                       v-model="cancelMonth"
-                      class="px-2.5 py-2 rounded-lg bg-white border border-red-200 focus:border-red-400 focus:outline-none text-[12px] text-zinc-900"
-                    >
-                      <option v-for="m in cancelMonthOptions" :key="m.value" :value="m.value">{{ m.label }}</option>
-                    </select>
-                    <select
+                      :options="cancelMonthOptions"
+                      custom-class="w-full text-[12px]"
+                    />
+                    <AppSelect
                       v-model="cancelYear"
-                      class="px-2.5 py-2 rounded-lg bg-white border border-red-200 focus:border-red-400 focus:outline-none text-[12px] text-zinc-900"
-                    >
-                      <option v-for="y in cancelYearOptions" :key="y" :value="String(y)">{{ y }}</option>
-                    </select>
+                      :options="cancelYearOptionsFormatted"
+                      custom-class="w-full text-[12px]"
+                    />
                   </div>
                   <button
                     type="button"
@@ -1103,6 +1101,10 @@ const cancelMonthOptions = [
 const cancelYearOptions = computed(() => {
   const current = new Date().getFullYear()
   return [current, current + 1, current + 2]
+})
+
+const cancelYearOptionsFormatted = computed(() => {
+  return cancelYearOptions.value.map(y => ({ label: String(y), value: String(y) }))
 })
 
 const cancelMonthLabel = computed(() => {
