@@ -46,9 +46,9 @@
 
             <!-- Main Content Area -->
             <div class="flex-1 min-w-0 w-full space-y-6">
-
-          <!-- PROFILE TAB -->
-          <div v-if="activeTab === 'profile'" class="space-y-5">
+              <Transition name="tab-fade" mode="out-in">
+                <!-- PROFILE TAB -->
+                <div v-if="activeTab === 'profile'" key="profile" class="space-y-5">
             <div class="rounded-2xl border border-zinc-200 bg-white p-5 shadow-card flex items-center gap-4">
               <div class="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center text-2xl font-bold text-white shadow-xs shrink-0">
                 {{ avatarInitial }}
@@ -199,8 +199,8 @@
             </Teleport>
           </div>
 
-          <!-- SECURITY TAB -->
-          <div v-if="activeTab === 'security'" class="space-y-5">
+                <!-- SECURITY TAB -->
+                <div v-else-if="activeTab === 'security'" key="security" class="space-y-5">
             <!-- READ ONLY SECURITY CARD -->
             <div class="rounded-2xl border border-zinc-200 bg-white shadow-card">
               <div class="px-5 py-4 border-b border-zinc-100 flex items-center justify-between">
@@ -355,8 +355,8 @@
             </Teleport>
           </div>
 
-          <!-- PLAN TAB -->
-          <div v-if="activeTab === 'plan'" class="space-y-4">
+                <!-- PLAN TAB -->
+                <div v-else-if="activeTab === 'plan'" key="plan" class="space-y-4">
             <div class="rounded-2xl border border-zinc-200 bg-white shadow-card p-5">
               <div class="flex items-center justify-between gap-4 mb-5">
                 <div>
@@ -590,8 +590,8 @@
             </div>
           </div>
 
-          <!-- DANGER TAB -->
-          <div v-if="activeTab === 'danger'" class="space-y-4">
+                <!-- DANGER TAB -->
+                <div v-else-if="activeTab === 'danger'" key="danger" class="space-y-4">
             <div class="rounded-2xl border border-red-200 bg-red-50/50 overflow-hidden shadow-card">
               <div class="px-5 py-4 border-b border-red-100">
                 <p class="text-[13.5px] font-semibold text-red-700">{{ locale === 'th' ? 'การจัดการบัญชีและความปลอดภัย' : 'Danger zone' }}</p>
@@ -694,6 +694,7 @@
               </div>
             </div>
           </div>
+        </Transition>
         </div>
       </div>
     </template>

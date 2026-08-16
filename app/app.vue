@@ -1,5 +1,6 @@
 <template>
   <div>
+    <NuxtLoadingIndicator color="#18181b" :height="3" :duration="2000" :throttle="0" />
     <NuxtRouteAnnouncer />
     <AppPageLoader :show="pageLoading" />
     <AppToast />

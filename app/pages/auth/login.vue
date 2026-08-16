@@ -188,11 +188,15 @@ async function handleSubmit() {
     setToken(res.data.access_token)
     await fetchMe()
     toastSuccess(locale.value === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Signed in successfully')
-    const redirectPath = String(route.query.redirect ?? '').trim()
-    if (redirectPath && redirectPath.startsWith('/') && !redirectPath.startsWith('//') && !redirectPath.startsWith('/auth')) {
-      router.push(redirectPath)
+    if (res.data.user.is_admin) {
+      router.push('/admin')
     } else {
-      router.push(res.data.user.is_admin ? '/admin' : '/dashboard')
+      const redirectPath = String(route.query.redirect ?? '').trim()
+      if (redirectPath && redirectPath.startsWith('/') && !redirectPath.startsWith('//') && !redirectPath.startsWith('/auth') && !redirectPath.startsWith('/admin')) {
+        router.push(redirectPath)
+      } else {
+        router.push('/dashboard')
+      }
     }
   } catch (err: any) {
     const msg = err?.data?.data?.error || err?.data?.message || t('common.error')

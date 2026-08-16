@@ -4,7 +4,7 @@
     <aside class="w-[220px] shrink-0 border-r border-white/[0.06] flex flex-col fixed top-0 left-0 h-full z-40">
       <!-- Logo -->
       <div class="px-5 pt-6 pb-5">
-        <NuxtLink to="/" class="flex items-center gap-2 mb-3">
+        <NuxtLink to="/admin" class="flex items-center gap-2 mb-3">
           <img src="/favicon.svg" class="w-5 h-5 rounded-md border border-white/10" alt="PicHost logo" />
           <div class="flex items-center gap-0.5">
             <span class="text-blue-400 font-bold text-[15px] tracking-tight">PicHost</span>
@@ -46,17 +46,6 @@
 
       <!-- Footer -->
       <div class="px-3 pb-4 pt-3 border-t border-white/[0.05] space-y-1">
-        <NuxtLink
-          to="/dashboard"
-          class="group flex items-center gap-3 px-3 py-2 rounded-xl text-[12.5px] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
-        >
-          <span class="w-[30px] h-[30px] shrink-0 rounded-lg bg-white/[0.04] group-hover:bg-white/[0.07] flex items-center justify-center transition-all">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
-            </svg>
-          </span>
-          {{ $t('common.back') }}
-        </NuxtLink>
         <div v-if="user" class="flex items-center gap-2.5 px-3 py-2 mt-1 rounded-xl bg-white/[0.025] border border-white/[0.05]">
           <div class="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
             {{ (user.username ?? user.email ?? 'A').charAt(0).toUpperCase() }}

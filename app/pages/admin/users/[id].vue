@@ -299,7 +299,7 @@
   </div>
 </template>
 <script setup lang="ts">
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 
 import type { AdminUser } from '~/composables/useAdmin'
 
