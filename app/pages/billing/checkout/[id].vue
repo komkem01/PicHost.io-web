@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { formatCurrency, formatBytes } from '~/utils/format'
+import { OpenPaymentConflictError } from '~/composables/useBilling'
 import type { BankInfo, PublicPlanSetting } from '~/composables/useBilling'
 
 definePageMeta({ middleware: 'auth' })
 
 const route = useRoute()
 const router = useRouter()
-const { fetchMe, resendVerification } = useAuth()
+const { fetchMe, resendVerification, user } = useAuth()
 const { listPublicPlans, getPaymentMethods, createCheckout } = useBilling()
 const { error: toastError, success: toastSuccess } = useToast()
 const { t, locale } = useI18n()
@@ -26,10 +27,13 @@ const copiedAccNumber = ref(false)
 
 const selectedProvider = ref<'omise' | 'manual'>('omise')
 
-const showVerifyModal = ref(false)
-const resendingModal = ref(false)
-const modalSuccessMsg = ref('')
-const modalErrorMsg = ref('')
+const isUnverified = computed(() => !!(user.value && !user.value.is_guest && !user.value.email_verified_at))
+
+const resendingNotice = ref(false)
+const noticeCooldown = ref(0)
+const noticeSuccessMsg = ref('')
+const noticeErrorMsg = ref('')
+let noticeCooldownTimer: ReturnType<typeof setInterval> | null = null
 
 const planKey = computed(() => String(route.params.id ?? '').trim().toLowerCase())
 
@@ -73,40 +77,56 @@ async function proceedCheckout() {
       }
     }
   } catch (err: any) {
-    const status = err?.status || err?.statusCode || err?.response?.status
-    const errCode = err?.data?.code
-    const errMsg = err?.data?.data?.error || err?.data?.message || ''
-    
-    if (status === 412 || errCode === '412' || errMsg.includes('email verification required')) {
-      showVerifyModal.value = true
-    } else {
-      const msg = errMsg || t('common.error')
-      toastError(msg)
+    if (err instanceof OpenPaymentConflictError && err.paymentId) {
+      toastError(t('billing.checkout.openPaymentConflictMsg'))
+      router.push(`/billing/payments/${err.paymentId}`)
+      return
     }
+
+    const errMsg = err?.data?.data?.error || err?.data?.message || ''
+    const msg = errMsg || t('common.error')
+    toastError(msg)
   } finally {
     submitting.value = false
   }
 }
 
-async function handleModalResend() {
-  if (resendingModal.value) return
-  resendingModal.value = true
-  modalSuccessMsg.value = ''
-  modalErrorMsg.value = ''
+function startNoticeCooldown(sec: number) {
+  noticeCooldown.value = sec
+  if (noticeCooldownTimer) clearInterval(noticeCooldownTimer)
+  noticeCooldownTimer = setInterval(() => {
+    noticeCooldown.value--
+    if (noticeCooldown.value <= 0) {
+      if (noticeCooldownTimer) clearInterval(noticeCooldownTimer)
+      noticeCooldownTimer = null
+    }
+  }, 1000)
+}
+
+async function handleNoticeResend() {
+  if (resendingNotice.value || noticeCooldown.value > 0) return
+  resendingNotice.value = true
+  noticeSuccessMsg.value = ''
+  noticeErrorMsg.value = ''
 
   try {
     const msg = await resendVerification()
     const succMsg = locale.value === 'th' ? 'ส่งอีเมลยืนยันเรียบร้อยแล้ว! กรุณาตรวจสอบกล่องข้อความ หรือโฟลเดอร์ขยะ (Spam / Junk)' : (msg || 'Verification email sent! Please check your inbox or spam/junk folder.')
-    modalSuccessMsg.value = succMsg
+    noticeSuccessMsg.value = succMsg
     toastSuccess(succMsg)
+    startNoticeCooldown(60)
   } catch (err: any) {
     const errMsg = err?.data?.message || err?.message || (locale.value === 'th' ? 'ไม่สามารถส่งอีเมลยืนยันได้' : 'Failed to send verification email')
-    modalErrorMsg.value = errMsg
+    noticeErrorMsg.value = errMsg
     toastError(errMsg)
   } finally {
-    resendingModal.value = false
+    resendingNotice.value = false
   }
 }
+
+onUnmounted(() => {
+  if (noticeCooldownTimer) clearInterval(noticeCooldownTimer)
+})
 
 function copyAccountNumber() {
   if (!bankInfo.value?.bank_account_number) return
@@ -170,6 +190,54 @@ const amountText = computed(() => formatCurrency(plan.value?.monthly_price_thb ?
           <p class="text-zinc-500 text-xs sm:text-sm">
             {{ $t('billing.checkout.subtitle') }}
           </p>
+        </div>
+
+        <!-- Proactive, non-blocking notice for unverified accounts -->
+        <div
+          v-if="isUnverified"
+          class="rounded-2xl border border-amber-200 bg-amber-50/70 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-start gap-4"
+        >
+          <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+
+          <div class="flex-1 min-w-0 space-y-2">
+            <p class="text-sm font-bold text-amber-900">
+              {{ $t('billing.checkout.verifyNoticeTitle') }}
+            </p>
+            <p class="text-xs sm:text-sm text-amber-800/90 leading-relaxed">
+              {{ $t('billing.checkout.verifyNoticeDesc') }}
+            </p>
+
+            <div v-if="noticeSuccessMsg" class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-200 inline-block">
+              {{ noticeSuccessMsg }}
+            </div>
+            <div v-else-if="noticeErrorMsg" class="text-xs font-semibold text-red-700 bg-red-50 px-2.5 py-1.5 rounded-lg border border-red-200 inline-block">
+              {{ noticeErrorMsg }}
+            </div>
+
+            <div class="pt-1">
+              <button
+                type="button"
+                @click="handleNoticeResend"
+                :disabled="resendingNotice || noticeCooldown > 0"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <AppSpinner v-if="resendingNotice" size="sm" />
+                <template v-if="noticeCooldown > 0">
+                  {{ $t('billing.checkout.verifyNoticeCooldownBtn', { seconds: noticeCooldown }) }}
+                </template>
+                <template v-else-if="resendingNotice">
+                  {{ $t('billing.checkout.verifyNoticeResendingBtn') }}
+                </template>
+                <template v-else>
+                  {{ $t('billing.checkout.verifyNoticeResendBtn') }}
+                </template>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -410,53 +478,6 @@ const amountText = computed(() => formatCurrency(plan.value?.monthly_price_thb ?
           </div>
         </div>
       </template>
-    </div>
-
-    <!-- Email Verification Required Modal (Status 412) -->
-    <div v-if="showVerifyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/60 backdrop-blur-xs">
-      <div class="w-full max-w-md bg-white rounded-2xl p-6 space-y-5 shadow-2xl border border-zinc-100">
-        <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mx-auto">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-          </svg>
-        </div>
-
-        <div class="text-center space-y-2">
-          <h3 class="text-lg font-bold text-zinc-900">
-            {{ locale === 'th' ? 'กรุณายืนยันอีเมลของคุณก่อนอัปเกรด' : 'Email Verification Required' }}
-          </h3>
-          <p class="text-xs sm:text-sm text-zinc-500 leading-relaxed">
-            {{ locale === 'th' ? 'เพื่อความปลอดภัยและการอัปเกรดบัญชีที่สมบูรณ์ ระบบกำหนดให้ยืนยันตัวตนทางอีเมลก่อนทำรายการชำระเงิน' : 'To ensure secure payments and complete account upgrades, please verify your email address first.' }}
-          </p>
-        </div>
-
-        <div v-if="modalSuccessMsg" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-semibold text-center">
-          {{ modalSuccessMsg }}
-        </div>
-        <div v-else-if="modalErrorMsg" class="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 font-semibold text-center">
-          {{ modalErrorMsg }}
-        </div>
-
-        <div class="space-y-2 pt-1">
-          <button
-            type="button"
-            @click="handleModalResend"
-            :disabled="resendingModal"
-            class="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-[0.99] text-white font-bold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-          >
-            <AppSpinner v-if="resendingModal" size="sm" />
-            {{ resendingModal ? (locale === 'th' ? 'กำลังส่งอีเมล…' : 'Sending…') : (locale === 'th' ? 'ส่งอีเมลยืนยันอีกครั้ง' : 'Resend Verification Email') }}
-          </button>
-
-          <button
-            type="button"
-            @click="showVerifyModal = false"
-            class="w-full py-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-600 text-xs font-semibold transition-colors cursor-pointer"
-          >
-            {{ $t('common.close') }}
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>

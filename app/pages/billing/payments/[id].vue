@@ -62,14 +62,17 @@
                 </div>
 
                 <!-- Connecting Line for Mobile (vertical) -->
-                <div class="md:hidden w-[2px] h-6 bg-zinc-200 ml-[15px] -my-3" :class="{'bg-emerald-500': payment.status === 'paid', 'bg-red-500': isStep2Failed}" />
+                <div class="md:hidden w-[2px] h-6 bg-zinc-200 ml-[15px] -my-3" :class="{'bg-emerald-500': isActivated || awaitingVerification, 'bg-red-500': isStep2Failed}" />
 
                 <!-- Step 3: Upgraded -->
                 <div class="flex md:flex-col items-center gap-3 md:gap-2 flex-1 w-full text-left md:text-center">
                   <div class="w-8 h-8 rounded-full flex items-center justify-center border text-[13px] font-semibold transition-all shrink-0"
                     :class="step3Class">
-                    <svg v-if="payment.status === 'paid'" class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    <svg v-if="isActivated" class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                    </svg>
+                    <svg v-else-if="awaitingVerification" class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
                     </svg>
                     <svg v-else-if="isStep2Failed" class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -77,7 +80,7 @@
                     <span v-else>3</span>
                   </div>
                   <div>
-                    <p class="text-[13px] font-semibold" :class="payment.status === 'paid' ? 'text-emerald-700' : 'text-zinc-900'">{{ $t('billing.payments.stepUpgrade') }}</p>
+                    <p class="text-[13px] font-semibold" :class="isActivated ? 'text-emerald-700' : (awaitingVerification ? 'text-amber-700' : 'text-zinc-900')">{{ $t('billing.payments.stepUpgrade') }}</p>
                     <p class="text-[11px] text-zinc-500 mt-0.5">{{ step3Desc }}</p>
                   </div>
                 </div>
@@ -92,7 +95,7 @@
                   <p class="text-[18px] font-bold" :class="statusTextClass">{{ statusLabel }}</p>
                 </div>
                 <span class="text-[11px] font-semibold px-2.5 py-1 rounded-full border" :class="statusBadgeClass">
-                  {{ payment.status.toUpperCase() }}
+                  {{ statusBadgeText }}
                 </span>
               </div>
               <p class="text-[12px] text-zinc-500 mt-3">{{ $t('billing.payments.txId') }}: <span class="font-mono text-zinc-800" :title="payment.id">{{ readablePaymentId }}</span></p>
@@ -137,7 +140,33 @@
                 </template>
               </div>
 
-              <div v-if="payment.status === 'paid'" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+              <!-- Paid, but still awaiting email verification before activation -->
+              <div v-if="awaitingVerification" class="rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3">
+                <p class="text-[13px] font-medium text-amber-900">{{ $t('billing.payments.awaitingVerificationTitle') }}</p>
+                <p class="text-[12px] text-amber-800">{{ $t('billing.payments.awaitingVerificationDesc') }}</p>
+
+                <div v-if="resendSuccessMsg" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-block">
+                  {{ resendSuccessMsg }}
+                </div>
+                <div v-else-if="resendErrorMsg" class="text-[11px] font-semibold text-red-700 bg-red-50 px-2.5 py-1 rounded-lg border border-red-200 inline-block">
+                  {{ resendErrorMsg }}
+                </div>
+
+                <button
+                  type="button"
+                  @click="handleResendVerification"
+                  :disabled="resendingVerification || resendCooldown > 0"
+                  class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[12px] font-semibold transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <AppSpinner v-if="resendingVerification" size="sm" />
+                  <template v-if="resendCooldown > 0">{{ $t('billing.payments.resendCooldownBtn', { seconds: resendCooldown }) }}</template>
+                  <template v-else-if="resendingVerification">{{ $t('billing.payments.resendingBtn') }}</template>
+                  <template v-else>{{ $t('billing.payments.resendBtn') }}</template>
+                </button>
+              </div>
+
+              <!-- Fully activated -->
+              <div v-if="isActivated" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
                 <p class="text-[13px] font-medium text-emerald-900">{{ $t('billing.payments.paidTitle') }}</p>
                 <p class="text-[12px] text-emerald-800 mt-1">{{ $t('billing.payments.paidDesc') }}</p>
               </div>
@@ -219,6 +248,7 @@
 </template>
 
 <script setup lang="ts">
+import { isAwaitingVerification } from '~/composables/useBilling'
 import type { PaymentTransaction } from '~/composables/useBilling'
 
 definePageMeta({ middleware: 'auth' })
@@ -226,7 +256,7 @@ definePageMeta({ middleware: 'auth' })
 const route = useRoute()
 const router = useRouter()
 const { error: toastError, success } = useToast()
-const { user, fetchMe, refreshMe } = useAuth()
+const { user, fetchMe, refreshMe, resendVerification } = useAuth()
 const { getPayment, toPlanDisplayName } = useBilling()
 const { t, locale } = useI18n()
 
@@ -242,7 +272,16 @@ const refreshing = ref(false)
 const pollTimer = ref<ReturnType<typeof setInterval> | null>(null)
 const countdownTimer = ref<ReturnType<typeof setInterval> | null>(null)
 const nowMs = ref(Date.now())
-const upgradedNotified = ref(false)
+const activatedNotified = ref(false)
+
+const resendingVerification = ref(false)
+const resendCooldown = ref(0)
+const resendSuccessMsg = ref('')
+const resendErrorMsg = ref('')
+let resendCooldownTimer: ReturnType<typeof setInterval> | null = null
+
+const awaitingVerification = computed(() => isAwaitingVerification(payment.value))
+const isActivated = computed(() => !!payment.value?.activated_at)
 
 const paymentId = computed(() => String(route.params.id ?? '').trim())
 
@@ -283,6 +322,7 @@ const statusLabel = computed(() => {
   const p = payment.value
   if (!p) return 'Unknown status'
   if (p.status === 'pending' && p.slip_storage_id) return 'Slip submitted – pending review'
+  if (awaitingVerification.value) return t('billing.payments.awaitingVerificationTitle')
   switch (p.status) {
     case 'pending':   return 'Pending confirmation'
     case 'paid':      return 'Paid'
@@ -295,6 +335,7 @@ const statusLabel = computed(() => {
 
 const statusCardClass = computed(() => {
   const status = payment.value?.status
+  if (awaitingVerification.value) return 'border-amber-200 bg-amber-50'
   if (status === 'paid') return 'border-emerald-200 bg-emerald-50'
   if (status === 'pending') return 'border-zinc-200 bg-zinc-50'
   return 'border-red-200 bg-red-50'
@@ -302,6 +343,7 @@ const statusCardClass = computed(() => {
 
 const statusTextClass = computed(() => {
   const status = payment.value?.status
+  if (awaitingVerification.value) return 'text-amber-800'
   if (status === 'paid') return 'text-emerald-800'
   if (status === 'pending') return 'text-zinc-900'
   return 'text-red-800'
@@ -309,9 +351,15 @@ const statusTextClass = computed(() => {
 
 const statusBadgeClass = computed(() => {
   const status = payment.value?.status
+  if (awaitingVerification.value) return 'border-amber-200 bg-amber-100 text-amber-800'
   if (status === 'paid') return 'border-emerald-200 bg-emerald-100 text-emerald-800'
   if (status === 'pending') return 'border-zinc-200 bg-zinc-100 text-zinc-800'
   return 'border-red-200 bg-red-100 text-red-800'
+})
+
+const statusBadgeText = computed(() => {
+  if (awaitingVerification.value) return t('billing.payments.awaitingVerificationBadge')
+  return payment.value?.status.toUpperCase() ?? ''
 })
 
 const planName = computed(() => toPlanDisplayName(payment.value?.plan_key ?? '', user.value))
@@ -337,10 +385,12 @@ async function loadPayment() {
   const data = await getPayment(paymentId.value)
   payment.value = data
 
-  if (data.status === 'paid' && !upgradedNotified.value) {
-    upgradedNotified.value = true
+  // Only claim the plan was upgraded once activation has actually happened —
+  // a `paid` status alone may still be awaiting email verification.
+  if (data.activated_at && !activatedNotified.value) {
+    activatedNotified.value = true
     await refreshMe()
-    success('Payment confirmed. Your plan was upgraded.')
+    success(t('billing.payments.activatedToastMsg'))
   }
 }
 
@@ -380,6 +430,25 @@ function ensurePolling() {
   }, 4000)
 }
 
+/**
+ * For a paid-but-unactivated payment there's nothing left to poll for on this
+ * page — activation happens when the user verifies their email, possibly in
+ * another tab. Instead of polling forever, refresh once when the tab
+ * regains focus/visibility so the state updates without extra requests.
+ */
+async function handleFocusRefresh() {
+  if (!awaitingVerification.value) return
+  try {
+    await loadPayment()
+  } catch {
+    // ignore transient refresh errors
+  }
+}
+
+function onVisibilityChange() {
+  if (document.visibilityState === 'visible') void handleFocusRefresh()
+}
+
 async function refreshNow() {
   refreshing.value = true
   try {
@@ -398,7 +467,8 @@ const isStep1Completed = computed(() => !!payment.value?.slip_storage_id)
 
 const stepProgressWidth = computed(() => {
   if (!payment.value) return '0%'
-  if (payment.value.status === 'paid') return '100%'
+  if (isActivated.value) return '100%'
+  if (awaitingVerification.value) return '75%'
   if (payment.value.status === 'pending' && payment.value.slip_storage_id) return '50%'
   if (payment.value.status === 'failed' || payment.value.status === 'cancelled' || payment.value.status === 'expired') return '100%'
   return '0%'
@@ -434,17 +504,52 @@ const step2Desc = computed(() => {
 
 const step3Class = computed(() => {
   if (!payment.value) return 'border-zinc-200 text-zinc-400 bg-zinc-50'
-  if (payment.value.status === 'paid') return 'border-emerald-200 bg-emerald-50 text-emerald-800'
+  if (isActivated.value) return 'border-emerald-200 bg-emerald-50 text-emerald-800'
+  if (awaitingVerification.value) return 'border-amber-300 bg-amber-50 text-amber-800'
   if (isStep2Failed.value) return 'border-red-200 bg-red-50 text-red-800'
   return 'border-zinc-200 text-zinc-400 bg-zinc-50'
 })
 
 const step3Desc = computed(() => {
   if (!payment.value) return t('billing.payments.stepUpgradeSub')
-  if (payment.value.status === 'paid') return t('billing.payments.stepUpgradeActive')
+  if (isActivated.value) return t('billing.payments.stepUpgradeActive')
+  if (awaitingVerification.value) return t('billing.payments.stepUpgradeAwaitingVerification')
   if (isStep2Failed.value) return t('billing.payments.stepUpgradeFailed')
   return t('billing.payments.stepUpgradeSub')
 })
+
+function startResendCooldown(sec: number) {
+  resendCooldown.value = sec
+  if (resendCooldownTimer) clearInterval(resendCooldownTimer)
+  resendCooldownTimer = setInterval(() => {
+    resendCooldown.value--
+    if (resendCooldown.value <= 0) {
+      if (resendCooldownTimer) clearInterval(resendCooldownTimer)
+      resendCooldownTimer = null
+    }
+  }, 1000)
+}
+
+async function handleResendVerification() {
+  if (resendingVerification.value || resendCooldown.value > 0) return
+  resendingVerification.value = true
+  resendSuccessMsg.value = ''
+  resendErrorMsg.value = ''
+
+  try {
+    const msg = await resendVerification()
+    const succMsg = msg || t('billing.payments.resendSuccessMsg')
+    resendSuccessMsg.value = succMsg
+    success(succMsg)
+    startResendCooldown(60)
+  } catch (err: any) {
+    const errMsg = err?.data?.message || err?.message || t('billing.payments.resendErrorMsg')
+    resendErrorMsg.value = errMsg
+    toastError(errMsg)
+  } finally {
+    resendingVerification.value = false
+  }
+}
 
 onMounted(async () => {
   await fetchMe()
@@ -458,10 +563,20 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+
+  if (import.meta.client) {
+    window.addEventListener('focus', handleFocusRefresh)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+  }
 })
 
 onUnmounted(() => {
   stopPolling()
   stopCountdown()
+  if (resendCooldownTimer) clearInterval(resendCooldownTimer)
+  if (import.meta.client) {
+    window.removeEventListener('focus', handleFocusRefresh)
+    document.removeEventListener('visibilitychange', onVisibilityChange)
+  }
 })
 </script>

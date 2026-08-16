@@ -551,8 +551,8 @@
                       <p class="text-[13px] font-bold text-zinc-900">฿{{ pmt.amount_thb.toLocaleString() }}</p>
                       <!-- Badge -->
                       <span class="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border mt-1"
-                        :class="getHistoryBadgeClass(pmt.status)">
-                        {{ pmt.status.toUpperCase() }}
+                        :class="getHistoryBadgeClass(pmt)">
+                        {{ getHistoryStatusLabel(pmt) }}
                       </span>
                     </div>
                     <!-- Chevron -->
@@ -701,6 +701,7 @@
 
 <script setup lang="ts">
 import { formatBytes, formatCurrency } from '~/utils/format'
+import { isAwaitingVerification } from '~/composables/useBilling'
 import type { PaymentTransaction } from '~/composables/useBilling'
 
 definePageMeta({ middleware: 'auth' })
@@ -769,10 +770,16 @@ async function fetchMyPayments() {
   }
 }
 
-function getHistoryBadgeClass(status: string) {
-  if (status === 'paid') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
-  if (status === 'pending') return 'border-zinc-200 bg-zinc-100 text-zinc-700'
+function getHistoryBadgeClass(pmt: PaymentTransaction) {
+  if (isAwaitingVerification(pmt)) return 'border-amber-200 bg-amber-50 text-amber-700'
+  if (pmt.status === 'paid') return 'border-emerald-200 bg-emerald-50 text-emerald-700'
+  if (pmt.status === 'pending') return 'border-zinc-200 bg-zinc-100 text-zinc-700'
   return 'border-red-200 bg-red-50 text-red-700'
+}
+
+function getHistoryStatusLabel(pmt: PaymentTransaction) {
+  if (isAwaitingVerification(pmt)) return t('billing.payments.awaitingVerificationBadge')
+  return pmt.status.toUpperCase()
 }
 
 const pageLoading = ref(true)
@@ -878,8 +885,14 @@ async function saveProfile() {
     success(locale.value === 'th' ? 'อัปเดตข้อมูลส่วนตัวเรียบร้อยแล้ว' : 'Profile updated successfully')
     closeEditProfileModal()
   } catch (err: unknown) {
-    const msg = (err as { data?: { message?: string } })?.data?.message
-    profileError.value = msg ?? (locale.value === 'th' ? 'ไม่สามารถบันทึกข้อมูลได้' : 'Failed to save. Please try again.')
+    const errObj = err as { data?: { message?: string; data?: { error?: string } } }
+    const errCode = errObj?.data?.data?.error
+    if (errCode === 'email_already_exists') {
+      profileError.value = t('settings.profile.emailAlreadyExistsError')
+    } else {
+      const msg = errObj?.data?.message
+      profileError.value = msg ?? (locale.value === 'th' ? 'ไม่สามารถบันทึกข้อมูลได้' : 'Failed to save. Please try again.')
+    }
     toastError(profileError.value)
   } finally {
     profileSaving.value = false
