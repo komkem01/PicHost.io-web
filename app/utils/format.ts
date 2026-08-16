@@ -49,3 +49,25 @@ export function formatDate(dateInput: string | Date | null | undefined, locale =
     day: 'numeric',
   })
 }
+
+/**
+ * Formats a date string or object with time based on locale (e.g. "15 ส.ค. 2569 • 23:15").
+ */
+export function formatDateTime(dateInput: string | Date | null | undefined, locale = 'th'): string {
+  if (!dateInput) return ''
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput
+  if (isNaN(date.getTime())) return ''
+
+  const dateStr = date.toLocaleDateString(locale === 'th' ? 'th-TH' : 'en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
+  const timeStr = date.toLocaleTimeString(locale === 'th' ? 'th-TH' : 'en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+
+  return `${dateStr} • ${timeStr}`
+}

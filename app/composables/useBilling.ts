@@ -46,7 +46,7 @@ export function useBilling() {
     const res = await $fetch<ApiResponse<PublicPlanSetting[]>>(
       `${config.public.apiBase}/public/plans`,
     )
-    return (res.data ?? []).filter((plan) => plan.is_enabled)
+    return (res.data ?? []).filter((plan) => plan.is_enabled !== false)
   }
 
   async function createCheckout(planKey: string, provider = 'manual'): Promise<PaymentTransaction> {
@@ -108,15 +108,16 @@ export function useBilling() {
     return map[key] ?? fallback?.plan ?? key
   }
 
-  async function cancelSubscription(useUntilMonth?: string): Promise<void> {
-    await $fetch(
+  async function cancelSubscription(cancelMonth?: number, cancelYear?: number): Promise<AuthUser> {
+    const res = await $fetch<ApiResponse<AuthUser>>(
       `${config.public.apiBase}/billing/cancel`,
       {
         method: 'POST',
         headers: authHeaders(),
-        body: useUntilMonth ? { use_until_month: useUntilMonth } : {},
+        body: cancelMonth && cancelYear ? { cancel_month: cancelMonth, cancel_year: cancelYear } : {},
       },
     )
+    return res.data
   }
 
   return {

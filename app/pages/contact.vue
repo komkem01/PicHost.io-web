@@ -1,86 +1,80 @@
 <template>
-  <div class="min-h-screen bg-[#09090b] text-white font-sans selection:bg-blue-500/30 selection:text-blue-200">
-    <!-- Hero Glows -->
-    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-blue-600/[0.07] rounded-full blur-[140px]"></div>
-    </div>
-
-    <!-- Header Navigation -->
+  <div class="min-h-screen bg-[#FAFAFA] text-zinc-900 font-sans">
     <!-- Main Content -->
     <main class="max-w-3xl mx-auto px-6 py-16">
       <div class="text-center mb-12">
-        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400 uppercase tracking-widest mb-4">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 uppercase tracking-widest mb-4">
           {{ $t('contact.title') }}
         </span>
-        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 mb-3">
           {{ $t('contact.title') }}
         </h1>
-        <p class="text-white/45 text-sm sm:text-base">
+        <p class="text-zinc-500 text-sm sm:text-base">
           {{ $t('contact.subtitle') }}
         </p>
       </div>
 
       <!-- Contact Form Card -->
-      <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-8 shadow-2xl backdrop-blur-xl relative">
+      <div class="rounded-2xl border border-zinc-200 bg-white p-8 shadow-card relative">
         <form v-if="!submitted" @submit.prevent="handleSubmit" class="space-y-5">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label for="name" class="block text-xs font-medium text-white/50 mb-1.5">{{ $t('contact.name') }}</label>
+              <label for="name" class="block text-xs font-medium text-zinc-700 mb-1.5">{{ $t('contact.name') }}</label>
               <input
                 id="name"
                 v-model="form.name"
                 type="text"
                 required
                 placeholder="Alex Smith"
-                class="w-full bg-white/[0.05] border border-white/[0.09] focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/20 outline-none"
+                class="w-full bg-white border border-zinc-200 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-colors"
               />
             </div>
             <div>
-              <label for="email" class="block text-xs font-medium text-white/50 mb-1.5">{{ $t('contact.email') }}</label>
+              <label for="email" class="block text-xs font-medium text-zinc-700 mb-1.5">{{ $t('contact.email') }}</label>
               <input
                 id="email"
                 v-model="form.email"
                 type="email"
                 required
                 placeholder="you@example.com"
-                class="w-full bg-white/[0.05] border border-white/[0.09] focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/20 outline-none"
+                class="w-full bg-white border border-zinc-200 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label for="subject" class="block text-xs font-medium text-white/50 mb-1.5">{{ $t('contact.subject') }}</label>
+            <label for="subject" class="block text-xs font-medium text-zinc-700 mb-1.5">{{ $t('contact.subject') }}</label>
             <input
               id="subject"
               v-model="form.subject"
               type="text"
               required
-              class="w-full bg-white/[0.05] border border-white/[0.09] focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-sm text-white outline-none"
+              class="w-full bg-white border border-zinc-200 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm text-zinc-900 outline-none transition-colors"
             />
           </div>
 
           <div>
-            <label for="message" class="block text-xs font-medium text-white/50 mb-1.5">{{ $t('contact.message') }}</label>
+            <label for="message" class="block text-xs font-medium text-zinc-700 mb-1.5">{{ $t('contact.message') }}</label>
             <textarea
               id="message"
               v-model="form.message"
               rows="5"
               required
-              class="w-full bg-white/[0.05] border border-white/[0.09] focus:border-blue-500/50 rounded-xl px-4 py-2.5 text-sm text-white outline-none"
+              class="w-full bg-white border border-zinc-200 focus:border-zinc-400 rounded-xl px-4 py-2.5 text-sm text-zinc-900 outline-none transition-colors"
             ></textarea>
           </div>
 
           <button
             type="submit"
             :disabled="loading"
-            class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold text-sm shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            class="w-full py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-sm shadow-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {{ loading ? $t('common.loading') : $t('contact.submitBtn') }}
           </button>
         </form>
 
         <div v-else class="text-center py-10 space-y-4">
-          <h2 class="text-2xl font-bold text-white">{{ $t('contact.successMsg') }}</h2>
+          <h2 class="text-2xl font-bold text-zinc-900">{{ $t('contact.successMsg') }}</h2>
         </div>
       </div>
     </main>

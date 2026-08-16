@@ -1,19 +1,13 @@
 <template>
-  <div class="min-h-screen bg-[#09090b] text-white font-sans selection:bg-blue-500/30 selection:text-blue-200">
-    <!-- Hero Glows -->
-    <div class="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-      <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-600/[0.08] rounded-full blur-[140px]"></div>
-      <div class="absolute top-[40%] right-[-5%] w-[400px] h-[400px] bg-cyan-600/[0.05] rounded-full blur-[120px]"></div>
-    </div>
-
+  <div class="min-h-screen bg-[#FAFAFA] text-zinc-900 font-sans">
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-16">
       <!-- Title section -->
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-semibold text-blue-400 uppercase tracking-widest mb-4">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-700 uppercase tracking-widest mb-4">
           {{ $t('pricing.title') }}
         </span>
-        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-zinc-900 mb-4">
           {{ $t('pricing.subtitle') }}
         </h1>
       </div>
@@ -24,28 +18,28 @@
           v-for="plan in displayPlans"
           :key="plan.key"
           :class="[
-            'relative rounded-2xl border p-8 flex flex-col justify-between backdrop-blur-xl transition-all',
+            'relative rounded-2xl border p-8 flex flex-col justify-between transition-all',
             plan.highlighted
-              ? 'border-2 border-blue-500/50 bg-blue-500/[0.04] shadow-2xl shadow-blue-500/10'
-              : 'border-white/[0.08] bg-white/[0.02]'
+              ? 'border-2 border-zinc-900 bg-white shadow-elevated'
+              : 'border-zinc-200 bg-white shadow-card'
           ]"
         >
-          <div v-if="plan.badge" class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-[11px] font-bold uppercase tracking-wider text-white">
+          <div v-if="plan.badge" class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-zinc-900 text-[11px] font-bold uppercase tracking-wider text-white shadow-xs">
             {{ plan.badge }}
           </div>
           <div>
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xl font-bold text-white">{{ plan.name }}</h3>
+              <h3 class="text-xl font-bold text-zinc-900">{{ plan.name }}</h3>
             </div>
             <div class="flex items-baseline gap-1 mb-6">
-              <span class="text-4xl font-extrabold text-white">{{ plan.price }}</span>
-              <span v-if="plan.period" class="text-white/40 text-sm">{{ plan.period }}</span>
+              <span class="text-4xl font-extrabold text-zinc-900">{{ plan.price }}</span>
+              <span v-if="plan.period" class="text-zinc-400 text-sm">{{ plan.period }}</span>
             </div>
-            <p class="text-xs text-white/50 mb-6">{{ plan.desc }}</p>
+            <p class="text-xs text-zinc-500 mb-6">{{ plan.desc }}</p>
 
-            <div class="space-y-3 text-xs text-white/80 border-t border-white/[0.08] pt-6 mb-8">
+            <div class="space-y-3 text-xs text-zinc-600 border-t border-zinc-100 pt-6 mb-8">
               <div v-for="feat in plan.features" :key="feat" class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                <svg class="w-4 h-4 text-zinc-900 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                 <span>{{ feat }}</span>
               </div>
             </div>
@@ -54,10 +48,10 @@
           <NuxtLink
             :to="plan.cta.href"
             :class="[
-              'w-full py-3 rounded-xl text-center font-semibold text-sm transition-all',
+              'w-full py-3 rounded-xl text-center font-semibold text-sm transition-all cursor-pointer',
               plan.highlighted
-                ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg shadow-blue-600/25'
-                : 'border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] text-white'
+                ? 'bg-zinc-900 hover:bg-zinc-800 text-white shadow-xs'
+                : 'border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 hover:text-zinc-900'
             ]"
           >
             {{ plan.cta.label }}
@@ -200,15 +194,16 @@ const displayPlans = computed<DisplayPlan[]>(() => {
 })
 
 useSeoMeta({
-  title: 'Pricing — PicHost.io Image Hosting',
+  title: computed(() => locale.value === 'th' ? 'ราคาและแพ็กเกจ - PicHost.io' : 'Pricing & Plans - PicHost.io'),
   description: 'Compare PicHost.io free and paid plans. Get up to 100 GB storage, watermark removal, and API access.',
-  ogTitle: 'Pricing — PicHost.io Image Hosting',
+  ogTitle: computed(() => locale.value === 'th' ? 'ราคาและแพ็กเกจ - PicHost.io' : 'Pricing & Plans - PicHost.io'),
   ogDescription: 'Compare PicHost.io free and paid plans. Get up to 100 GB storage, watermark removal, and API access.',
   ogImage: `${SITE_URL}/og-image.png`,
   twitterCard: 'summary_large_image',
 })
 
 useHead({
+  title: computed(() => locale.value === 'th' ? 'ราคาและแพ็กเกจ - PicHost.io' : 'Pricing & Plans - PicHost.io'),
   htmlAttrs: {
     lang: computed(() => locale.value)
   },
