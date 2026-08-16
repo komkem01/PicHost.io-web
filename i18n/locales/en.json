@@ -125,7 +125,8 @@
     "profile": {
       "name": "Name / Display Name",
       "email": "Email Address",
-      "saveBtn": "Save Changes"
+      "saveBtn": "Save Changes",
+      "emailAlreadyExistsError": "This email address is already in use by another account."
     },
     "security": {
       "changePassword": "Change Password",
@@ -222,7 +223,13 @@
       "proceedSlipBtn": "Proceed to Upload Slip",
       "securePayment": "100% Secure Payment with SSL Encryption",
       "instantActivation": "Instant account activation upon payment verification",
-      "benefitsTitle": "What's included in this plan:"
+      "benefitsTitle": "What's included in this plan:",
+      "verifyNoticeTitle": "Your email isn't verified yet",
+      "verifyNoticeDesc": "You can still pay now — your plan will activate automatically as soon as you verify your email. Didn't get the email? Check your Spam / Junk folder.",
+      "verifyNoticeResendBtn": "Resend Verification Email",
+      "verifyNoticeResendingBtn": "Sending…",
+      "verifyNoticeCooldownBtn": "Retry in {seconds}s",
+      "openPaymentConflictMsg": "You already have an open payment for this plan. Redirecting you to it…"
     },
     "slip": {
       "title": "Submit Payment Proof",
@@ -270,6 +277,16 @@
       "timeRemaining": "Time remaining:",
       "paidTitle": "Payment successful",
       "paidDesc": "Your plan is upgraded and available immediately.",
+      "awaitingVerificationTitle": "Payment approved — awaiting email verification",
+      "awaitingVerificationDesc": "We've received your payment. Your plan will activate automatically as soon as you verify your email address.",
+      "awaitingVerificationBadge": "AWAITING VERIFICATION",
+      "stepUpgradeAwaitingVerification": "Awaiting email verification",
+      "resendBtn": "Resend Verification Email",
+      "resendingBtn": "Sending…",
+      "resendCooldownBtn": "Retry in {seconds}s",
+      "resendSuccessMsg": "Verification email sent! Please check your inbox or spam/junk folder.",
+      "resendErrorMsg": "Failed to resend verification email",
+      "activatedToastMsg": "Payment confirmed. Your plan was upgraded.",
       "failedTitle": "Payment was not approved",
       "failedDesc": "Please submit a new payment with the correct transfer details.",
       "rejectReason": "Reason:",

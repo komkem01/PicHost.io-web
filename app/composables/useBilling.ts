@@ -19,9 +19,36 @@ export interface PaymentTransaction {
   reviewed_at: string | null
   expires_at: string
   paid_at: string | null
+  /** Set once the approved payment has actually been applied to the user's plan. */
+  activated_at: string | null
+  /** Derived by the API: `status === 'paid' && !activated_at`. */
+  awaiting_verification: boolean
   metadata: Record<string, unknown>
   created_at: string
   updated_at: string
+}
+
+/**
+ * Thrown by `createCheckout` when the backend reports (HTTP 409) that the
+ * user already has an open transaction (pending, or paid-but-unactivated).
+ * `paymentId` lets the caller route straight to the existing payment.
+ */
+export class OpenPaymentConflictError extends Error {
+  status = 409 as const
+  paymentId: string | null
+
+  constructor(message: string, paymentId: string | null) {
+    super(message)
+    this.name = 'OpenPaymentConflictError'
+    this.paymentId = paymentId
+  }
+}
+
+/** True when a payment was approved but is still waiting on email verification to activate. */
+export function isAwaitingVerification(payment: Pick<PaymentTransaction, 'status' | 'activated_at' | 'awaiting_verification'> | null | undefined): boolean {
+  if (!payment) return false
+  if (typeof payment.awaiting_verification === 'boolean') return payment.awaiting_verification
+  return payment.status === 'paid' && !payment.activated_at
 }
 
 export interface BankInfo {
@@ -50,15 +77,29 @@ export function useBilling() {
   }
 
   async function createCheckout(planKey: string, provider = 'manual'): Promise<PaymentTransaction> {
-    const res = await $fetch<ApiResponse<PaymentTransaction>>(
-      `${config.public.apiBase}/billing/checkout`,
-      {
-        method: 'POST',
-        headers: authHeaders(),
-        body: { plan_key: planKey, provider },
-      },
-    )
-    return res.data
+    try {
+      const res = await $fetch<ApiResponse<PaymentTransaction>>(
+        `${config.public.apiBase}/billing/checkout`,
+        {
+          method: 'POST',
+          headers: authHeaders(),
+          body: { plan_key: planKey, provider },
+        },
+      )
+      return res.data
+    } catch (err: any) {
+      const status = err?.status ?? err?.statusCode ?? err?.response?.status
+      if (status === 409) {
+        const errData = err?.data?.data ?? err?.data ?? {}
+        const paymentId =
+          errData.payment_id ?? errData.paymentId ?? errData.id ?? null
+        throw new OpenPaymentConflictError(
+          err?.data?.message || 'You already have an open payment for this plan.',
+          paymentId ? String(paymentId) : null,
+        )
+      }
+      throw err
+    }
   }
 
   async function getPayment(id: string): Promise<PaymentTransaction> {

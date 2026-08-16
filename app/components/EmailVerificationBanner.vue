@@ -56,7 +56,7 @@ const successMsg = ref('')
 const errorMsg = ref('')
 let timer: ReturnType<typeof setInterval> | null = null
 
-const showBanner = computed(() => false)
+const showBanner = computed(() => !!(user.value && !user.value.is_guest && !user.value.email_verified_at))
 
 async function handleResend() {
   if (loading.value || cooldown.value > 0) return
