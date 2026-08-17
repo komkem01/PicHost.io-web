@@ -82,7 +82,7 @@ async function _doRefresh(): Promise<boolean> {
     const status = err?.status ?? err?.response?.status
     if (status === 401) {
       if (import.meta.client) localStorage.removeItem('access_token')
-      const cookie = useCookie('access_token')
+      const cookie = useCookie<string | null>('access_token', { path: '/' })
       cookie.value = null
       user.value = null
     }
@@ -101,7 +101,7 @@ export function useAuth() {
         return val
       }
     }
-    const cookie = useCookie<string | null>('access_token')
+    const cookie = useCookie<string | null>('access_token', { path: '/' })
     return cookie.value || null
   }
 
@@ -117,9 +117,14 @@ export function useAuth() {
   }
 
   function clearToken() {
-    const cookie = useCookie<string | null>('access_token')
+    const cookie = useCookie<string | null>('access_token', { path: '/' })
     cookie.value = null
-    if (import.meta.client) localStorage.removeItem('access_token')
+    if (import.meta.client) {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('token')
+      document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+      document.cookie = 'pichost_refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    }
   }
 
   async function fetchMe(): Promise<AuthUser | null> {

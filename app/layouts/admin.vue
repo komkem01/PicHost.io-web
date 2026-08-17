@@ -45,7 +45,7 @@
       </nav>
 
       <!-- Footer -->
-      <div class="px-3 pb-4 pt-3 border-t border-zinc-200 space-y-1">
+      <div class="px-3 pb-4 pt-3 border-t border-zinc-200 space-y-1.5">
         <div v-if="user" class="flex items-center gap-2.5 px-3 py-2 mt-1 rounded-xl bg-zinc-50 border border-zinc-200">
           <div class="w-7 h-7 rounded-full bg-zinc-900 flex items-center justify-center text-[11px] font-bold text-white shrink-0">
             {{ (user.username ?? user.email ?? 'A').charAt(0).toUpperCase() }}
@@ -55,6 +55,18 @@
             <p class="text-[10.5px] text-zinc-500 truncate">{{ user.email }}</p>
           </div>
         </div>
+
+        <button
+          @click="openLogoutModal()"
+          class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-[12.5px] font-medium text-red-600 hover:text-red-700 hover:bg-red-50/80 transition-all duration-150 cursor-pointer group"
+        >
+          <span class="w-7 h-7 shrink-0 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center text-red-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+            </svg>
+          </span>
+          <span>{{ $t('nav.logout') }}</span>
+        </button>
       </div>
     </aside>
 
@@ -65,13 +77,23 @@
         <div class="flex items-center gap-3">
           <h1 class="text-[14px] font-semibold text-zinc-900">{{ pageTitle }}</h1>
         </div>
-        <div class="flex items-center gap-4 text-[12px] text-zinc-500">
+        <div class="flex items-center gap-3 text-[12px] text-zinc-500">
           <span class="hidden sm:flex items-center gap-1.5 text-zinc-600 font-medium">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
             System online
           </span>
           <AppNotificationBell />
           <LanguageSwitcher />
+          <button
+            @click="openLogoutModal()"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12.5px] font-medium text-red-600 hover:text-red-700 bg-red-50/80 hover:bg-red-100/80 border border-red-200/60 transition-all shadow-2xs cursor-pointer group ml-1"
+            :title="$t('nav.logout')"
+          >
+            <svg class="w-3.5 h-3.5 text-red-500 group-hover:text-red-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            <span>{{ $t('nav.logout') }}</span>
+          </button>
         </div>
       </header>
 
@@ -86,6 +108,7 @@
 const route = useRoute()
 const { user } = useAuth()
 const { t, locale } = useI18n()
+const { open: openLogoutModal } = useLogoutModal()
 
 useHead({
   htmlAttrs: {
